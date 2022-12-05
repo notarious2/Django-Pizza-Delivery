@@ -1,12 +1,31 @@
 {% extends "store/base.html" %} {% block content %}
-<div class="mt-20 relative">
-  <h1 class="text-2xl">List of Pizzas</h1>
-  {% for pizza in pizzas %}
-  <h2>{{pizza.id}}</h2>
-  <div><img src="{{ pizza.image.url }}" alt="" /></div>
-  <p>{{pizza.name}}</p>
-  <p>{{pizza.price}}</p>
-  <p>{{pizza.desc}}</p>
-  {% endfor %}
+<div>
+  <h1 class="text-2xl text-center font-bold mb-3">List of Pizzas</h1>
+  <div class="grid grid-cols-3 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5">
+    {% for pizza in pizzas %}
+    <div
+      class="flex flex-col m-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700"
+    >
+      <img
+        class="w-60 h-auto rounded-t-lg block mx-auto"
+        src="{{ pizza.image.url }}"
+        alt=""
+      />
+      <h5
+        class="mb-2 text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+      >
+        {{pizza.name}}
+      </h5>
+      <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 text-center">
+        {{pizza.desc}}
+      </p>
+      <button
+        class="bg-green-200 items-center mt-auto p-3 hover:text-green-700"
+      >
+        Add to cart
+      </button>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}
