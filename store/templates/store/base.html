@@ -1,0 +1,45 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'store/src/styles.css' %}" />
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+  </head>
+  <body class="m-0 p-0 bg-white">
+    <nav class="p-5 bg-dimly-blue flex">
+      <div class="flex justify-between items-center">
+        <span class="text-2xl font-[Poppins] cursor-pointer">
+          <img
+            class="h-10 inline"
+            src="{% static 'store/images/pizza.png' %}"
+          />
+          Crispy Pizza
+        </span>
+      </div>
+      <ul class="flex ml-auto items-center">
+        <li class="text-xl mx-4 hover:text-cyan-500 duration-500"><a href="">HOME</a></li>
+        <li class="text-xl mx-4 hover:text-cyan-500 duration-500"><a href="">MENU</a></li>
+        <li class="text-xl mx-4 hover:text-cyan-500 duration-500"><a href="">CONTACT</a></li>
+      </ul>
+     
+
+      
+        <h2 class=""></h2>
+      </ul>
+    </nav>
+
+    {% block content %} {% endblock %}
+  </body>
+</html>
