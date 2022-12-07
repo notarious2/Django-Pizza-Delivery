@@ -1,53 +1,67 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from .models import Product
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic import TemplateView
 from django.urls import reverse_lazy, reverse
 from .forms import UserRegisterForm
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import user_passes_test
 
 # Create your views here.
 
 
 def index(request):
-    return HttpResponse("<h1>Hello, this is the main page</h1>")
+    return render(request, 'store/index.html')
 
+@user_passes_test(lambda user: user.is_superuser, login_url="store:products")
 def dashboard(request):
-    if request.user.is_superuser:
-        products = Product.objects.all()
-        context = { 'products': products }
-        return render(request, 'store/dashboard.html', context)
-    return redirect('store:products')
-
+    """ using function-based view for dashboard as it promptly
+    updates context data """
+    products = Product.objects.all()
+    context = { 'products': products }
+    return render(request, 'store/dashboard.html', context)
+    
 def products(request):
     products = Product.objects.all()
     context = {'products': products}
     return render(request, 'store/products.html', context=context)
 
 
-class ProductCreateView(UserPassesTestMixin, CreateView):
-    """ Class-based view for creating a produc
-    it checks whether user is staff, then allows accessing the form 'product_form.html'
-    if user is not a staff, then it redirects to the products page
+class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
+    """A custom mixin that checks if user is both logged in and superuser, then allows accessing the template
+    if user is not a supersuer, then it redirects to the products page
     """
+    def test_func(self):
+        return self.request.user.is_superuser
+    
+    def handle_no_permission(self):
+        return redirect('store:products')
+
+
+class ProductCreateView(SuperUserRequiredMixin, CreateView):
     model = Product
     fields = ['name','price','desc','image','product_type']
     
-    # redirects to the products page after adding a product
+    # redirects to the dashboard 
     def get_success_url(self):
-        return reverse_lazy('store:products')
+        return reverse_lazy('store:dashboard')
 
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-    def handle_no_permission(self):
-        return redirect('store:login')
+class ProductUpdateView(SuperUserRequiredMixin, UpdateView):
+    model = Product
+    fields = ['name','price','desc','image','product_type']
+    template_name_suffix = '_update_form'
+    
+    # redirects to the dashboard
+    def get_success_url(self):
+        return reverse_lazy('store:dashboard')
+    
+    
+class ProductDeleteView(DeleteView):
+    model = Product
+    success_url = reverse_lazy('store:dashboard')
 
 
 # Authentication related

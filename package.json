@@ -30,6 +30,7 @@
     "fast-glob": "^3.2.12",
     "fastq": "^1.14.0",
     "fill-range": "^7.0.1",
+    "flowbite": "^1.5.4",
     "function-bind": "^1.1.1",
     "glob-parent": "^6.0.2",
     "has": "^1.0.3",

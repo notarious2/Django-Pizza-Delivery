@@ -30,7 +30,7 @@
           </span>
         </a>
       </div>
-      <h2>{{user.is_superuser}}</h2>
+      <h2>{{user.is_superuser}} {{user.username}}</h2>
       <ul class="flex ml-auto items-center">
         {% if user.is_superuser %}
         <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
@@ -61,5 +61,6 @@
     </nav>
 
     {% block content %} {% endblock %}
+    <script src="https://unpkg.com/flowbite@1.5.4/dist/flowbite.js"></script>
   </body>
 </html>

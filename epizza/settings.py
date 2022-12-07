@@ -136,3 +136,4 @@ STATIC_URL = 'static/'
 #     BASE_DIR / "static",
 # ]
 LOGIN_REDIRECT_URL ='store:products'
+
