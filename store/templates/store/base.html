@@ -57,6 +57,20 @@
           <a href="{% url 'users:login' %}">Log In</a>
         </li>
         {% endif %}
+        <li>
+          <a href="{% url 'order:cart' %}">
+            <img
+              class="h-6"
+              src="{% static 'store/images/cart.png' %}"
+              alt="cart"
+            />
+          </a>
+        </li>
+        <li class="p-2">
+          <div class="bg-blue-600 rounded-lg px-2">
+            <p class="text-xl text-white">{{cart_quantity}}</p>
+          </div>
+        </li>
       </ul>
     </nav>
 

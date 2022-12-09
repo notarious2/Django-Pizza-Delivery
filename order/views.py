@@ -8,7 +8,6 @@ from .models import OrderItem, Order
 def cart(request):
     customer_order = Order.objects.filter(
         customer=request.user, complete=False)
-
     customer_items = OrderItem.objects.filter(
         order_id__in=customer_order)
 

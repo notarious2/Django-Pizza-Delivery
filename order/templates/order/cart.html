@@ -1,3 +1,7 @@
+{% extends 'store/base.html' %} {% block content %} {% if not items %}
+<h2>Cart is empty</h2>
+{% else %}
+
 <h1>This is your cart {{request.user}}</h1>
 
 <h2>This is your order</h2>
@@ -9,9 +13,7 @@
   <p>Total price: ${{order.get_cart_total}}</p>
 </div>
 {% endfor %}
-
 <hr />
-
 {% for item in items%}
 
 <h2>
@@ -19,4 +21,4 @@
   ${{item.get_total}}
 </h2>
 
-{% endfor %}
+{% endfor %} {% endif %} {% endblock %}

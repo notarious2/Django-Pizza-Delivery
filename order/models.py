@@ -8,7 +8,7 @@ from store.models import Product
 
 class Order(models.Model):
     customer = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, blank=True)
+        User, on_delete=models.CASCADE)
 
     date_ordered = models.DateTimeField(auto_now_add=True)
     complete = models.BooleanField(default=False)
@@ -40,7 +40,7 @@ class OrderItem(models.Model):
     """
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(
-        Order, on_delete=models.SET_NULL, null=True, blank=True)
+        Order, on_delete=models.CASCADE, null=True, blank=True)
     quantity = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
