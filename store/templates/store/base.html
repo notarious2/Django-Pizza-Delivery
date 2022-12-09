@@ -50,11 +50,11 @@
         </li>
         {% if user.is_authenticated %}
         <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
-          <a href="{% url 'store:logout' %}">Log Out</a>
+          <a href="{% url 'users:logout' %}">Log Out</a>
         </li>
         {% else %}
         <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
-          <a href="{% url 'store:login' %}">Log In</a>
+          <a href="{% url 'users:login' %}">Log In</a>
         </li>
         {% endif %}
       </ul>

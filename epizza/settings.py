@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'store.apps.StoreConfig',
+    'users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -135,5 +136,4 @@ STATIC_URL = 'static/'
 # STATICFILES_DIRS = [
 #     BASE_DIR / "static",
 # ]
-LOGIN_REDIRECT_URL ='store:products'
-
+LOGIN_REDIRECT_URL = 'store:products'
