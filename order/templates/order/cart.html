@@ -1,0 +1,22 @@
+<h1>This is your cart {{request.user}}</h1>
+
+<h2>This is your order</h2>
+{% for order in orders%}
+<div>
+  <h3>Order {{order.transaction_id}} details</h3>
+  <p>#Date: {{order.date_ordered}}</p>
+  <p># items ordered: {{order.get_cart_items}}</p>
+  <p>Total price: ${{order.get_cart_total}}</p>
+</div>
+{% endfor %}
+
+<hr />
+
+{% for item in items%}
+
+<h2>
+  {{item.product.name}} quantity: {{item.quantity}} total price:
+  ${{item.get_total}}
+</h2>
+
+{% endfor %}

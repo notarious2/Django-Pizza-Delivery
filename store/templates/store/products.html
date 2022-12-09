@@ -19,11 +19,12 @@
       <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 text-center">
         {{product.desc}}
       </p>
-      <button
-        class="bg-green-200 items-center mt-auto p-3 hover:text-green-700"
+      <a
+        href="{% url 'order:add_to_cart' product.id %}"
+        class="bg-green-200 text-center items-center mt-auto p-3 hover:text-green-700"
       >
         Add to cart
-      </button>
+      </a>
     </div>
     {% endfor %}
   </div>
