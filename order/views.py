@@ -11,7 +11,9 @@ def cart(request):
     customer_items = OrderItem.objects.filter(
         order_id__in=customer_order)
 
-    context = {"orders": customer_order, "items": customer_items}
+    # any not completed order is supposed to be a cart (session)
+    customer_order = customer_order[0]
+    context = {"order": customer_order, "items": customer_items}
 
     return render(request, 'order/cart.html', context)
 
