@@ -61,32 +61,55 @@
           </div>
           <div class="flex flex-col justify-between ml-4 flex-grow">
             <span class="font-bold text-sm">{{ item.product.name|title }}</span>
-            <span class="text-red-500 text-xs">Small</span>
-            <a
-              href="#"
-              class="font-semibold hover:text-red-500 text-gray-500 text-xs"
-              >Remove</a
+            <span class="text-green-500 text-xs">Small</span>
+            <form
+              action="{% url 'order:remove-from-cart' item.product.id %}"
+              method="post"
             >
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="font-semibold hover:text-red-500 text-gray-500 text-xs"
+              >
+                Remove
+              </button>
+            </form>
           </div>
         </div>
-        <div class="flex justify-center w-1/5">
-          <svg class="fill-current text-gray-600 w-3" viewBox="0 0 448 512">
-            <path
-              d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-            />
-          </svg>
-
+        <div
+          class="flex justify-center items-center w-1/5 individual-container"
+        >
+          <form
+            action="{% url 'order:reduce-product-quantity' item.product.pk %}"
+            method="post"
+          >
+            {% csrf_token %}
+            <button type="submit">
+              <svg class="fill-current text-gray-600 w-3" viewBox="0 0 448 512">
+                <path
+                  d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
+              </svg>
+            </button>
+          </form>
           <input
             class="mx-2 border text-center w-12"
             type="text"
             value="{{item.quantity}}"
           />
-
-          <svg class="fill-current text-gray-600 w-3" viewBox="0 0 448 512">
-            <path
-              d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-            />
-          </svg>
+          <form
+            action="{% url 'order:add_to_cart' item.product.pk %}"
+            method="post"
+          >
+            {% csrf_token %}
+            <button type="submit">
+              <svg class="fill-current text-gray-600 w-3" viewBox="0 0 448 512">
+                <path
+                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
+              </svg>
+            </button>
+          </form>
         </div>
         <span class="text-center w-1/5 font-semibold text-sm"
           >${{item.product.price|floatformat:2}}</span

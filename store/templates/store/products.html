@@ -19,12 +19,14 @@
       <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 text-center">
         {{product.desc}}
       </p>
-      <a
-        href="{% url 'order:add_to_cart' product.id %}"
-        class="bg-green-200 text-center items-center mt-auto p-3 hover:text-green-700"
+      <form
+        action="{% url 'order:add_to_cart' product.id %}"
+        method="post"
+        class="bg-green-200 w-full text-center items-center mt-auto p-3 hover:text-green-700"
       >
-        Add to cart
-      </a>
+        {% csrf_token %}
+        <button type="submit">Add to cart</button>
+      </form>
     </div>
     {% endfor %}
   </div>
