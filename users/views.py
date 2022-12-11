@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import UserRegisterForm
+from .forms import UserRegisterForm, CustomLoginForm
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponseRedirect
@@ -17,7 +17,9 @@ class SignUpView(CreateView):
 class MyLoginView(LoginView):
     success_url = reverse_lazy('store:products')
     template_name = 'users/login.html'
+    form_class = CustomLoginForm
 
+    # redirect unauthenticated user to the products page
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return HttpResponseRedirect(reverse('store:products'))

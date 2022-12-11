@@ -1,9 +1,40 @@
 {% extends 'store/base.html' %} {% block content %}
 
-<h1>Login Page</h1>
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <input type="submit" value="Login" />
-</form>
+<div class="w-screen h-screen flex justify-center items-center">
+  <form
+    class="p-10 bg-white rounded-xl drop-shadow-lg space-y-5"
+    action=""
+    method="post"
+  >
+    {% csrf_token %}
+    <h1 class="text-center text-3xl">Sign In</h1>
+    <div class="flex flex-col space-y-2 mx-5">
+      <label class="text-sm font-light" for="email">Username</label>
+      {{form.username}}
+    </div>
+    <div class="flex flex-col space-y-2 mx-5">
+      <label class="text-sm font-light" for="password">Password</label>
+      {{form.password}}
+    </div>
+
+    <button
+      class="w-4/5 block mx-auto px-10 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 hover:drop-shadow-md duration-300 ease-in"
+      type="submit"
+    >
+      Sign In
+    </button>
+
+    <p class="text-right">
+      <a
+        class="text-blue-600 text-sm font-light hover:underline"
+        href="{% url 'users:register' %}"
+        >Don't have an account?</a
+      >
+    </p>
+    {% if form.errors %}
+    <p class="text-red-500 text-center">Invalid username or password</p>
+    {% endif %}
+  </form>
+</div>
 
 {% endblock %}

@@ -8,105 +8,52 @@
     <title>Document</title>
     <link rel="stylesheet" href="{% static 'store/src/styles.css' %}" />
   </head>
-  <body class="bg-green-200">
-    <h1 class="text-green-700">Index Page</h1>
-    <div class="bg-purple-200 m-10 p-10 text-white">wtf</div>
-
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Document</title>
-      <style>
-        #summary {
-          background-color: #f6f6f6;
-        }
-      </style>
-    </head>
-
-    <div class="container mx-auto mt-10">
-      <div class="flex shadow-md my-10">
-        <div class="w-full bg-white px-10 py-10">
-          <div class="flex justify-between border-b pb-8">
-            <h1 class="font-semibold text-2xl">Shopping Cart</h1>
-            <h2 class="font-semibold text-2xl">3 Items</h2>
-          </div>
-          <div class="flex mt-10 mb-5">
-            <h3 class="font-semibold text-gray-600 text-xs uppercase w-2/5">
-              Product Details
-            </h3>
-            <h3
-              class="font-semibold text-center text-gray-600 text-xs uppercase w-1/5 text-center"
-            >
-              Quantity
-            </h3>
-            <h3
-              class="font-semibold text-center text-gray-600 text-xs uppercase w-1/5 text-center"
-            >
-              Price
-            </h3>
-            <h3
-              class="font-semibold text-center text-gray-600 text-xs uppercase w-1/5 text-center"
-            >
-              Total
-            </h3>
-          </div>
-          <div class="flex items-center hover:bg-gray-100 -mx-8 px-6 py-5">
-            <div class="flex w-2/5">
-              <!-- product -->
-              <div class="w-20">
-                <img
-                  class="h-24"
-                  src="https://drive.google.com/uc?id=18KkAVkGFvaGNqPy2DIvTqmUH_nk39o3z"
-                  alt=""
-                />
-              </div>
-              <div class="flex flex-col justify-between ml-4 flex-grow">
-                <span class="font-bold text-sm">Iphone 6S</span>
-                <span class="text-red-500 text-xs">Apple</span>
-                <a
-                  href="#"
-                  class="font-semibold hover:text-red-500 text-gray-500 text-xs"
-                  >Remove</a
-                >
-              </div>
-            </div>
-            <div class="flex justify-center w-1/5">
-              <svg class="fill-current text-gray-600 w-3" viewBox="0 0 448 512">
-                <path
-                  d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                />
-              </svg>
-
-              <input
-                class="mx-2 border text-center w-12"
-                type="text"
-                value="2"
-              />
-
-              <svg class="fill-current text-gray-600 w-3" viewBox="0 0 448 512">
-                <path
-                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
-                />
-              </svg>
-            </div>
-            <span class="text-center w-1/5 font-semibold text-sm">$400.00</span>
-            <span class="text-center w-1/5 font-semibold text-sm">$400.00</span>
-          </div>
-
-          <a href="#" class="flex font-semibold text-indigo-600 text-sm mt-10">
-            <svg
-              class="fill-current mr-2 text-indigo-600 w-4"
-              viewBox="0 0 448 512"
-            >
-              <path
-                d="M134.059 296H436c6.627 0 12-5.373 12-12v-56c0-6.627-5.373-12-12-12H134.059v-46.059c0-21.382-25.851-32.09-40.971-16.971L7.029 239.029c-9.373 9.373-9.373 24.569 0 33.941l86.059 86.059c15.119 15.119 40.971 4.411 40.971-16.971V296z"
-              />
-            </svg>
-            Continue Shopping
-          </a>
+  <body>
+    <div class="w-screen h-screen flex justify-center items-center">
+      <form class="p-10 bg-white rounded-xl drop-shadow-lg space-y-5" action="">
+        <h1 class="text-center text-3xl">Kinda Code</h1>
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-light" for="email">Email</label>
+          <input
+            class="w-96 px-3 py-2 rounded-md border border-slate-400"
+            type="email"
+            placeholder="Your Email"
+            name="email"
+            id="email"
+          />
         </div>
-      </div>
-    </div>
+        <div class="flex flex-col space-y-2">
+          <label class="text-sm font-light" for="password">Password</label>
+          <input
+            class="w-96 px-3 py-2 rounded-md border border-slate-400"
+            type="password"
+            placeholder="Your Password"
+            name="password"
+            id="password"
+          />
+        </div>
 
-    <!-- <script src="https://unpkg.com/flowbite@1.5.4/dist/flowbite.js"></script> -->
+        <div>
+          <input type="checkbox" name="remember" id="remember" />
+          <label class="text-sm font-light" for="remember">Remember me</label>
+        </div>
+
+        <button
+          class="w-full px-10 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 hover:drop-shadow-md duration-300 ease-in"
+          type="submit"
+        >
+          Sign In
+        </button>
+
+        <p class="text-right">
+          <a
+            class="text-blue-600 text-sm font-light hover:underline"
+            href="https://www.kindacode.com"
+            >Forget Password?</a
+          >
+        </p>
+      </form>
+    </div>
+  </body>
+  <!-- <script src="https://unpkg.com/flowbite@1.5.4/dist/flowbite.js"></script> -->
 </html>
