@@ -11,14 +11,20 @@ from django.views.decorators.http import require_POST
 def cart(request):
     customer_order = Order.objects.filter(
         customer=request.user, complete=False)
-    customer_items = OrderItem.objects.filter(
-        order_id__in=customer_order)
+    # in case user visits cart directly  without adding any item
+    if customer_order.exists():
+        customer_items = OrderItem.objects.filter(
+            order_id__in=customer_order)
+        customer_order = customer_order[0]
+    else:
+        customer_order, customer_items = None, None
 
     # any not completed order is supposed to be a cart (session)
-    customer_order = customer_order[0]
+
     context = {"order": customer_order, "items": customer_items}
 
     return render(request, 'order/cart.html', context)
+
 
 @require_POST
 def add_to_cart(request, pk):
@@ -38,6 +44,8 @@ def add_to_cart(request, pk):
 
     # redirects to the same page
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 @require_POST
 def remove_from_cart(request, pk):
     """
@@ -50,10 +58,12 @@ def remove_from_cart(request, pk):
     if order_qs.exists():
         print("order exists")
         order = order_qs[0]
-        order_item =  OrderItem.objects.filter(order=order, product=product)
+        order_item = OrderItem.objects.filter(order=order, product=product)
         order_item.delete()
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 @require_POST
 def reduce_product_quantity(request, pk):
     """
@@ -63,12 +73,12 @@ def reduce_product_quantity(request, pk):
     product = get_object_or_404(Product, pk=pk)
     # order query set
     order_qs = Order.objects.filter(
-        customer= request.user, complete=False)
+        customer=request.user, complete=False)
     if order_qs.exists():
         order = order_qs[0]
-        order_item =  OrderItem.objects.filter(order=order, product=product)[0]
+        order_item = OrderItem.objects.filter(order=order, product=product)[0]
         if order_item.quantity > 1:
-            order_item.quantity-=1
+            order_item.quantity -= 1
             order_item.save()
         else:
             order_item.delete()

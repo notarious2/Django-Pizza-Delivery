@@ -11,6 +11,7 @@ class Order(models.Model):
         User, on_delete=models.CASCADE)
 
     date_ordered = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     complete = models.BooleanField(default=False)
     transaction_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
@@ -44,8 +45,8 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.quantity} of {self.product.name} #transaction: {self.order.transaction_id}"
+    # def __str__(self):
+    #     return f"{self.quantity} of {self.product.name} #transaction: {self.order.transaction_id}"
 
     # Calculates total based on the quantity of items per individual product
     @property
