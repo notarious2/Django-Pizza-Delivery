@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404, redirect
 from store.models import Product
+from users.models import Customer
 from .models import OrderItem, Order
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -9,8 +10,16 @@ from django.views.decorators.http import require_POST
 
 
 def cart(request):
+    # checking if current user is authenticated/customer, if not customer will be created based on device id
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer, created = Customer.objects.get_or_create(
+            device=request.COOKIES['device'])
+
     customer_order = Order.objects.filter(
-        customer=request.user, complete=False)
+        customer=customer, complete=False)
+
     # in case user visits cart directly  without adding any item
     if customer_order.exists():
         customer_items = OrderItem.objects.filter(
@@ -31,10 +40,19 @@ def add_to_cart(request, pk):
     """
     adding one item to cart, if cart is empty order and order
     item will be created
+    if user is not registered, device id from the cookies is used
     """
     product = get_object_or_404(Product, pk=pk)
+
+    # checking if current user is authenticated/customer, if not customer will be created based on device id
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer, created = Customer.objects.get_or_create(
+            device=request.COOKIES['device'])
+
     order, created = Order.objects.get_or_create(
-        customer=request.user, complete=False)
+        customer=customer, complete=False)
     order_item, created = OrderItem.objects.get_or_create(
         order=order,
         product=product
@@ -52,9 +70,16 @@ def remove_from_cart(request, pk):
     removing product from the cart
     """
     product = get_object_or_404(Product, pk=pk)
+    # checking if current user is authenticated/customer, if not customer will be created based on device id
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer, created = Customer.objects.get_or_create(
+            device=request.COOKIES['device'])
+
     # order query set
     order_qs = Order.objects.filter(
-        customer=request.user, complete=False)
+        customer=customer, complete=False)
     if order_qs.exists():
         print("order exists")
         order = order_qs[0]
@@ -71,9 +96,17 @@ def reduce_product_quantity(request, pk):
     if quantity becomes negative whole OrderItem gets deleted
     """
     product = get_object_or_404(Product, pk=pk)
+
+    # checking if current user is authenticated/customer, if not customer will be created based on device id
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer, created = Customer.objects.get_or_create(
+            device=request.COOKIES['device'])
+
     # order query set
     order_qs = Order.objects.filter(
-        customer=request.user, complete=False)
+        customer=customer, complete=False)
     if order_qs.exists():
         order = order_qs[0]
         order_item = OrderItem.objects.filter(order=order, product=product)[0]

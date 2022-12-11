@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from users.models import Customer
 import uuid
 from store.models import Product
 
@@ -8,7 +8,7 @@ from store.models import Product
 
 class Order(models.Model):
     customer = models.ForeignKey(
-        User, on_delete=models.CASCADE)
+        Customer, on_delete=models.CASCADE)
 
     date_ordered = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -17,7 +17,7 @@ class Order(models.Model):
         primary_key=True, default=uuid.uuid4, editable=False)
 
     def __str__(self):
-        return f"{self.transaction_id} by {self.customer.username}"
+        return f"{self.transaction_id} by {self.customer}"
 
     @property
     def get_cart_total(self):
