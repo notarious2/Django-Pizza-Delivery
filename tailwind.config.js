@@ -3,6 +3,7 @@ module.exports = {
   content: [
     "store/templates/store/*.{html,js}",
     "./node_modules/flowbite/**/*.js",
+    "order/templates/order/*.{html,js}",
   ],
   theme: {
     extend: {

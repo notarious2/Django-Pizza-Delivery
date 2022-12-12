@@ -1,8 +1,9 @@
 {% extends "store/base.html" %} {% block content %} {% load static %}
 
+<!-- Search Button Start -->
 <div class="flex">
   <div class="ml-auto mr-2 my-2">
-    <form method="GET" class="flex bg-gray-100 rounded-lg" id="search-box">
+    <form method="GET" class="flex bg-green-200 rounded-lg" id="search-box">
       <input
         class="border-none outline-none bg-transparent focus:ring-0"
         type="text"
@@ -21,6 +22,8 @@
     </form>
   </div>
 </div>
+<!-- Search Button End -->
+
 <div>
   <h1 class="text-2xl text-center font-bold mb-3">List of Pizzas</h1>
   <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5">

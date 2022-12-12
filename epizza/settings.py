@@ -134,7 +134,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Make static files like tailwind css work
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # STATICFILES_DIRS = [
 #     BASE_DIR / "static",
 # ]

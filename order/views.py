@@ -116,3 +116,7 @@ def reduce_product_quantity(request, pk):
         else:
             order_item.delete()
     return redirect("order:cart")
+
+
+def checkout(request):
+    return render(request, 'order/checkout.html')
