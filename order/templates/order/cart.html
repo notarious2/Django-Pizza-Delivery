@@ -134,11 +134,12 @@
       </div>
       {% endfor %}
       <div class="mt-5">
-        <button
+        <a
+          href="{% url 'order:checkout' %}"
           class="bg-indigo-500 font-semibold hover:bg-indigo-600 py-3 text-sm text-white uppercase w-1/3 flex items-center justify-center ml-auto"
         >
           Checkout
-        </button>
+        </a>
       </div>
     </div>
   </div>

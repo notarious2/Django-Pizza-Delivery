@@ -4,7 +4,7 @@
     Checkout Page
   </h1>
 </div>
-<div class="flex justify-between mx-3 mb-5 bg-gray-200 rounded-xl">
+<div class="flex justify-between mx-3 mb-5 bg-transparent rounded-xl">
   <div class="p-3 m-3 bg-white w-3/5 rounded-xl">
     <!-- Contact Info -->
     <div class="p-2">
@@ -122,31 +122,29 @@
   <div class="flex flex-col p-3 m-3 bg-gray-50 w-2/5 rounded-xl">
     <div>
       <h2 class="font-bold mb-5 text-2xl text-center">Order Summary</h2>
-      <div class="flex flex-col shadow-xl p-2 rounded-xl">
+      <div class="flex justify-between mx-6 my-3">
+        <p>Cart (<strong>{{order.get_cart_items}}</strong>)</p>
+        <p class="text-blue-700"><a href="{% url 'order:cart' %}">Edit</a></p>
+      </div>
+      <!-- Order Items -->
+
+      <div class="flex flex-col shadow-xl p-2 rounded-xl bg-white">
+        {%for item in order_items%}
         <div class="flex gap-3 items-center mx-3 mb-2">
           <img
             class="w-14 rounded-lg"
-            src="{% static 'store/images/pizza3.jpg' %}"
+            src="{{item.product.image.url}}"
             alt=""
           />
           <div>
-            <h3 class="text-slate-500 text-xl">Pizza Dos</h3>
-            <p>Size: Small Price: $20 Qty: 2</p>
+            <h3 class="text-slate-500 text-xl">{{item.product.name}}</h3>
+            <p>
+              Size: Small Price: ${{item.product.price}} Qty: {{item.quantity}}
+            </p>
           </div>
-          <p class="ml-auto font-bold text-xl">$40</p>
+          <p class="ml-auto font-bold text-xl">${{item.get_total}}</p>
         </div>
-        <div class="flex gap-3 items-center mx-3 mb-2">
-          <img
-            class="w-14 rounded-lg"
-            src="{% static 'store/images/pizza3.jpg' %}"
-            alt=""
-          />
-          <div>
-            <h3 class="text-slate-500 text-xl">Pizza Dos</h3>
-            <p>Size: Small Price: $20 Qty: 2</p>
-          </div>
-          <p class="ml-auto font-bold text-xl">$40</p>
-        </div>
+        {% endfor %}
       </div>
     </div>
     <!-- Start Promo Code -->
@@ -164,10 +162,10 @@
     </div>
     <!-- End Promo Code -->
 
-    <div class="mt-5 py-5 shadow-xl rounded-xl">
+    <div class="mt-5 py-5 shadow-xl rounded-xl bg-white">
       <div class="flex justify-between m-3 p-3">
         <p>Subtotal</p>
-        <p>$80</p>
+        <p>${{order.get_cart_total}}</p>
       </div>
       <div class="flex justify-between m-3 p-3">
         <p>Delivery</p>
@@ -176,7 +174,7 @@
       <hr />
       <div class="flex justify-between m-3 p-3 font-bold text-xl">
         <p>Total</p>
-        <p>$80</p>
+        <p>${{order.get_cart_total}}</p>
       </div>
     </div>
   </div>

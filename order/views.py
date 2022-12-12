@@ -119,4 +119,22 @@ def reduce_product_quantity(request, pk):
 
 
 def checkout(request):
-    return render(request, 'order/checkout.html')
+    # checking if current user is authenticated/customer, if not customer will be created based on device id
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer, created = Customer.objects.get_or_create(
+            device=request.COOKIES['device'])
+    # order query set
+    order_qs = Order.objects.filter(
+        customer=customer, complete=False)
+    # if order exists, get all order items
+    if order_qs.exists():
+        order = order_qs[0]
+        order_items = OrderItem.objects.filter(order=order)
+        print("Order Items", order_items)
+        for item in order_items:
+            print("PRODUCT NAME", item.product.name)
+        print("TOTAL Q", order.get_cart_items)
+        context = {"order": order, "order_items": order_items}
+    return render(request, 'order/checkout.html', context=context)
