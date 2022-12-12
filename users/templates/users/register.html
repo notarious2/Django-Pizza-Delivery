@@ -1,9 +1,50 @@
 {% extends 'store/base.html' %} {% block content %}
 
-<h1>Registration Page</h1>
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <input type="submit" value="Register" />
-</form>
+<div class="my-10 flex justify-center items-center">
+  <form
+    class="p-10 bg-white rounded-xl drop-shadow-lg space-y-2"
+    action=""
+    method="post"
+  >
+    {% csrf_token %}
+    <h1 class="text-center text-3xl">Register</h1>
+    <div class="flex flex-col space-y-2 mx-5">
+      <label class="text-sm font-light" for="email">Email:</label>
+      {{form.email}}
+    </div>
+    <div class="flex flex-col space-y-2 mx-5">
+      <label class="text-sm font-light" for="username">Username:</label>
+      {{form.username}}
+    </div>
+    <div class="flex flex-col space-y-2 mx-5">
+      <label class="text-sm font-light" for="password">Password:</label>
+      {{form.password1}}
+    </div>
+    <div class="flex flex-col space-y-2 mx-5">
+      <label class="text-sm font-light" for="password">Confirm Password:</label>
+      {{form.password2}}
+    </div>
+    <button
+      class="w-4/5 block mx-auto px-10 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-500 hover:drop-shadow-md duration-300 ease-in"
+      type="submit"
+    >
+      Register
+    </button>
+
+    <p class="text-right">
+      <a
+        class="text-blue-600 text-sm font-light hover:underline"
+        href="{% url 'users:login' %}"
+        >Already have an account?</a
+      >
+    </p>
+
+    {% if form.errors %} {% for key, value in form.errors.items %}
+    <p class="w-64 text-red-500 text-left">
+      {{value.as_text|cut:"*"|linebreaksbr}}
+    </p>
+    {% endfor %} {% endif %}
+  </form>
+</div>
 
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'store/base.html' %} {% block content %}
 
-<div class="w-screen h-screen flex justify-center items-center">
+<div class="my-10 flex justify-center items-center">
   <form
     class="p-10 bg-white rounded-xl drop-shadow-lg space-y-5"
     action=""
@@ -9,7 +9,7 @@
     {% csrf_token %}
     <h1 class="text-center text-3xl">Sign In</h1>
     <div class="flex flex-col space-y-2 mx-5">
-      <label class="text-sm font-light" for="email">Username</label>
+      <label class="text-sm font-light" for="username">Username</label>
       {{form.username}}
     </div>
     <div class="flex flex-col space-y-2 mx-5">
