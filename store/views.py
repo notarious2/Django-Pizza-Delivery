@@ -23,7 +23,15 @@ def dashboard(request):
 
 def products(request):
     products = Product.objects.all()
-    context = {'products': products}
+    # get the keywords from the search field to alter products list
+    product_name = request.GET.get('product')
+    if product_name != '' and product_name is not None:
+        products = products.filter(name__icontains=product_name)
+    else:
+        # if no item is searched input value is empty
+        product_name = ""
+    # search_string is used to display input value as searched product
+    context = {'products': products, "search_string": product_name}
     return render(request, 'store/products.html', context=context)
 
 
