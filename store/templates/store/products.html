@@ -32,7 +32,7 @@
       class="flex flex-col m-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700"
     >
       <img
-        class="w-60 h-auto block mx-auto"
+        class="w-full h-full block mx-auto"
         src="{{ product.image.url }}"
         alt=""
       />
@@ -41,9 +41,59 @@
       >
         {{product.name}}
       </h5>
-      <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 text-center">
-        {{product.desc}}
+
+      <p class="mt-auto mb-5 ml-auto font-bold text-green-500">
+        ${{product.price}}
       </p>
+      <!-- Start Choosing Size -->
+      <div>
+        <form action="">
+          <div class="flex m-2 w-1/2">
+            <div class="flex">
+              <input
+                type="radio"
+                name="option"
+                id="small-{{forloop.counter}}"
+                class="peer hidden"
+                checked
+              />
+              <label
+                for="small-{{forloop.counter}}"
+                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-yellow-200 peer-checked:font-bold"
+                >Small
+              </label>
+            </div>
+            <div class="flex">
+              <input
+                type="radio"
+                name="option"
+                id="medium-{{forloop.counter}}"
+                class="peer hidden"
+              />
+              <label
+                for="medium-{{forloop.counter}}"
+                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-orange-300 peer-checked:font-bold"
+                >Medium</label
+              >
+            </div>
+            <div class="flex">
+              <input
+                type="radio"
+                name="option"
+                id="large-{{forloop.counter}}"
+                class="peer hidden"
+              />
+              <label
+                for="large-{{forloop.counter}}"
+                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-green-500 peer-checked:font-bold"
+                >Large</label
+              >
+            </div>
+          </div>
+        </form>
+        <!-- End Choosing Size -->
+      </div>
+
       <form
         action="{% url 'order:add_to_cart' product.id %}"
         method="post"
