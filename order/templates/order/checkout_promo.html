@@ -1,0 +1,13 @@
+<form
+  action="{% url 'order:add-coupon' %}"
+  method="post"
+  class="flex justify-center items-center mt-5 bg-white rounded-lg shadow-xl py-3"
+>
+  {% csrf_token %} {{coupon_form.code}}
+  <button
+    type="submit"
+    class="w-1/5 py-2.5 mx-2 bg-green-600 text-white rounded"
+  >
+    Apply
+  </button>
+</form>

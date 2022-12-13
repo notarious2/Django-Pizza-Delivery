@@ -9,6 +9,9 @@ urlpatterns = [
          views.remove_from_cart, name='remove-from-cart'),
     path('reduce_product_quantity/<uuid:pk>',
          views.reduce_product_quantity, name='reduce-product-quantity'),
-    path('checkout', views.checkout, name="checkout")
+    path('checkout', views.checkout, name="checkout"),
+
+    path('apply_coupon/', views.coupon_apply, name='add-coupon'),
+    path('remove_coupon/', views.coupon_remove, name='remove-coupon')
 
 ]

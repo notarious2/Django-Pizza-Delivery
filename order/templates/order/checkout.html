@@ -1,4 +1,5 @@
 {% extends 'store/base.html' %} {% block content %} {% load static%}
+
 <div class="my-5">
   <h1 class="flex items-center justify-center font-bold text-md lg:text-3xl">
     Checkout Page
@@ -148,25 +149,26 @@
       </div>
     </div>
     <!-- Start Promo Code -->
-    <div
-      class="flex justify-between items-center mt-5 bg-white rounded-lg shadow-xl py-3"
-    >
-      <input
-        class="w-4/5 m-2 rounded focus:ring-0 focus:border-[#c0c0c0] bg-green-100"
-        type="text"
-        placeholder="Enter Promo Code"
-      />
-      <button class="w-1/5 py-2.5 mr-2 bg-green-600 text-white rounded">
-        Apply
-      </button>
-    </div>
+    {% include "order/checkout_promo.html" %}
     <!-- End Promo Code -->
 
     <div class="mt-5 py-5 shadow-xl rounded-xl bg-white">
       <div class="flex justify-between m-3 p-3">
         <p>Subtotal</p>
-        <p>${{order.get_cart_total}}</p>
+        <p>${{order.get_cart_subtotal}}</p>
       </div>
+      {% if order.coupon %}
+      <div class="flex m-3 p-3 text-green-500">
+        <p>COUPON ({{order.coupon.code|upper}})</p>
+        <form action="{% url 'order:remove-coupon' %}" method="post">
+          {% csrf_token %}
+          <button class="ml-2 text-red-600 text-xs" type="submit">
+            remove
+          </button>
+        </form>
+        <p class="ml-auto">-${{order.coupon_value}}</p>
+      </div>
+      {% endif %}
       <div class="flex justify-between m-3 p-3">
         <p>Delivery</p>
         <p>Free</p>

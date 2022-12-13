@@ -1,11 +1,14 @@
-from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404, redirect
 from store.models import Product
 from users.models import Customer
-from .models import OrderItem, Order
+from .models import OrderItem, Order, Coupon
+from .forms import CouponApplyForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.utils import timezone
+from django.contrib import messages
+
 # Create your views here.
 
 
@@ -30,7 +33,10 @@ def cart(request):
 
     # any not completed order is supposed to be a cart (session)
 
-    context = {"order": customer_order, "items": customer_items}
+    context = {
+        "order": customer_order, 
+        "items": customer_items,
+        }
 
     return render(request, 'order/cart.html', context)
 
@@ -131,10 +137,41 @@ def checkout(request):
     # if order exists, get all order items
     if order_qs.exists():
         order = order_qs[0]
-        order_items = OrderItem.objects.filter(order=order)
-        print("Order Items", order_items)
-        for item in order_items:
-            print("PRODUCT NAME", item.product.name)
-        print("TOTAL Q", order.get_cart_items)
-        context = {"order": order, "order_items": order_items}
+        order_items = OrderItem.objects.filter(order=order)        
+        # coupon form
+        coupon_form = CouponApplyForm()
+        context = {"order": order, "order_items": order_items, 'coupon_form': coupon_form,}
     return render(request, 'order/checkout.html', context=context)
+
+@require_POST
+def coupon_apply(request):
+    now = timezone.now()
+    form = CouponApplyForm(request.POST)
+    if form.is_valid():
+        code = form.cleaned_data['code']
+        try:
+            coupon = Coupon.objects.get(code__iexact=code, 
+            valid_from__lte=now, 
+            valid_to__gte=now, 
+            active=True)
+            
+            order = Order.objects.get(
+                    customer=request.user.customer, complete=False)
+            order.coupon = coupon
+            order.save()
+
+        except Coupon.DoesNotExist:
+            print("PROMO CODE DOES NOT EXIST", code)
+    return redirect('order:checkout')
+
+@require_POST
+def coupon_remove(request):
+    """
+    remove coupon from the cart
+    """
+    if request.method == "POST":
+        order = Order.objects.get(
+            customer=request.user.customer, complete=False)
+        order.coupon = None
+        order.save()
+    return redirect('order:checkout')

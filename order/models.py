@@ -2,7 +2,7 @@ from django.db import models
 from users.models import Customer
 import uuid
 from store.models import Product
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 # Create your models here.
 
 
@@ -16,13 +16,26 @@ class Order(models.Model):
     transaction_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=False)
 
+    coupon = models.ForeignKey(
+        'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
+    
+    # dollar value of the coupon
+    coupon_value = models.IntegerField(blank=True, null=True)
+    
     def __str__(self):
         return f"{self.transaction_id} by {self.customer}"
 
     @property
-    def get_cart_total(self):
+    def get_cart_subtotal(self):
         order_items = self.orderitem_set.all()
         total = sum([item.get_total for item in order_items])
+        return total
+    
+    @property
+    def get_cart_total(self):
+        total = self.get_cart_subtotal
+        if self.coupon:
+            total-= total*self.coupon.discount//100
         return total
 
     @property
@@ -30,7 +43,12 @@ class Order(models.Model):
         order_items = self.orderitem_set.all()
         total = sum([item.quantity for item in order_items])
         return total
-
+    
+    def save(self, *args, **kwargs):
+        """Override coupon value if coupon is present"""
+        if self.coupon:
+            self.coupon_value = self.get_cart_subtotal*self.coupon.discount//100
+        super().save(*args, **kwargs)
 
 class OrderItem(models.Model):
     """
@@ -53,3 +71,13 @@ class OrderItem(models.Model):
     def get_total(self):
         total = self.product.price * self.quantity
         return total
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    active = models.BooleanField(default=False) 
+    valid_from = models.DateTimeField()
+    valid_to = models.DateTimeField()
+    discount = models.IntegerField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    
+    def __str__(self):
+        return self.code
