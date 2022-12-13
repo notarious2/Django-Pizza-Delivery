@@ -4,9 +4,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 app_name = 'store'
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.products, name='products'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('products/', views.products, name='products'),
     path('products/add/', views.ProductCreateView.as_view(), name='add_product'),
     path('products/update/<uuid:pk>/',
          views.ProductUpdateView.as_view(), name='update_product'),

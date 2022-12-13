@@ -42,7 +42,7 @@
         <h1 class="font-semibold text-2xl">Shopping Cart</h1>
         <h2 class="font-semibold text-2xl">{{order.get_cart_items}} Items</h2>
         <h2 class="font-semibold text-2xl">
-          Total: ${{order.get_cart_total|floatformat:2}}
+          Total: ${{order.get_cart_subtotal|floatformat:2}}
         </h2>
       </div>
 

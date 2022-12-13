@@ -140,7 +140,8 @@
           <div>
             <h3 class="text-slate-500 text-xl">{{item.product.name}}</h3>
             <p>
-              Size: Small Price: ${{item.product.price}} Qty: {{item.quantity}}
+              Size: Small Price: <strong>${{item.product.price}}</strong> Qty:
+              <strong>{{item.quantity}}</strong>
             </p>
           </div>
           <p class="ml-auto font-bold text-xl">${{item.get_total}}</p>
@@ -166,7 +167,7 @@
             remove
           </button>
         </form>
-        <p class="ml-auto">-${{order.coupon_value}}</p>
+        <p class="ml-auto">-${{order.get_coupon_value}}</p>
       </div>
       {% endif %}
       <div class="flex justify-between m-3 p-3">

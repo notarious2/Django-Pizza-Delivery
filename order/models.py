@@ -19,8 +19,6 @@ class Order(models.Model):
     coupon = models.ForeignKey(
         'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
     
-    # dollar value of the coupon
-    coupon_value = models.IntegerField(blank=True, null=True)
     
     def __str__(self):
         return f"{self.transaction_id} by {self.customer}"
@@ -36,6 +34,8 @@ class Order(models.Model):
         total = self.get_cart_subtotal
         if self.coupon:
             total-= total*self.coupon.discount//100
+            # to recalcuate coupon amount
+            self.coupon_value = self.get_cart_subtotal*self.coupon.discount//100
         return total
 
     @property
@@ -44,11 +44,11 @@ class Order(models.Model):
         total = sum([item.quantity for item in order_items])
         return total
     
-    def save(self, *args, **kwargs):
-        """Override coupon value if coupon is present"""
-        if self.coupon:
-            self.coupon_value = self.get_cart_subtotal*self.coupon.discount//100
-        super().save(*args, **kwargs)
+    @property
+    def get_coupon_value(self):
+        # dollar value of the coupon
+        coupon_value = self.get_cart_subtotal*self.coupon.discount//100
+        return coupon_value
 
 class OrderItem(models.Model):
     """
