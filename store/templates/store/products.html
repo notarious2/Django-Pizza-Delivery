@@ -45,7 +45,9 @@
       <p class="mt-auto mb-5 ml-auto font-bold text-green-500">
         ${{product.price}}
       </p>
+      <p>{% firstof "variable contents" as variable %}</p>
       <!-- Start Choosing Size -->
+      {% if product.has_variants %}
       <div>
         <form action="">
           <div class="flex m-2 w-1/2">
@@ -60,7 +62,7 @@
               <label
                 for="small-{{forloop.counter}}"
                 class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-yellow-200 peer-checked:font-bold"
-                >Small
+                >{{product.get_product_variants.0.size}}
               </label>
             </div>
             <div class="flex">
@@ -73,7 +75,7 @@
               <label
                 for="medium-{{forloop.counter}}"
                 class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-orange-300 peer-checked:font-bold"
-                >Medium</label
+                >{{product.get_product_variants.1.size}}</label
               >
             </div>
             <div class="flex">
@@ -86,13 +88,14 @@
               <label
                 for="large-{{forloop.counter}}"
                 class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-green-500 peer-checked:font-bold"
-                >Large</label
+                >{{product.get_product_variants.2.size}}</label
               >
             </div>
           </div>
         </form>
-        <!-- End Choosing Size -->
       </div>
+      {% endif %}
+      <!-- End Choosing Size -->
 
       <form
         action="{% url 'order:add_to_cart' product.id %}"
