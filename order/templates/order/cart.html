@@ -75,9 +75,11 @@
           </div>
           <div class="flex flex-col justify-between ml-4 flex-grow">
             <span class="font-bold text-sm">{{ item.product.name|title }}</span>
-            <span class="text-green-500 text-xs">Small</span>
+            <span class="text-green-500 text-xs"
+              >{{item.variation.size.name}}</span
+            >
             <form
-              action="{% url 'order:remove-from-cart' item.product.id %}"
+              action="{% url 'order:remove-from-cart' item.id %}"
               method="post"
             >
               {% csrf_token %}
@@ -94,7 +96,7 @@
           class="flex justify-center items-center w-1/5 individual-container"
         >
           <form
-            action="{% url 'order:reduce-product-quantity' item.product.pk %}"
+            action="{% url 'order:reduce-product-quantity' item.pk %}"
             method="post"
           >
             {% csrf_token %}
@@ -112,7 +114,7 @@
             value="{{item.quantity}}"
           />
           <form
-            action="{% url 'order:add_to_cart' item.product.pk %}"
+            action="{% url 'order:increase-product-quantity' item.pk %}"
             method="post"
           >
             {% csrf_token %}
@@ -126,7 +128,7 @@
           </form>
         </div>
         <span class="text-center w-1/5 font-semibold text-sm"
-          >${{item.product.price|floatformat:2}}</span
+          >${{item.variation.price|floatformat:2}}</span
         >
         <span class="text-center w-1/5 font-semibold text-sm"
           >${{item.get_total|floatformat:2}}</span

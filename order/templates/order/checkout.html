@@ -140,7 +140,8 @@
           <div>
             <h3 class="text-slate-500 text-xl">{{item.product.name}}</h3>
             <p>
-              Size: Small Price: <strong>${{item.product.price}}</strong> Qty:
+              Size: <strong>{{item.variation.size.name}}</strong> Price:
+              <strong>${{item.variation.price}}</strong> Qty:
               <strong>{{item.quantity}}</strong>
             </p>
           </div>

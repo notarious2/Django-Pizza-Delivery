@@ -1,7 +1,7 @@
 from django.db import models
 from users.models import Customer
 import uuid
-from store.models import Product
+from store.models import Product, ProductVariant
 from django.core.validators import MinValueValidator, MaxValueValidator
 # Create your models here.
 
@@ -57,9 +57,10 @@ class OrderItem(models.Model):
     as a foreign key in the OrderItem model. Similary, one OrderItem may contain
     multiple products.
     """
-    product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product = models.ForeignKey(Product, on_delete=models.SET_NULL, blank=True, null=True)
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, null=True, blank=True)
+    variation = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL, blank=True, null=True)
     quantity = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
@@ -69,7 +70,7 @@ class OrderItem(models.Model):
     # Calculates total based on the quantity of items per individual product
     @property
     def get_total(self):
-        total = self.product.price * self.quantity
+        total = self.variation.price * self.quantity
         return total
 
 class Coupon(models.Model):
