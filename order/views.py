@@ -58,7 +58,8 @@ def add_to_cart(request, pk):
         size = request.POST.get('size')
         size = Size.objects.get(name = size)
         variation = ProductVariant.objects.get(size=size, product=product) 
-
+    else:
+        variation = None
     # checking if current user is authenticated/customer, if not customer will be created based on device id
     if request.user.is_authenticated:
         customer = request.user.customer

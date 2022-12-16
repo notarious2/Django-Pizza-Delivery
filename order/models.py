@@ -70,7 +70,10 @@ class OrderItem(models.Model):
     # Calculates total based on the quantity of items per individual product
     @property
     def get_total(self):
-        total = self.variation.price * self.quantity
+        if self.product.has_variants:
+            total = self.variation.price * self.quantity
+        else:
+            total = self.product.price * self.quantity
         return total
 
 class Coupon(models.Model):

@@ -12,6 +12,7 @@ class Product(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
+    price = models.PositiveIntegerField(blank=True, null=True)
     desc = models.TextField(max_length=500)
     image = models.ImageField(blank=True, upload_to='images')
     created_at = models.DateField(auto_now_add=True)

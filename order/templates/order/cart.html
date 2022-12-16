@@ -127,9 +127,10 @@
             </button>
           </form>
         </div>
-        <span class="text-center w-1/5 font-semibold text-sm"
-          >${{item.variation.price|floatformat:2}}</span
-        >
+        <h1 class="text-center w-1/5 font-semibold text-sm">
+          ${% firstof item.variation.price item.product.price %}
+        </h1>
+
         <span class="text-center w-1/5 font-semibold text-sm"
           >${{item.get_total|floatformat:2}}</span
         >
