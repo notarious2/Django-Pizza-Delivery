@@ -48,6 +48,8 @@ def add_to_cart(request, pk):
     item will be created
     if user is not registered, device id from the cookies is used
     """
+    print("SIZE", request.POST.get('option'))
+
     product = get_object_or_404(Product, pk=pk)
 
     # checking if current user is authenticated/customer, if not customer will be created based on device id

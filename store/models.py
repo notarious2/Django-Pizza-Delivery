@@ -25,13 +25,6 @@ class Product(models.Model):
     def get_product_variants(self):
         # reverse accessor
         variants = self.productvariant_set.all()
-        variants_dict = {}
-        counter = 0
-        for variant in variants:
-            variants_dict[counter] = str(variant.size)
-            counter += 1
-        print(variants_dict)
-        print("WTF")
         return variants
 
     @property

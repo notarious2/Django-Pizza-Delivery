@@ -41,72 +41,94 @@
       >
         {{product.name}}
       </h5>
-
-      <p class="mt-auto mb-5 ml-auto font-bold text-green-500">
-        ${{product.price}}
-      </p>
-      <p>{% firstof "variable contents" as variable %}</p>
-      <!-- Start Choosing Size -->
-      {% if product.has_variants %}
-      <div>
-        <form action="">
-          <div class="flex m-2 w-1/2">
-            <div class="flex">
-              <input
-                type="radio"
-                name="option"
-                id="small-{{forloop.counter}}"
-                class="peer hidden"
-                checked
-              />
-              <label
-                for="small-{{forloop.counter}}"
-                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-yellow-200 peer-checked:font-bold"
-                >{{product.get_product_variants.0.size}}
-              </label>
-            </div>
-            <div class="flex">
-              <input
-                type="radio"
-                name="option"
-                id="medium-{{forloop.counter}}"
-                class="peer hidden"
-              />
-              <label
-                for="medium-{{forloop.counter}}"
-                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-orange-300 peer-checked:font-bold"
-                >{{product.get_product_variants.1.size}}</label
-              >
-            </div>
-            <div class="flex">
-              <input
-                type="radio"
-                name="option"
-                id="large-{{forloop.counter}}"
-                class="peer hidden"
-              />
-              <label
-                for="large-{{forloop.counter}}"
-                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-green-500 peer-checked:font-bold"
-                >{{product.get_product_variants.2.size}}</label
-              >
-            </div>
-          </div>
-        </form>
+      <div class="flex mx-3">
+        <p
+          class="mt-auto mb-5 ml-auto font-bold text-green-500 prices-{{forloop.counter}} small-{{forloop.counter}}"
+        >
+          ${{product.get_product_variants.0.price}}
+        </p>
+        <p
+          class="mt-auto mb-5 ml-auto font-bold text-green-500 prices-{{forloop.counter}} hidden medium-{{forloop.counter}}"
+        >
+          ${{product.get_product_variants.1.price}}
+        </p>
+        <p
+          class="mt-auto mb-5 ml-auto font-bold text-green-500 prices-{{forloop.counter}} hidden large-{{forloop.counter}}"
+        >
+          ${{product.get_product_variants.2.price}}
+        </p>
       </div>
-      {% endif %}
-      <!-- End Choosing Size -->
 
       <form
         action="{% url 'order:add_to_cart' product.id %}"
         method="post"
-        class="bg-green-200 w-full text-center items-center mt-auto p-3 hover:text-green-700"
+        class="text-center items-center mt-auto p-3"
       >
         {% csrf_token %}
-        <button type="submit">Add to cart</button>
+        <!-- Start Choosing Size -->
+        {% if product.has_variants %}
+        <div class="flex m-2 w-1/2">
+          <div class="flex">
+            <input
+              type="radio"
+              name="option"
+              id="small-{{forloop.counter}}"
+              class="peer hidden"
+              value="{{product.get_product_variants.0.size}}"
+              checked
+            />
+            <label
+              for="small-{{forloop.counter}}"
+              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-yellow-200 peer-checked:font-bold"
+              >{{product.get_product_variants.0.size}}
+            </label>
+          </div>
+          <div class="flex">
+            <input
+              type="radio"
+              name="option"
+              id="medium-{{forloop.counter}}"
+              class="peer hidden"
+              value="{{product.get_product_variants.1.size}}"
+            />
+            <label
+              for="medium-{{forloop.counter}}"
+              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-orange-300 peer-checked:font-bold"
+              >{{product.get_product_variants.1.size}}</label
+            >
+          </div>
+          <div class="flex">
+            <input
+              type="radio"
+              name="option"
+              id="large-{{forloop.counter}}"
+              class="peer hidden"
+              value="{{product.get_product_variants.2.size}}"
+            />
+            <label
+              for="large-{{forloop.counter}}"
+              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-green-500 peer-checked:font-bold"
+              >{{product.get_product_variants.2.size}}</label
+            >
+          </div>
+        </div>
+        {% endif %}
+        <!-- End Choosing Size -->
+        <button class="bg-green-200 w-full hover:text-green-700" type="submit">
+          Add to cart
+        </button>
       </form>
     </div>
     {% endfor %}
   </div>
 </div>
+<script>
+  $("input:radio").change(function () {
+    console.log("Clicked!");
+    var checked_size_id = $(this).attr("id");
+    var product_number = checked_size_id.split("-")[1];
+    $(".prices-" + product_number).hide();
+    $("." + checked_size_id).show();
+  });
+</script>
 {% endblock %}
