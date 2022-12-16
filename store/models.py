@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.safestring import mark_safe
 import uuid
 
 # Create your models here.
@@ -21,6 +22,11 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    # to display image in the admin panel
+    def image_tag(self):
+        return mark_safe(f'<img src="{self.image.url}" width="150" height="150" />')
+    image_tag.short_description = 'Image'
 
     @property
     def get_product_variants(self):
