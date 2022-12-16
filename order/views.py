@@ -31,13 +31,12 @@ def cart(request):
     else:
         customer_order, customer_items = None, None
 
-
     # any not completed order is supposed to be a cart (session)
 
     context = {
-        "order": customer_order, 
+        "order": customer_order,
         "items": customer_items,
-        }
+    }
 
     return render(request, 'order/cart.html', context)
 
@@ -52,12 +51,12 @@ def add_to_cart(request, pk):
     print("SIZE", request.POST.get('size'))
 
     product = get_object_or_404(Product, pk=pk)
-    
+
     # getting product variation
     if product.has_variants:
         size = request.POST.get('size')
-        size = Size.objects.get(name = size)
-        variation = ProductVariant.objects.get(size=size, product=product) 
+        size = Size.objects.get(name=size)
+        variation = ProductVariant.objects.get(size=size, product=product)
     else:
         variation = None
     # checking if current user is authenticated/customer, if not customer will be created based on device id
@@ -66,7 +65,7 @@ def add_to_cart(request, pk):
     else:
         customer, created = Customer.objects.get_or_create(
             device=request.COOKIES['device'])
-    
+
     order, created = Order.objects.get_or_create(
         customer=customer, complete=False)
     order_item, created = OrderItem.objects.get_or_create(
@@ -91,12 +90,13 @@ def remove_from_cart(request, pk):
 
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
 @require_POST
 def increase_product_quantity(request, pk):
     """
     adding +1 item inside the cart
     """
-    
+
     # checking if current user is authenticated/customer, if not customer will be created based on device id
     # if request.user.is_authenticated:
     #     customer = request.user.customer
@@ -137,6 +137,17 @@ def reduce_product_quantity(request, pk):
     return redirect("order:cart")
 
 
+@require_POST
+def change_product_quantity(request):
+    quantity = request.POST.get('quantity')
+    order_item_id = request.POST.get("orderItemId")
+    order_item = get_object_or_404(OrderItem, pk=order_item_id)
+    order_item.quantity = quantity
+    order_item.save()
+    print("You got it", quantity, order_item_id)
+    return redirect("order:cart")
+
+
 def checkout(request):
     # checking if current user is authenticated/customer, if not customer will be created based on device id
     if request.user.is_authenticated:
@@ -150,11 +161,13 @@ def checkout(request):
     # if order exists, get all order items
     if order_qs.exists():
         order = order_qs[0]
-        order_items = OrderItem.objects.filter(order=order)        
+        order_items = OrderItem.objects.filter(order=order)
         # coupon form
         coupon_form = CouponApplyForm()
-        context = {"order": order, "order_items": order_items, 'coupon_form': coupon_form,}
+        context = {"order": order, "order_items": order_items,
+                   'coupon_form': coupon_form, }
     return render(request, 'order/checkout.html', context=context)
+
 
 @require_POST
 def coupon_apply(request):
@@ -163,19 +176,20 @@ def coupon_apply(request):
     if form.is_valid():
         code = form.cleaned_data['code']
         try:
-            coupon = Coupon.objects.get(code__iexact=code, 
-            valid_from__lte=now, 
-            valid_to__gte=now, 
-            active=True)
-            
+            coupon = Coupon.objects.get(code__iexact=code,
+                                        valid_from__lte=now,
+                                        valid_to__gte=now,
+                                        active=True)
+
             order = Order.objects.get(
-                    customer=request.user.customer, complete=False)
+                customer=request.user.customer, complete=False)
             order.coupon = coupon
             order.save()
 
         except Coupon.DoesNotExist:
             print("PROMO CODE DOES NOT EXIST", code)
     return redirect('order:checkout')
+
 
 @require_POST
 def coupon_remove(request):

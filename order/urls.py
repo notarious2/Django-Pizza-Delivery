@@ -11,6 +11,8 @@ urlpatterns = [
          views.increase_product_quantity, name='increase-product-quantity'),
     path('reduce_product_quantity/<int:pk>',
          views.reduce_product_quantity, name='reduce-product-quantity'),
+    path('change_product_quantity/',
+         views.change_product_quantity, name='change-product-quantity'),
     path('checkout', views.checkout, name="checkout"),
 
     path('apply_coupon/', views.coupon_apply, name='add-coupon'),

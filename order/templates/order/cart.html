@@ -109,9 +109,10 @@
             </button>
           </form>
           <input
-            class="mx-2 border text-center w-12"
+            class="quantity mx-2 border text-center w-12"
             type="text"
             value="{{item.quantity}}"
+            id="{{item.pk}}"
           />
           <form
             action="{% url 'order:increase-product-quantity' item.pk %}"
@@ -147,5 +148,22 @@
     </div>
   </div>
 </div>
-
+<script>
+  $(document).on("change", ".quantity", function () {
+    // get inputed quantity
+    var quantity = $(this).val();
+    // get id of the order
+    var orderItemId = this.id;
+    $.ajax({
+      url: "{% url 'order:change-product-quantity' %}",
+      type: "POST",
+      data: {
+        orderItemId: orderItemId,
+        quantity: quantity,
+        csrfmiddlewaretoken: "{{ csrf_token }}",
+      },
+      success: location.reload(),
+    });
+  });
+</script>
 {% endblock %}
