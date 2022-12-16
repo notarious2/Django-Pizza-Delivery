@@ -6,13 +6,27 @@ from .models import Order, OrderItem, Coupon
 # to display specific fields of the model
 
 
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('customer', 'complete', 'date_ordered',
-                    'date_modified', 'transaction_id')
+                    'date_modified', 'get_cart_items', 'get_cart_subtotal',
+                    'get_coupon_value', 'get_cart_total')
+    inlines = [OrderItemInline]
 
 
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = [field.name for field in OrderItem._meta.get_fields()]
+    list_display = ('product', 'quantity', 'get_variation', 'get_total',
+                    'date_added')
+
+    # display attribute of foreign key field in the admin panel
+    @admin.display(description='Title')
+    def get_variation(self, obj):
+        return obj.variation.title
+
+    # list_display = [field.name for field in OrderItem._meta.get_fields()]
 
 
 admin.site.register(Order, OrderAdmin)

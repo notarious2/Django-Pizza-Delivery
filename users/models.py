@@ -11,4 +11,4 @@ class Customer(models.Model):
 
     def __str__(self):
         name = self.name if self.name else self.device
-        return f"{name} {self.email}"
+        return name

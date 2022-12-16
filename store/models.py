@@ -25,7 +25,7 @@ class Product(models.Model):
 
     # to display image in the admin panel
     def image_tag(self):
-        return mark_safe(f'<img src="{self.image.url}" width="150" height="150" />')
+        return mark_safe(f'<img src="{self.image.url}" width="100" height="100" />')
     image_tag.short_description = 'Image'
 
     @property
