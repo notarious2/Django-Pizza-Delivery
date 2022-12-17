@@ -9,6 +9,14 @@ from .models import Order, OrderItem, Coupon
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
 
+# add order inline to the coupon
+
+
+class OrderInline(admin.TabularInline):
+    model = Order
+    # specify fields visible in inline Order field
+    readonly_fields = ('transaction_id',)
+
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('customer', 'complete', 'date_ordered',
@@ -24,11 +32,20 @@ class OrderItemAdmin(admin.ModelAdmin):
     # display attribute of foreign key field in the admin panel
     @admin.display(description='Title')
     def get_variation(self, obj):
-        return obj.variation.title
+        if obj.variation:
+            # display name of variation
+            return obj.variation.title
+        else:
+            # display name of the product
+            return obj.product.name
 
     # list_display = [field.name for field in OrderItem._meta.get_fields()]
 
 
+class CouponAdmin(admin.ModelAdmin):
+    inlines = [OrderInline]
+
+
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
-admin.site.register(Coupon)
+admin.site.register(Coupon, CouponAdmin)

@@ -14,7 +14,7 @@ class Order(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     complete = models.BooleanField(default=False)
     transaction_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=False)
+        primary_key=True, default=uuid.uuid4, editable=True)
 
     coupon = models.ForeignKey(
         'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
@@ -34,9 +34,7 @@ class Order(models.Model):
     def get_cart_total(self):
         total = self.get_cart_subtotal
         if self.coupon:
-            total -= total*self.coupon.discount//100
-            # to recalcuate coupon amount
-            self.coupon_value = self.get_cart_subtotal*self.coupon.discount//100
+            total = total - self.get_coupon_value
         return total
     # display property name as 'Total' in the admin panel's list display
     get_cart_total.fget.short_description = 'Total'
@@ -51,10 +49,15 @@ class Order(models.Model):
 
     @property
     def get_coupon_value(self):
-        # dollar value of the coupon
-        try:
-            coupon_value = self.get_cart_subtotal*self.coupon.discount//100
-        except:
+        # calculate dollar value of the coupon
+        # if discount type Percent
+        if self.coupon:
+            if self.coupon.discount_type == "Percent":
+                coupon_value = self.get_cart_subtotal*self.coupon.discount_amount//100
+            else:
+                coupon_value = self.coupon.discount_amount
+        # if discount type Absolute
+        else:
             coupon_value = None
         return coupon_value
     # display property name as 'Coupon' in the admin panel's list display
@@ -77,8 +80,7 @@ class OrderItem(models.Model):
     quantity = models.IntegerField(default=0, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
-    # def __str__(self):
-    #     return f"{self.quantity} of {self.product.name} #transaction: {self.order.transaction_id}"
+    # no string representation added is it is managed in the admin.py
 
     # Calculates total based on the quantity of items per individual product
     @property
@@ -93,12 +95,17 @@ class OrderItem(models.Model):
 
 
 class Coupon(models.Model):
+    DISCOUNT_CHOICES = (
+        ("Absolute", "Absolute"),
+        ("Percent", "Percent")
+    )
     code = models.CharField(max_length=50, unique=True)
     active = models.BooleanField(default=False)
+    discount_type = models.CharField(
+        max_length=10, choices=DISCOUNT_CHOICES, default="Percent")
+    discount_amount = models.PositiveIntegerField(null=True, blank=True)
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
-    discount = models.IntegerField(
-        validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     def __str__(self):
-        return self.code
+        return f"{self.code} type: {self.discount_type} value: {self.discount_amount}"
