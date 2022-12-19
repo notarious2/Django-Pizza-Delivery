@@ -8,6 +8,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.utils import timezone
 from django.contrib import messages
+import stripe
+from django.conf import settings
+from django.urls import reverse
+from django.views.generic import TemplateView
+from django.views.decorators.csrf import csrf_exempt
+from django.http.response import HttpResponseNotFound, JsonResponse
 
 # Create your views here.
 
@@ -149,6 +155,9 @@ def change_product_quantity(request):
 
 
 def checkout(request):
+    # pass stripe publishable key for checkout session
+    stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY
+
     # checking if current user is authenticated/customer, if not customer will be created based on device id
     if request.user.is_authenticated:
         customer = request.user.customer
@@ -165,7 +174,7 @@ def checkout(request):
         # coupon form
         coupon_form = CouponApplyForm()
         context = {"order": order, "order_items": order_items,
-                   'coupon_form': coupon_form, }
+                   'coupon_form': coupon_form, "stripe_publishable_key": stripe_publishable_key}
     return render(request, 'order/checkout.html', context=context)
 
 
@@ -202,3 +211,67 @@ def coupon_remove(request):
         order.coupon = None
         order.save()
     return redirect('order:checkout')
+
+
+@csrf_exempt
+def create_checkout_session(request, pk):
+    # product = get_object_or_404(Product, pk=id)
+
+    # get order by transaction_id
+    order = get_object_or_404(Order, transaction_id=pk)
+    order_items = OrderItem.objects.filter(order=order)
+
+    if order_items.exists():
+        line_items = []
+        for item in order_items:
+            # show item size in the product name conditional on presence of product variants
+            if item.product.has_variants:
+                product_name = f"{item.product.name} ({item.variation.size})"
+            else:
+                product_name = item.product.name
+            line_items.append(
+                {
+                    'price_data': {
+                        'currency': 'usd',
+                        'product_data': {
+                            'name': product_name,
+                        },
+                        'unit_amount': int(item.get_item_price*100),
+                    },
+                    'quantity': item.quantity,
+                }
+            )
+            print("name:", item.product.name,
+                  "quantity:", item.quantity,
+                  "price:", item.get_item_price,
+                  "total:", item.get_total)
+
+    print(order.coupon)
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    checkout_session = stripe.checkout.Session.create(
+        # customer_email=request.user.email,
+        payment_method_types=['card'],
+        line_items=line_items,
+        mode='payment',
+        success_url=request.build_absolute_uri(
+            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}",
+        cancel_url=request.build_absolute_uri(
+            reverse('order:failed')),
+    )
+    return JsonResponse({'sessionId': checkout_session.id})
+
+
+class PaymentSuccessView(TemplateView):
+    template_name = 'order/payment_success.html'
+
+    def get(self, request, *args, **kwargs):
+        session_id = request.GET.get('session_id')
+        if session_id is None:
+            return HttpResponseNotFound()
+        session = stripe.checkout.Session.retrieve(session_id)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        return render(request, self.template_name)
+
+
+class PaymentFailedView(TemplateView):
+    template_name = 'order/payment_failed.html'

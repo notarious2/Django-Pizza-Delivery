@@ -7,14 +7,14 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Order(models.Model):
+    transaction_id = models.UUIDField(
+        primary_key=True, default=uuid.uuid4, editable=True)
     customer = models.ForeignKey(
         Customer, on_delete=models.CASCADE)
 
     date_ordered = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     complete = models.BooleanField(default=False)
-    transaction_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=True)
 
     coupon = models.ForeignKey(
         'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
@@ -81,6 +81,14 @@ class OrderItem(models.Model):
     date_added = models.DateTimeField(auto_now_add=True)
 
     # no string representation added is it is managed in the admin.py
+
+    # get item price for product with and without variation
+    @property
+    def get_item_price(self):
+        if self.product.has_variants:
+            return self.variation.price
+        else:
+            return self.product.price
 
     # Calculates total based on the quantity of items per individual product
     @property

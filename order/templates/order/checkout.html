@@ -180,8 +180,43 @@
         <p>Total</p>
         <p>${{order.get_cart_total}}</p>
       </div>
+      <!-- Start Payment Button -->
+      <div class="flex mt-5">
+        <button
+          id="checkout"
+          class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 p-3 text-sm text-white uppercase"
+        >
+          Pay
+        </button>
+      </div>
+      <!-- End Payment Button -->
     </div>
   </div>
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+  var stripe = Stripe("{{ stripe_publishable_key }}");
+  var checkoutButton = document.getElementById("checkout");
+  checkoutButton.addEventListener("click", function () {
+    fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
+      method: "POST",
+    })
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (session) {
+        return stripe.redirectToCheckout({ sessionId: session.sessionId });
+      })
+      .then(function (result) {
+        if (result.error) {
+          alert(result.error.message);
+        }
+      })
+      .catch(function (error) {
+        console.error("Error", error);
+      });
+  });
+</script>
 
 {% endblock %}
