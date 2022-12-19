@@ -131,6 +131,33 @@
       {% endfor %}
     </div>
   </div>
+  <!--pagination code starts here-->
+  <div class="flex items-center justify-center my-5">
+    {% if products.has_previous %}
+      <a class="text-sm font-bold items-center inline-flex relative"
+         href="?page=1"><<</a>
+      <a class="text-sm font-bold px-2 items-center inline-flex relative"
+        href="?page={{products.previous_page_number}}"><</a>
+    {% else %}
+    <span class="text-sm items-center inline-flex relative"><<</span>
+    <span class="text-sm px-2 items-center inline-flex relative"><</span>
+
+    {% endif %}
+    <span class="pagination">{{products.number}} of {{products.paginator.num_pages}}</span>
+    {% if products.has_next %}
+    <a class="text-sm font-bold px-2 items-center inline-flex relative"              
+       href="?page={{products.next_page_number}}">></a>
+       <a class="text-sm font-bold items-center inline-flex relative"       
+       href="?page={{products.paginator.num_pages}}">>></a>
+    {% else %}
+    <a class="text-sm px-2 items-center inline-flex relative pointer-events-none cursor-default"              
+       href="#">></a>
+    <a class="text-sm items-center inline-flex relative pointer-events-none cursor-default"       
+       href="#">>></a>
+    {% endif %}
+  </div>
+  <!--pagination code ends here-->
+
   <script>
     $("input:radio").change(function () {
       console.log("Clicked!");

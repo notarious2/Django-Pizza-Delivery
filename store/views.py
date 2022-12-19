@@ -4,6 +4,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import user_passes_test
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -30,8 +31,15 @@ def products(request):
     else:
         # if no item is searched input value is empty
         product_name = ""
+
+    # pagination
+    paginator = Paginator(products, 2)
+    page_number = request.GET.get('page')
+    products = paginator.get_page(page_number)
+
     # search_string is used to display input value as searched product
-    context = {'products': products, "search_string": product_name}
+    context = {'products': products,
+               "search_string": product_name}
     return render(request, 'store/products.html', context=context)
 
 
