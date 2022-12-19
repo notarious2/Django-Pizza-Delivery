@@ -14,6 +14,8 @@ from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.http.response import HttpResponseNotFound, JsonResponse
+import requests
+import json
 
 # Create your views here.
 
@@ -221,6 +223,25 @@ def create_checkout_session(request, pk):
     order = get_object_or_404(Order, transaction_id=pk)
     order_items = OrderItem.objects.filter(order=order)
 
+    # check if order has coupon
+    if order.coupon:
+        # get stripe api id of the coupon
+        stripe_api_id = order.coupon.stripe_api_id
+        if stripe_api_id:
+            # retrieve coupon from stripe
+            get_coupon = requests.get("https://api.stripe.com/v1/promotion_codes/" + stripe_api_id,
+                                      auth=(settings.STRIPE_SECRET_KEY, ""))
+            if get_coupon.status_code == 200:
+                # Use the json module to loadresponse into a dictionary.
+                response_dict = json.loads(get_coupon.text)
+                coupon_id = response_dict["coupon"]["id"]
+            else:
+                coupon_id = None
+        else:
+            coupon_id = None
+    else:
+        coupon_id = None
+
     if order_items.exists():
         line_items = []
         for item in order_items:
@@ -252,6 +273,9 @@ def create_checkout_session(request, pk):
         # customer_email=request.user.email,
         payment_method_types=['card'],
         line_items=line_items,
+        discounts=[{
+            'coupon': coupon_id,
+        }],
         mode='payment',
         success_url=request.build_absolute_uri(
             reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}",
