@@ -152,8 +152,18 @@
     </div>
     <!-- Start Promo Code -->
     {% include "order/checkout_promo.html" %}
-
     <!-- End Promo Code -->
+    <!-- Start Promo Code Message  -->
+    {% for message in messages %}
+    <div class="flex mt-2">
+      {% if message.tags == "success"%}
+      <p class="mx-auto text-green-500 italic">{{ message }}</p>
+      {% elif message.tags == "error"%}
+      <p class="mx-auto text-red-500 italic">{{ message }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+    <!-- Start Promo Code Message  -->
 
     <div class="mt-5 py-5 shadow-xl rounded-xl bg-white">
       <div class="flex justify-between m-3 p-3">
@@ -187,7 +197,7 @@
           id="checkout"
           class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 p-3 text-sm text-white uppercase"
         >
-          Pay
+          Proceed to payment
         </button>
       </div>
       <!-- End Payment Button -->

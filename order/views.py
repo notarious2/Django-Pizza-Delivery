@@ -191,14 +191,33 @@ def coupon_apply(request):
                                         valid_from__lte=now,
                                         valid_to__gte=now,
                                         active=True)
+            # check stripe api id of the coupon
+            stripe_api_id = coupon.stripe_api_id
+            if stripe_api_id:
+                # retrieve coupon from stripe
+                get_coupon = requests.get("https://api.stripe.com/v1/promotion_codes/" + stripe_api_id,
+                                        auth=(settings.STRIPE_SECRET_KEY, ""))
+                if get_coupon.status_code == 200:
+                    # Use the json module to load response into a dictionary.
+                    response_dict = json.loads(get_coupon.text)
+                    coupon_id = response_dict["coupon"]["id"]
+                    # double check coupon ID
+                    if coupon.stripe_coupon_id == coupon_id:
+                        messages.success(request,'Coupon applied') 
+                else:
+                    raise ValueError('Coupon cannot be verified')
+            else:
+                raise ValueError('Coupon cannot be verified')
 
             order = Order.objects.get(
                 customer=request.user.customer, complete=False)
             order.coupon = coupon
             order.save()
-
         except Coupon.DoesNotExist:
-            print("PROMO CODE DOES NOT EXIST", code)
+            messages.error(request,'Promo code does not exist')
+        except ValueError:
+            messages.error(request,'Coupon cannot be verified')
+
     return redirect('order:checkout')
 
 
@@ -221,28 +240,16 @@ def create_checkout_session(request, pk):
 
     # get order by transaction_id
     order = get_object_or_404(Order, transaction_id=pk)
-    order_items = OrderItem.objects.filter(order=order)
 
     # check if order has coupon
     if order.coupon:
-        # get stripe api id of the coupon
-        stripe_api_id = order.coupon.stripe_api_id
-        if stripe_api_id:
-            # retrieve coupon from stripe
-            get_coupon = requests.get("https://api.stripe.com/v1/promotion_codes/" + stripe_api_id,
-                                      auth=(settings.STRIPE_SECRET_KEY, ""))
-            if get_coupon.status_code == 200:
-                # Use the json module to loadresponse into a dictionary.
-                response_dict = json.loads(get_coupon.text)
-                coupon_id = response_dict["coupon"]["id"]
-            else:
-                coupon_id = None
-        else:
-            coupon_id = None
+        coupon_id = order.coupon.stripe_coupon_id
     else:
         coupon_id = None
-
+    
+    order_items = OrderItem.objects.filter(order=order)
     if order_items.exists():
+        # array consisting of products that will be displayed in stripe payment page 
         line_items = []
         for item in order_items:
             # show item size in the product name conditional on presence of product variants
@@ -262,12 +269,7 @@ def create_checkout_session(request, pk):
                     'quantity': item.quantity,
                 }
             )
-            print("name:", item.product.name,
-                  "quantity:", item.quantity,
-                  "price:", item.get_item_price,
-                  "total:", item.get_total)
 
-    print(order.coupon)
     stripe.api_key = settings.STRIPE_SECRET_KEY
     checkout_session = stripe.checkout.Session.create(
         # customer_email=request.user.email,
