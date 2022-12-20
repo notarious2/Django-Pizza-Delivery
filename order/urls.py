@@ -20,6 +20,8 @@ urlpatterns = [
     path('checkout/success/', views.PaymentSuccessView.as_view(), name='success'),
     path('checkout/failed/', views.PaymentFailedView.as_view(), name='failed'),
     path('api/checkout-session/<uuid:pk>',
-         views.create_checkout_session, name='api_checkout_session')
+         views.create_checkout_session, name='api_checkout_session'),
+
+    path('checkout/validate_address/', views.validate_address, name="validate_address") 
 
 ]

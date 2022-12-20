@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from store.models import Product, ProductVariant, Size
 from users.models import Customer
 from .models import OrderItem, Order, Coupon
-from .forms import CouponApplyForm
+from .forms import CouponApplyForm, AddressForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -13,7 +13,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
-from django.http.response import HttpResponseNotFound, JsonResponse
+from django.http.response import HttpResponseNotFound, JsonResponse, HttpResponse
 import requests
 import json
 
@@ -156,29 +156,6 @@ def change_product_quantity(request):
     return redirect("order:cart")
 
 
-def checkout(request):
-    # pass stripe publishable key for checkout session
-    stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY
-
-    # checking if current user is authenticated/customer, if not customer will be created based on device id
-    if request.user.is_authenticated:
-        customer = request.user.customer
-    else:
-        customer, created = Customer.objects.get_or_create(
-            device=request.COOKIES['device'])
-    # order query set
-    order_qs = Order.objects.filter(
-        customer=customer, complete=False)
-    # if order exists, get all order items
-    if order_qs.exists():
-        order = order_qs[0]
-        order_items = OrderItem.objects.filter(order=order)
-        # coupon form
-        coupon_form = CouponApplyForm()
-        context = {"order": order, "order_items": order_items,
-                   'coupon_form': coupon_form, "stripe_publishable_key": stripe_publishable_key}
-    return render(request, 'order/checkout.html', context=context)
-
 
 @require_POST
 def coupon_apply(request):
@@ -233,13 +210,63 @@ def coupon_remove(request):
         order.save()
     return redirect('order:checkout')
 
+def checkout(request):
+    # pass stripe publishable key for checkout session
+    stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY
+
+    # checking if current user is authenticated/customer, if not customer will be created based on device id
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer, created = Customer.objects.get_or_create(
+            device=request.COOKIES['device'])
+    # order query set
+    order_qs = Order.objects.filter(
+        customer=customer, complete=False)
+    # if order exists, get all order items
+    if order_qs.exists():
+        order = order_qs[0]
+        order_items = OrderItem.objects.filter(order=order)
+        # coupon form
+        coupon_form = CouponApplyForm()
+        address_form = AddressForm(request.POST)
+        if address_form.is_valid():
+            print("ADDRESS IS VALID")
+        
+        context = {"order": order, "order_items": order_items,
+                "coupon_form": coupon_form,
+                "address_form": address_form,
+                "stripe_publishable_key": stripe_publishable_key}
+    return render(request, 'order/checkout.html', context=context)
+
+@csrf_exempt
+def validate_address(request):
+    if request.method == "POST":
+        print(dir(request))
+        print(request.POST)
+        print("YES THIS IS POST REQUEST")
+    
+    form = AddressForm(request.POST)
+    if form.is_valid():
+        print("FORM IS VALID!!!!!!!!!")
+        return redirect('order:checkout')
+    else:
+        print("FORM IS INVALID")
+        return redirect('order:checkout')
+        return HttpResponse(status=422)
 
 @csrf_exempt
 def create_checkout_session(request, pk):
-    # product = get_object_or_404(Product, pk=id)
-
     # get order by transaction_id
     order = get_object_or_404(Order, transaction_id=pk)
+    if request.method=="POST":
+        print("YES THIS IS A POST REQUEST")
+        address_form = AddressForm(request.POST)
+        if address_form.is_valid():
+            print("Yeah adddress is valid")
+        else:
+            print("not valid")
+            print(request.POST)
 
     # check if order has coupon
     if order.coupon:

@@ -21,103 +21,129 @@
       </div>
     </div>
     <!-- Shipping Info -->
-    <div class="p-2">
-      <h2 class="font-bold mb-5 text-2xl">Shipping Information</h2>
-      <div class="flex flex-col">
-        <div class="flex justify-between mb-2">
-          <div class="flex flex-col w-1/2 mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="first-name"
-              >First Name</label
+    <form
+      id="address-form"
+      action="{% url 'order:api_checkout_session' order.transaction_id %}"
+      method="POST"
+    >
+      {% csrf_token %}
+      <div class="p-2">
+        <h2 class="font-bold mb-5 text-2xl">Shipping Information</h2>
+        <div class="flex flex-col">
+          <div class="flex justify-between mb-2">
+            <div class="flex flex-col w-1/2 mb-2">
+              <label class="mb-2 font-bold text-slate-500" for="first-name"
+                >First Name</label
+              >
+              <input
+                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
+                type="text"
+                name="first-name"
+              />
+              {{address_form.first_name}}
+            </div>
+            <div class="flex flex-col w-1/2 ml-2">
+              <label class="mb-2 font-bold text-slate-500" for="last-name"
+                >Last Name</label
+              >
+              <input
+                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
+                type="text"
+                name="last-name"
+              />
+              {{address_form.last_name}}
+            </div>
+          </div>
+          <div class="flex flex-col w-full mb-2">
+            <label class="mb-2 font-bold text-slate-500" for="address-1"
+              >Address</label
             >
             <input
               class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
               type="text"
-              name="first-name"
+              name="address-1"
             />
+            {{address_form.address_1}}
           </div>
-          <div class="flex flex-col w-1/2 ml-2">
-            <label class="mb-2 font-bold text-slate-500" for="last-name"
-              >Last Name</label
+          <div class="flex flex-col w-full mb-2">
+            <label class="mb-2 font-bold text-slate-500" for="address-2"
+              >Apartment, suite, etc.</label
             >
             <input
               class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
               type="text"
-              name="last-name"
+              name="address-2"
             />
+            {{address_form.address_2}}
           </div>
-        </div>
-        <div class="flex flex-col w-full mb-2">
-          <label class="mb-2 font-bold text-slate-500" for="address-1"
-            >Address</label
-          >
-          <input
-            class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-            type="text"
-            name="address-1"
-          />
-        </div>
-        <div class="flex flex-col w-full mb-2">
-          <label class="mb-2 font-bold text-slate-500" for="address-2"
-            >Apartment, suite, etc.</label
-          >
-          <input
-            class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-            type="text"
-            name="address-2"
-          />
-        </div>
-        <div class="flex justify-between mb-2">
-          <div class="flex flex-col w-1/2 mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="city">City</label>
-            <input
-              class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-              type="text"
-              name="city"
-            />
+          <div class="flex justify-between mb-2">
+            <div class="flex flex-col w-1/2 mb-2">
+              <label class="mb-2 font-bold text-slate-500" for="city"
+                >City</label
+              >
+              <input
+                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
+                type="text"
+                name="city"
+              />
+              {{address_form.city}}
+            </div>
+            <div class="flex flex-col w-1/2 ml-2">
+              <label class="mb-2 font-bold text-slate-500" for="country"
+                >Country</label
+              >
+              <input
+                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
+                type="text"
+                name="country"
+              />
+              {{address_form.country}}
+            </div>
           </div>
-          <div class="flex flex-col w-1/2 ml-2">
-            <label class="mb-2 font-bold text-slate-500" for="country"
-              >Country</label
+          <div class="flex justify-between mb-2">
+            <div class="flex flex-col w-1/2 mb-2">
+              <label class="mb-2 font-bold text-slate-500" for="state"
+                >State / Provice</label
+              >
+              <input
+                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
+                type="text"
+                name="state"
+              />
+              {{address_form.state}}
+            </div>
+            <div class="flex flex-col w-1/2 ml-2">
+              <label class="mb-2 font-bold text-slate-500" for="postal"
+                >Postal Code</label
+              >
+              <input
+                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
+                type="text"
+                name="postal"
+              />
+              {{address_form.postal_code}}
+            </div>
+          </div>
+          <div class="flex flex-col w-2/3 mb-2">
+            <label class="mb-2 font-bold text-slate-500" for="phone"
+              >Phone</label
             >
             <input
               class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
               type="text"
-              name="country"
+              name="phone"
             />
           </div>
-        </div>
-        <div class="flex justify-between mb-2">
-          <div class="flex flex-col w-1/2 mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="state"
-              >State / Provice</label
-            >
-            <input
-              class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-              type="text"
-              name="state"
-            />
-          </div>
-          <div class="flex flex-col w-1/2 ml-2">
-            <label class="mb-2 font-bold text-slate-500" for="postal"
-              >Postal Code</label
-            >
-            <input
-              class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-              type="text"
-              name="postal"
-            />
-          </div>
-        </div>
-        <div class="flex flex-col w-2/3 mb-2">
-          <label class="mb-2 font-bold text-slate-500" for="phone">Phone</label>
-          <input
-            class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-            type="text"
-            name="phone"
-          />
         </div>
       </div>
-    </div>
+      <div class="flex">
+        <button
+          class="w-1/3 text-center mx-auto px-5 py-2 rounded-lg bg-green-500 font-semibold text-sm text-white uppercase"
+        >
+          SAVE
+        </button>
+      </div>
+    </form>
   </div>
   <!-- Order Summary -->
   <div class="flex flex-col p-3 m-3 bg-gray-50 w-2/5 rounded-xl">
@@ -130,7 +156,7 @@
       <!-- Order Items -->
 
       <div class="flex flex-col shadow-xl p-2 rounded-xl bg-white">
-        {%for item in order_items%}
+        {% for item in order_items %}
         <div class="flex gap-3 items-center mx-3 mb-2">
           <img
             class="w-14 rounded-lg"
@@ -208,8 +234,11 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
   var stripe = Stripe("{{ stripe_publishable_key }}");
-  var checkoutButton = document.getElementById("checkout");
-  checkoutButton.addEventListener("click", function () {
+
+  var checkoutForm = document.getElementById("address-form");
+  checkoutForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    console.log("SUBMITTED!");
     fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
       method: "POST",
     })
@@ -228,6 +257,45 @@
         console.error("Error", error);
       });
   });
+
+  // var checkoutButton = document.getElementById("checkout");
+  // checkoutButton.addEventListener("click", (event) => {
+  //   event.preventDefault();
+  // document.getElementById("address-form").submit();
+
+  // fetch("{% url 'order:validate_address' %}", {
+  //   method: "POST",
+  //   body: JSON.stringify({ name: "Bekzod", phone: "123124" }),
+  // })
+  //   .then((response) => {
+  //     if (response.ok) {
+  //       console.log("RESPONSE IS OK");
+  //     } else {
+  //       console.log("RESPONSE", response);
+  //     }
+  //   })
+  //   .catch((error) => {
+  //     console.log(error);
+  //   });
+
+  //   fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
+  //     method: "POST",
+  //   })
+  //     .then(function (response) {
+  //       return response.json();
+  //     })
+  //     .then(function (session) {
+  //       return stripe.redirectToCheckout({ sessionId: session.sessionId });
+  //     })
+  //     .then(function (result) {
+  //       if (result.error) {
+  //         alert(result.error.message);
+  //       }
+  //     })
+  //     .catch(function (error) {
+  //       console.error("Error", error);
+  //     });
+  // });
 </script>
 
 {% endblock %}

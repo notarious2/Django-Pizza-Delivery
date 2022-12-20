@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, OrderItem, Coupon
+from .models import Order, OrderItem, Coupon, ShippingAddress
 
 # Register your models here.
 
@@ -46,6 +46,7 @@ class CouponAdmin(admin.ModelAdmin):
     inlines = [OrderInline]
 
 
+admin.site.register(ShippingAddress)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(Coupon, CouponAdmin)
