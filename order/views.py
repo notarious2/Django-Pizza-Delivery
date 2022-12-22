@@ -255,7 +255,18 @@ def create_checkout_session(request, pk):
             return JsonResponse({'status': "Ok"})
         except Exception as e:
             print(e)
-            return HttpResponse(status=422)
+            for key, value in e:
+                validation_error = key.upper() + " " + value[0]
+                messages.add_message(
+                    request, 50, validation_error, extra_tags="validation")
+            result = {
+                "status": "error",
+                "errors": "this are errors"
+            }
+            print('request', request.headers)
+            return JsonResponse(result, status=422)
+            # return HttpResponse(status=422)
+            # return HttpResponseRedirect(request.path_info)
 
     # check if order has coupon
     if order.coupon:

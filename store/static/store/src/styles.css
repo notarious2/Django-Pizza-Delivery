@@ -1187,6 +1187,14 @@ input:checked + .toggle-bg {
   margin-left: 0.5rem;
 }
 
+.ml-5 {
+  margin-left: 1.25rem;
+}
+
+.ml-10 {
+  margin-left: 2.5rem;
+}
+
 .block {
   display: block;
 }
