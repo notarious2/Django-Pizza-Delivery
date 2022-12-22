@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from store.models import Product, ProductVariant, Size
 from users.models import Customer
-from .models import OrderItem, Order, Coupon
-from .forms import CouponApplyForm, AddressForm
+from .models import OrderItem, Order, Coupon, ShippingAddress
+from .forms import CouponApplyForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -56,7 +56,6 @@ def add_to_cart(request, pk):
     item will be created
     if user is not registered, device id from the cookies is used
     """
-    print("SIZE", request.POST.get('size'))
 
     product = get_object_or_404(Product, pk=pk)
 
@@ -156,7 +155,6 @@ def change_product_quantity(request):
     return redirect("order:cart")
 
 
-
 @require_POST
 def coupon_apply(request):
     now = timezone.now()
@@ -173,14 +171,14 @@ def coupon_apply(request):
             if stripe_api_id:
                 # retrieve coupon from stripe
                 get_coupon = requests.get("https://api.stripe.com/v1/promotion_codes/" + stripe_api_id,
-                                        auth=(settings.STRIPE_SECRET_KEY, ""))
+                                          auth=(settings.STRIPE_SECRET_KEY, ""))
                 if get_coupon.status_code == 200:
                     # Use the json module to load response into a dictionary.
                     response_dict = json.loads(get_coupon.text)
                     coupon_id = response_dict["coupon"]["id"]
                     # double check coupon ID
                     if coupon.stripe_coupon_id == coupon_id:
-                        messages.success(request,'Coupon applied') 
+                        messages.success(request, 'Coupon applied')
                 else:
                     raise ValueError('Coupon cannot be verified')
             else:
@@ -191,9 +189,9 @@ def coupon_apply(request):
             order.coupon = coupon
             order.save()
         except Coupon.DoesNotExist:
-            messages.error(request,'Promo code does not exist')
+            messages.error(request, 'Promo code does not exist')
         except ValueError:
-            messages.error(request,'Coupon cannot be verified')
+            messages.error(request, 'Coupon cannot be verified')
 
     return redirect('order:checkout')
 
@@ -209,6 +207,7 @@ def coupon_remove(request):
         order.coupon = None
         order.save()
     return redirect('order:checkout')
+
 
 def checkout(request):
     # pass stripe publishable key for checkout session
@@ -229,54 +228,44 @@ def checkout(request):
         order_items = OrderItem.objects.filter(order=order)
         # coupon form
         coupon_form = CouponApplyForm()
-        address_form = AddressForm(request.POST)
-        if address_form.is_valid():
-            print("ADDRESS IS VALID")
-        
+
         context = {"order": order, "order_items": order_items,
-                "coupon_form": coupon_form,
-                "address_form": address_form,
-                "stripe_publishable_key": stripe_publishable_key}
+                   "coupon_form": coupon_form,
+                   "stripe_publishable_key": stripe_publishable_key}
     return render(request, 'order/checkout.html', context=context)
 
-@csrf_exempt
-def validate_address(request):
-    if request.method == "POST":
-        print(dir(request))
-        print(request.POST)
-        print("YES THIS IS POST REQUEST")
-    
-    form = AddressForm(request.POST)
-    if form.is_valid():
-        print("FORM IS VALID!!!!!!!!!")
-        return redirect('order:checkout')
-    else:
-        print("FORM IS INVALID")
-        return redirect('order:checkout')
-        return HttpResponse(status=422)
 
 @csrf_exempt
 def create_checkout_session(request, pk):
     # get order by transaction_id
     order = get_object_or_404(Order, transaction_id=pk)
-    if request.method=="POST":
-        print("YES THIS IS A POST REQUEST")
-        address_form = AddressForm(request.POST)
-        if address_form.is_valid():
-            print("Yeah adddress is valid")
-        else:
-            print("not valid")
-            print(request.POST)
+    # assuming we already have customer at this point
+    customer = request.user.customer
+    if request.method == "POST":
+        # load data from body and create address object
+        data = json.loads(request.body)
+        del data['csrfmiddlewaretoken']
+        shipping_address = ShippingAddress.objects.create(
+            customer=customer, **data)
+        # manually validating fields
+        try:
+            shipping_address.full_clean()
+            shipping_address.save()
+            print("no error")
+            return JsonResponse({'status': "Ok"})
+        except Exception as e:
+            print(e)
+            return HttpResponse(status=422)
 
     # check if order has coupon
     if order.coupon:
         coupon_id = order.coupon.stripe_coupon_id
     else:
         coupon_id = None
-    
+
     order_items = OrderItem.objects.filter(order=order)
     if order_items.exists():
-        # array consisting of products that will be displayed in stripe payment page 
+        # array consisting of products that will be displayed in stripe payment page
         line_items = []
         for item in order_items:
             # show item size in the product name conditional on presence of product variants

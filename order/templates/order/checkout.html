@@ -1,5 +1,12 @@
 {% extends 'store/base.html' %} {% block content %} {% load static%}
 
+<form
+id="address-form"
+method="POST"
+enctype="multipart/form-data"
+>
+{% csrf_token %}
+
 <div class="my-5">
   <h1 class="flex items-center justify-center font-bold text-md lg:text-3xl">
     Checkout Page
@@ -17,64 +24,58 @@
           type="email"
           name="email"
           placeholder="Please enter your email"
+          required
         />
       </div>
     </div>
     <!-- Shipping Info -->
-    <form
-      id="address-form"
-      action="{% url 'order:api_checkout_session' order.transaction_id %}"
-      method="POST"
-    >
-      {% csrf_token %}
+
       <div class="p-2">
         <h2 class="font-bold mb-5 text-2xl">Shipping Information</h2>
         <div class="flex flex-col">
           <div class="flex justify-between mb-2">
             <div class="flex flex-col w-1/2 mb-2">
-              <label class="mb-2 font-bold text-slate-500" for="first-name"
+              <label class="mb-2 font-bold text-slate-500" for="first_name"
                 >First Name</label
               >
               <input
                 class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
                 type="text"
-                name="first-name"
+                name="first_name"
+                required
               />
-              {{address_form.first_name}}
             </div>
             <div class="flex flex-col w-1/2 ml-2">
-              <label class="mb-2 font-bold text-slate-500" for="last-name"
+              <label class="mb-2 font-bold text-slate-500" for="last_name"
                 >Last Name</label
               >
               <input
                 class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
                 type="text"
-                name="last-name"
+                name="last_name"
               />
-              {{address_form.last_name}}
             </div>
           </div>
           <div class="flex flex-col w-full mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="address-1"
+            <label class="mb-2 font-bold text-slate-500" for="address_1"
               >Address</label
             >
             <input
               class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
               type="text"
-              name="address-1"
+              name="address_1"
+              required
             />
-            {{address_form.address_1}}
           </div>
           <div class="flex flex-col w-full mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="address-2"
+            <label class="mb-2 font-bold text-slate-500" for="address_2"
               >Apartment, suite, etc.</label
             >
             <input
               class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
               type="text"
-              name="address-2"
+              name="address_2"
             />
-            {{address_form.address_2}}
           </div>
           <div class="flex justify-between mb-2">
             <div class="flex flex-col w-1/2 mb-2">
@@ -85,8 +86,9 @@
                 class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
                 type="text"
                 name="city"
+                value="Angren"
+                required
               />
-              {{address_form.city}}
             </div>
             <div class="flex flex-col w-1/2 ml-2">
               <label class="mb-2 font-bold text-slate-500" for="country"
@@ -96,8 +98,9 @@
                 class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
                 type="text"
                 name="country"
+                value="Uzbekistan"
+                required
               />
-              {{address_form.country}}
             </div>
           </div>
           <div class="flex justify-between mb-2">
@@ -109,19 +112,19 @@
                 class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
                 type="text"
                 name="state"
+                value="Tashkent Region"
+                required
               />
-              {{address_form.state}}
             </div>
             <div class="flex flex-col w-1/2 ml-2">
-              <label class="mb-2 font-bold text-slate-500" for="postal"
+              <label class="mb-2 font-bold text-slate-500" for="postal_code"
                 >Postal Code</label
               >
               <input
                 class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
                 type="text"
-                name="postal"
+                name="postal_code"
               />
-              {{address_form.postal_code}}
             </div>
           </div>
           <div class="flex flex-col w-2/3 mb-2">
@@ -132,19 +135,14 @@
               class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
               type="text"
               name="phone"
+              required
             />
           </div>
         </div>
       </div>
-      <div class="flex">
-        <button
-          class="w-1/3 text-center mx-auto px-5 py-2 rounded-lg bg-green-500 font-semibold text-sm text-white uppercase"
-        >
-          SAVE
-        </button>
-      </div>
-    </form>
   </div>
+</form>
+
   <!-- Order Summary -->
   <div class="flex flex-col p-3 m-3 bg-gray-50 w-2/5 rounded-xl">
     <div>
@@ -219,12 +217,14 @@
       </div>
       <!-- Start Payment Button -->
       <div class="flex mt-5">
-        <button
+        <input
           id="checkout"
-          class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 p-3 text-sm text-white uppercase"
+          class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 cursor-pointer p-3 text-sm text-white uppercase"
+          value="Proceed to payment"
+          type="submit"
+          form="address-form"
         >
-          Proceed to payment
-        </button>
+        </input>
       </div>
       <!-- End Payment Button -->
     </div>
@@ -239,31 +239,50 @@
   checkoutForm.addEventListener("submit", (event) => {
     event.preventDefault();
     console.log("SUBMITTED!");
+    const formData = new FormData(checkoutForm);
+    // convert form data into an object
+    var dict = {};
+    for (var [key, value] of formData.entries()) { 
+      dict[key] = value;
+    }
     fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
       method: "POST",
-    })
-      .then(function (response) {
-        return response.json();
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(dict)})
+
+    .then((response) => {
+        console.log(response.status);
+        console.log(response.ok);
       })
-      .then(function (session) {
-        return stripe.redirectToCheckout({ sessionId: session.sessionId });
-      })
-      .then(function (result) {
-        if (result.error) {
-          alert(result.error.message);
-        }
-      })
-      .catch(function (error) {
+    .catch((error) => {
         console.error("Error", error);
       });
-  });
+    });
+  //   fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
+  //     method: "POST",
+  //   })
+  //     .then(function (response) {
+  //       return response.json();
+  //     })
+  //     .then(function (session) {
+  //       return stripe.redirectToCheckout({ sessionId: session.sessionId });
+  //     })
+  //     .then(function (result) {
+  //       if (result.error) {
+  //         alert(result.error.message);
+  //       }
+  //     })
+  //     .catch(function (error) {
+  //       console.error("Error", error);
+  //     });
+  // });
 
   // var checkoutButton = document.getElementById("checkout");
   // checkoutButton.addEventListener("click", (event) => {
   //   event.preventDefault();
   // document.getElementById("address-form").submit();
 
-  // fetch("{% url 'order:validate_address' %}", {
+  // fetch("", {
   //   method: "POST",
   //   body: JSON.stringify({ name: "Bekzod", phone: "123124" }),
   // })

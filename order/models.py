@@ -115,9 +115,12 @@ class Coupon(models.Model):
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
     stripe_api_id = models.CharField(max_length=200, null=True, blank=True)
-    stripe_coupon_id = models.CharField(max_length=50, null=True, blank=True, default=None)
+    stripe_coupon_id = models.CharField(
+        max_length=50, null=True, blank=True, default=None)
+
     def __str__(self):
         return f"{self.code} type: {self.discount_type} value: {self.discount_amount}"
+
 
 class ShippingAddress(models.Model):
     customer = models.ForeignKey(
@@ -125,9 +128,13 @@ class ShippingAddress(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     address_1 = models.CharField(max_length=50)
-    address_2 = models.CharField(max_length=50)
+    address_2 = models.CharField(max_length=50, blank=True, null=True)
     city = models.CharField(max_length=30)
     state = models.CharField(max_length=30)
     country = models.CharField(max_length=50)
-    postal_code = models.CharField(max_length=6)
+    postal_code = models.CharField(max_length=6, blank=True, null=True)
     phone = models.CharField(max_length=20)
+    email = models.EmailField()
+
+    def __str__(self):
+        return f"{self.customer} {self.first_name} {self.last_name} {self.address_1}"
