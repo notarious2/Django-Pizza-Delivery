@@ -9,20 +9,26 @@ from .models import Order, OrderItem, Coupon, ShippingAddress
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
 
-# add order inline to the coupon
+# add shipping inline to the order
 
 
 class OrderInline(admin.TabularInline):
     model = Order
     # specify fields visible in inline Order field
-    readonly_fields = ('transaction_id',)
+    # readonly_fields = ('transaction_id',)
+
+
+class ShippingInline(admin.TabularInline):
+    model = ShippingAddress
 
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('customer', 'complete', 'date_ordered',
                     'date_modified', 'get_cart_items', 'get_cart_subtotal',
                     'get_coupon_value', 'get_cart_total')
-    inlines = [OrderItemInline]
+    readonly_fields = ('customer', 'transaction_id',
+                       'date_ordered', 'date_modified')
+    inlines = [OrderItemInline, ShippingInline]
 
 
 class OrderItemAdmin(admin.ModelAdmin):
@@ -46,7 +52,21 @@ class CouponAdmin(admin.ModelAdmin):
     inlines = [OrderInline]
 
 
-admin.site.register(ShippingAddress)
+class ShippingAdmin(admin.ModelAdmin):
+    # grab transaction id from order
+    @admin.display(description='Transaction ID')
+    def transaction_id(self, obj):
+        return obj.order.transaction_id
+    # grab order modified date from order
+
+    @admin.display(description='Order Updated')
+    def order_updated(self, obj):
+        return obj.order.date_modified
+    list_display = ('transaction_id', 'order_updated', 'phone', 'email')
+    readonly_fields = ('order',)
+
+
+admin.site.register(ShippingAddress, ShippingAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(Coupon, CouponAdmin)

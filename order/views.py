@@ -82,7 +82,7 @@ def add_to_cart(request, pk):
     )
     order_item.quantity += 1
     order_item.save()
-
+    order.save()  # to update modified field of order model
     # redirects to the same page
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
@@ -94,7 +94,8 @@ def remove_from_cart(request, pk):
     """
     order_item = get_object_or_404(OrderItem, pk=pk)
     order_item.delete()
-
+    # save corresponding order to update modified date field
+    order_item.order.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -115,6 +116,8 @@ def increase_product_quantity(request, pk):
 
     order_item.quantity += 1
     order_item.save()
+    # save corresponding order to update modified date field
+    order_item.order.save()
 
     # redirects to the same page
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
@@ -141,6 +144,8 @@ def reduce_product_quantity(request, pk):
         order_item.save()
     else:
         order_item.delete()
+    # save corresponding order to update modified date field
+    order_item.order.save()
     return redirect("order:cart")
 
 
@@ -151,7 +156,8 @@ def change_product_quantity(request):
     order_item = get_object_or_404(OrderItem, pk=order_item_id)
     order_item.quantity = quantity
     order_item.save()
-    print("You got it", quantity, order_item_id)
+    # save corresponding order to update modified date field
+    order_item.order.save()
     return redirect("order:cart")
 
 
@@ -239,34 +245,25 @@ def checkout(request):
 def create_checkout_session(request, pk):
     # get order by transaction_id
     order = get_object_or_404(Order, transaction_id=pk)
-    # assuming we already have customer at this point
-    customer = request.user.customer
     if request.method == "POST":
         # load data from body and create address object
         data = json.loads(request.body)
         del data['csrfmiddlewaretoken']
-        shipping_address = ShippingAddress.objects.create(
-            customer=customer, **data)
-        # manually validating fields
+        shipping_address = ShippingAddress(
+            order=order, **data)
+        # manually triggering fields validation
         try:
+            print("address clean", shipping_address.full_clean())
             shipping_address.full_clean()
+            # save shipping address after payment is complete
             shipping_address.save()
-            print("no error")
-            return JsonResponse({'status': "Ok"})
         except Exception as e:
-            print(e)
+            errors = []
             for key, value in e:
                 validation_error = key.upper() + " " + value[0]
-                messages.add_message(
-                    request, 50, validation_error, extra_tags="validation")
-            result = {
-                "status": "error",
-                "errors": "this are errors"
-            }
-            print('request', request.headers)
+                errors.append(validation_error)
+            result = {"errors": errors}
             return JsonResponse(result, status=422)
-            # return HttpResponse(status=422)
-            # return HttpResponseRedirect(request.path_info)
 
     # check if order has coupon
     if order.coupon:

@@ -123,8 +123,8 @@ class Coupon(models.Model):
 
 
 class ShippingAddress(models.Model):
-    customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE)
+    order = models.ForeignKey(
+        Order, null=True, blank=True, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     address_1 = models.CharField(max_length=50)
@@ -137,4 +137,4 @@ class ShippingAddress(models.Model):
     email = models.EmailField()
 
     def __str__(self):
-        return f"{self.customer} {self.first_name} {self.last_name} {self.address_1}"
+        return f"{self.order} {self.first_name} {self.last_name} {self.address_1}"
