@@ -189,9 +189,15 @@ def coupon_apply(request):
                     raise ValueError('Coupon cannot be verified')
             else:
                 raise ValueError('Coupon cannot be verified')
-
+            # checking if current user is authenticated/customer,
+            # if not customer will be created based on device id
+            if request.user.is_authenticated:
+                customer = request.user.customer
+            else:
+                customer, created = Customer.objects.get_or_create(
+                    device=request.COOKIES['device'])
             order = Order.objects.get(
-                customer=request.user.customer, complete=False)
+                customer=customer, complete=False)
             order.coupon = coupon
             order.save()
         except Coupon.DoesNotExist:
@@ -319,6 +325,22 @@ class PaymentSuccessView(TemplateView):
         if session_id is None:
             return HttpResponseNotFound()
         session = stripe.checkout.Session.retrieve(session_id)
+
+        # checking if current user is authenticated/customer, if not customer will be created based on device id
+        if request.user.is_authenticated:
+            customer = request.user.customer
+        else:
+            customer, created = Customer.objects.get_or_create(
+                device=request.COOKIES['device'])
+        # order query set
+        order_qs = Order.objects.filter(
+            customer=customer, complete=False)
+        # if order exists, get all order items
+        if order_qs.exists():
+            order = order_qs[0]
+            order.complete = True
+            order.save()
+        print("session", session)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         return render(request, self.template_name)
 

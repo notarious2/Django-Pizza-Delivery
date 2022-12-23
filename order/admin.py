@@ -21,11 +21,21 @@ class OrderInline(admin.TabularInline):
 class ShippingInline(admin.TabularInline):
     model = ShippingAddress
 
+    # remove permission to modify
+    def has_change_permission(self, request, obj):
+        return False
+    # remove permission to add
+
+    def has_add_permission(self, request, obj):
+        return False
+
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('customer', 'complete', 'date_ordered',
                     'date_modified', 'get_cart_items', 'get_cart_subtotal',
                     'get_coupon_value', 'get_cart_total')
+    list_filter = ('complete',)
+    # list_editable = ('complete',)
     readonly_fields = ('customer', 'transaction_id',
                        'date_ordered', 'date_modified')
     inlines = [OrderItemInline, ShippingInline]
