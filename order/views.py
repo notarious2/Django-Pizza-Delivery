@@ -259,10 +259,12 @@ def create_checkout_session(request, pk):
             order=order, **data)
         # manually triggering fields validation
         try:
-            print("address clean", shipping_address.full_clean())
+            # validate data
             shipping_address.full_clean()
             # save shipping address after payment is complete
             shipping_address.save()
+            # shipping id that will be passed as a url parameter
+            shipping_id = shipping_address.id
         except Exception as e:
             errors = []
             for key, value in e:
@@ -310,7 +312,7 @@ def create_checkout_session(request, pk):
         }],
         mode='payment',
         success_url=request.build_absolute_uri(
-            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}",
+            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}"+"&shipping_id=" + str(shipping_id),
         cancel_url=request.build_absolute_uri(
             reverse('order:failed')),
     )
@@ -322,9 +324,10 @@ class PaymentSuccessView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id')
+        shipping_id = request.GET.get('shipping_id')
         if session_id is None:
             return HttpResponseNotFound()
-        session = stripe.checkout.Session.retrieve(session_id)
+        # session = stripe.checkout.Session.retrieve(session_id)
 
         # checking if current user is authenticated/customer, if not customer will be created based on device id
         if request.user.is_authenticated:
@@ -340,7 +343,11 @@ class PaymentSuccessView(TemplateView):
             order = order_qs[0]
             order.complete = True
             order.save()
-        print("session", session)
+        # get all shippings that contain order id and delete excluding current shipping address
+        existing_orders = ShippingAddress.objects.filter(
+            order=order).exclude(id=int(shipping_id))
+        existing_orders.delete()
+
         stripe.api_key = settings.STRIPE_SECRET_KEY
         return render(request, self.template_name)
 
