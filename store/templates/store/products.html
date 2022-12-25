@@ -121,12 +121,18 @@
           </div>
           {% endif %}
           <!-- End Choosing Size -->
-          <button
-            class="bg-green-200 w-full hover:text-green-700 js-add"
+          <div class="flex">
+            <button
+            class="bg-green-200 rounded-xl w-full py-2 hover:text-green-700 js-add"
             type="button"
-          >
+          >  
+          <img class="absolute w-7 ml-6 hidden bg-transparent product-added" 
+          src="{% static 'store/images/checkmark.png' %}" alt=""> 
             Add to cart
+       
           </button>
+          </div>
+
         </form>
       </div>
       {% endfor %}
@@ -162,8 +168,8 @@
   <script>
     var csrftoken = '{{csrf_token}}';
    $(document).on('click', '.js-add', function(){
-   var size =  $(this).closest(".individual-container")
-   .find("input[name='size']:checked").val()
+   var closestDiv =  $(this).closest(".individual-container")
+   var size =  closestDiv.find("input[name='size']:checked").val()
 
   $.ajax({
     headers:{
@@ -175,6 +181,11 @@
     data: JSON.stringify({"size": size}),
     success: function (data) {
       $(document).find(".cart-count").text(data.cart_total)
+      var popupMessage = closestDiv.find(".product-added")
+      popupMessage.show()
+      setTimeout(function() {
+        popupMessage.hide();
+    }, 1000);
     },
   });
 });

@@ -56,17 +56,10 @@ def add_to_cart(request, pk):
     if cart is empty order and order item will be created
     if user is not registered, device id from the cookies is used
     """
-
-    if request.method == "POST":
-        print("YES THIS IS A POST FUCKING REQUEST")
-        print(request.body)
-        data = json.loads(request.body)
-        size = data['size']
     product = get_object_or_404(Product, pk=pk)
     # getting product variation
     if product.has_variants:
-        size = size
-        print(size)
+        size = json.loads(request.body)['size']
         size = Size.objects.get(name=size)
         variation = ProductVariant.objects.get(size=size, product=product)
     else:
