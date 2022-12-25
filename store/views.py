@@ -23,6 +23,7 @@ def dashboard(request):
 
 
 def products(request):
+
     products = Product.objects.all()
     # get the keywords from the search field to alter products list
     product_name = request.GET.get('product')

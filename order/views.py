@@ -52,16 +52,21 @@ def cart(request):
 @require_POST
 def add_to_cart(request, pk):
     """
-    adding item to cart from the main page, if cart is empty order and order
-    item will be created
+    adding item to cart from the main page, 
+    if cart is empty order and order item will be created
     if user is not registered, device id from the cookies is used
     """
 
+    if request.method == "POST":
+        print("YES THIS IS A POST FUCKING REQUEST")
+        print(request.body)
+        data = json.loads(request.body)
+        size = data['size']
     product = get_object_or_404(Product, pk=pk)
-
     # getting product variation
     if product.has_variants:
-        size = request.POST.get('size')
+        size = size
+        print(size)
         size = Size.objects.get(name=size)
         variation = ProductVariant.objects.get(size=size, product=product)
     else:
@@ -84,7 +89,8 @@ def add_to_cart(request, pk):
     order_item.save()
     order.save()  # to update modified field of order model
     # redirects to the same page
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return JsonResponse({'cart_total': order.get_cart_items})
 
 
 @require_POST

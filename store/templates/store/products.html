@@ -29,7 +29,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5">
     {% for product in products %}
     <div
-      class="flex flex-col m-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700"
+      class="flex flex-col m-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 individual-container"
     >
       <img
         class="w-full h-full block mx-auto"
@@ -69,6 +69,7 @@
           action="{% url 'order:add_to_cart' product.id %}"
           method="post"
           class="text-center items-center mt-auto p-3"
+          id = "product-form"
         >
           {% csrf_token %}
           <!-- Start Choosing Size -->
@@ -121,8 +122,8 @@
           {% endif %}
           <!-- End Choosing Size -->
           <button
-            class="bg-green-200 w-full hover:text-green-700"
-            type="submit"
+            class="bg-green-200 w-full hover:text-green-700 js-add"
+            type="button"
           >
             Add to cart
           </button>
@@ -159,9 +160,28 @@
   <!--pagination code ends here-->
 
   <script>
+    var csrftoken = '{{csrf_token}}';
+   $(document).on('click', '.js-add', function(){
+   var size =  $(this).closest(".individual-container")
+   .find("input[name='size']:checked").val()
+
+  $.ajax({
+    headers:{
+                'Content-Type':'application/json',
+                'X-CSRFToken':csrftoken,
+                },
+    type: "POST",
+    url: $(this).closest(".individual-container").find("form").attr("action"),
+    data: JSON.stringify({"size": size}),
+    success: function (data) {
+      $(document).find(".cart-count").text(data.cart_total)
+    },
+  });
+});
     $("input:radio").change(function () {
-      console.log("Clicked!");
+      // retrieve id of the checked button
       var checked_size_id = $(this).attr("id");
+      // retrieve product number to hide price
       var product_number = checked_size_id.split("-")[1];
       $(".prices-" + product_number).hide();
       $("." + checked_size_id).show();
