@@ -41,12 +41,6 @@ class Product(models.Model):
         else:
             return False
 
-    @property
-    def check_variant(self):
-        # reverse accessor
-        print(self.productvariant_set.size())
-        return True
-
 
 class Size(models.Model):
     name = models.CharField(max_length=20, blank=True, null=True)
@@ -63,3 +57,8 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.title} - price: ${self.price}"
+
+    @property
+    def get_size(self):
+        # return size as a string
+        return str(self.size)

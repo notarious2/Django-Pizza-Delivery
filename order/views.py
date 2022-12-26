@@ -220,6 +220,7 @@ def coupon_remove(request):
     return redirect('order:checkout')
 
 
+@require_POST
 def checkout(request):
     # pass stripe publishable key for checkout session
     stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY

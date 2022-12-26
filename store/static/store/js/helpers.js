@@ -23,7 +23,6 @@ function uuidv4() {
 }
 
 
-
 // gets device from the cookies
 let device = getCookie('device')
 // generates device id if there is none and adds it to cookies

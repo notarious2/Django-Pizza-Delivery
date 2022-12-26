@@ -34,30 +34,41 @@
           </span>
         </a>
       </div>
-      <h2>{{user.is_superuser}} {{user.username}}</h2>
+      {% with request.resolver_match.url_name as url_name %}
       <ul class="flex ml-auto items-center">
         {% if user.is_superuser %}
-        <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
+        <li
+          class="text-xl mx-4 hover:text-cyan-500 duration-500 {% if url_name == 'dashboard' %} text-cyan-500 {% endif %}"
+        >
           <a href="{% url 'store:dashboard' %}">Dashboard</a>
         </li>
-
+        {% endif %}
+        <!-- Display orders tab if user is authenticated -->
+        {% if user.is_authenticated %}
+        <li
+          class="text-xl mx-4 hover:text-cyan-500 duration-500 {% if url_name == 'my_orders' %} text-cyan-500 {% endif %}"
+        >
+          <a href="{% url 'users:my_orders' %}">Orders</a>
+        </li>
         {% endif %}
 
-        <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
+        <li
+          class="text-xl mx-4 hover:text-cyan-500 duration-500 {% if url_name == 'products' %} text-cyan-500 {% endif %}"
+        >
           <a href="{% url 'store:products' %}">Home</a>
         </li>
         <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
           <a href="">Menu</a>
         </li>
-        <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
-          <a href="">Contact</a>
-        </li>
+
         {% if user.is_authenticated %}
         <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
           <a href="{% url 'users:logout' %}">Log Out</a>
         </li>
         {% else %}
-        <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
+        <li
+          class="text-xl mx-4 hover:text-cyan-500 duration-500 {% if url_name == 'login' %} text-cyan-500 {% endif %}"
+        >
           <a href="{% url 'users:login' %}">Log In</a>
         </li>
         {% endif %}
@@ -76,6 +87,7 @@
           </div>
         </li>
       </ul>
+      {% endwith %}
     </nav>
 
     {% block content %} {% endblock %}

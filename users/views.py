@@ -5,7 +5,9 @@ from django.urls import reverse_lazy, reverse
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import CreateView
 from django.contrib.auth import logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from order.models import Order, OrderItem
 
 
 class SignUpView(CreateView):
@@ -30,4 +32,13 @@ def logout_view(request):
     logout(request)
     return redirect('store:products')
 
-# Create your views here.
+# displaying orders for authenticated user
+
+
+@login_required
+def my_orders(request):
+    customer = request.user.customer
+    # orders query set - list of orders
+    orders = Order.objects.filter(
+        customer=customer, complete=True).order_by('-date_modified')
+    return render(request, 'users/orders.html', context={'orders': orders})

@@ -47,6 +47,25 @@ class Order(models.Model):
     # display property name as '# Items' in the admin panel's list display
     get_cart_items.fget.short_description = '# Items'
 
+    # show product titles in the order
+    @property
+    def display_items(self):
+        order_items = self.orderitem_set.all()
+        ticker, l = 1, len(order_items)
+        product_titles = str()
+        for item in order_items:
+            add_comma = ", " if l > 1 and ticker != l else ""
+            if item.variation:
+                product_title = f'''{item.product.name}  
+                ({item.variation.get_size},
+                #{item.quantity}, ${item.get_total}) 
+                {add_comma} '''
+            else:
+                product_title = item.product.name
+            product_titles += product_title
+            ticker += 1
+        return product_titles
+
     @property
     def get_coupon_value(self):
         # calculate dollar value of the coupon
