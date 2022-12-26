@@ -49,12 +49,57 @@
           <div class="w-1/5">-</div>
            {% endif %}
           <div class="w-1/5 font-semibold">${{order.get_cart_total}}</div>
-          <a class="w-1/12 text-blue-600" href="#">view</a>
-
+          <button class="w-1/12 text-blue-600" onclick="toggleModal('{{forloop.counter}}')">view</button>
+          <div>
+          </div>
         </div>
+        <!-- Order details Start -->
+        <div class="fixed z-10 overflow-y-auto top-0 w-full left-0 hidden" id="modal-{{forloop.counter}}">
+          <div class="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div class="inline-block align-center bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+              <div class="flex flex-col p-5 bg-green-100">
+                <h2 class="font-semibold">Order Details</h2>
+                <div class="border-b border-black border-3 mt-1"></div>
+                <div>
+                  <p>Total: ${{order.get_cart_total}}</p>
+                  <p>Transaction number: {{order.transaction_id}}</p>
+                  {% for item in order.orderitem_set.all %}
+                  <div class="flex gap-3">
+                    <!-- NEED TO 
+                    - Add item image
+                    - Handle variation
+                    - Style properly
+                    -->
+                    <div class="w-16">
+                      <img
+                      class="rounded-xl"
+                        src="{{item.product.image.url}}"
+                      />
+                    </div>
+                  <p>{{item.product.name}}</p>
+                  <p>{{item.get_item_price}}</p>
+                  <p>{{item.quantity}}</p>
+                  <p>{{item.get_total}}</p>
+                </div>
+                  {% endfor %}
+                </div>
+                <button type="button" class=" w-1/2 mx-auto py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-700" onclick="toggleModal('{{forloop.counter}}')">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Order details End -->
         {% endfor %}
       </div>
     </div>
-  </div>
- {% endblock %}
+  </div> 
 </div>
+
+
+<script>
+  function toggleModal(counter) {
+  document.getElementById('modal-'+ counter).classList.toggle('hidden')
+}
+</script>
+{% endblock %}
