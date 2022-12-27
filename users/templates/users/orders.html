@@ -54,37 +54,61 @@
           </div>
         </div>
         <!-- Order details Start -->
-        <div class="fixed z-10 overflow-y-auto top-0 w-full left-0 hidden" id="modal-{{forloop.counter}}">
+        <div class="-mb-5 fixed z-10 overflow-y-auto top-0 w-full left-0 hidden" id="modal-{{forloop.counter}}">
           <div class="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
             <div class="inline-block align-center bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-              <div class="flex flex-col p-5 bg-green-100">
+              <div class="flex flex-col p-5 bg-dimly-blue max-h-screen overflow-y-auto">
                 <h2 class="font-semibold">Order Details</h2>
                 <div class="border-b border-black border-3 mt-1"></div>
-                <div>
-                  <p>Total: ${{order.get_cart_total}}</p>
-                  <p>Transaction number: {{order.transaction_id}}</p>
-                  {% for item in order.orderitem_set.all %}
-                  <div class="flex gap-3">
-                    <!-- NEED TO 
-                    - Add item image
-                    - Handle variation
-                    - Style properly
-                    -->
-                    <div class="w-16">
-                      <img
-                      class="rounded-xl"
-                        src="{{item.product.image.url}}"
-                      />
+                <!-- headings -->
+                <div class="flex gap-3 mt-3 font-semibold text-sm uppercase">
+                  <h3 class="w-12"></h3>
+                  <h3 class="w-32">Product</h3>
+                  <h3 class="w-1/5 text-center">Price</h3>
+                  <h3 class="w-1/5 text-center">Quantity</h3>
+                  <h3 class="w-1/5 text-center">Total</h3>
+                </div>
+                <div class="border-b border-black/50 border-3 mx-3 mt-1"></div>
+                <!-- List of products -->
+                {% for item in order.orderitem_set.all %}
+                  <div class="flex gap-3 mt-3 items-center">
+                    <img
+                    class="w-12 rounded-xl"
+                      src="{{item.product.image.url}}"
+                    />
+                    <div>
+                    <p class="w-32 font-semibold">{{item.product.name}}</p>
+                    {% if item.product.has_variants %}
+                    <p>{{item.variation.size}}</p>
+                    {% endif %}
                     </div>
-                  <p>{{item.product.name}}</p>
-                  <p>{{item.get_item_price}}</p>
-                  <p>{{item.quantity}}</p>
-                  <p>{{item.get_total}}</p>
+                    <p class="w-1/5 text-center">${{item.get_item_price}}</p>
+                    <p class="w-1/5 text-center">{{item.quantity}}</p>
+                    <p class="w-1/5 text-center">${{item.get_total}}</p>
                 </div>
                   {% endfor %}
+                <!-- Brief summary -->
+                <div class="mt-5 mx-5 font-semibold ml-auto uppercase">
+                  <div class="border-b border-black/50 border-3 mb-3"></div>
+                  <div class="flex">
+                    <p class="w-48">Subtotal:</p>
+                    <p class="">${{order.get_cart_subtotal}}</p>
+                  </div>
+                  <div class="flex">
+                    <p class="w-48">Coupon: {% if order.coupon %} ({{order.coupon.code}}) {% endif %}</p>
+                    {% if order.coupon %}
+                    <p class="">(${{order.get_coupon_value}})</p>
+                    {% else %}
+                    <p class="">-</p>
+                    {% endif %}
+                  </div>
+                  <div class="flex">
+                    <p class="w-48">Total:</p>
+                    <p class="">${{order.get_cart_total}}</p>
+                  </div>
                 </div>
-                <button type="button" class=" w-1/2 mx-auto py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-700" onclick="toggleModal('{{forloop.counter}}')">Close</button>
+                <button type="button" class="w-1/2 mx-auto my-5 py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-700" onclick="toggleModal('{{forloop.counter}}')">Close</button>
               </div>
             </div>
           </div>
