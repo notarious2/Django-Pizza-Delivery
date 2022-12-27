@@ -57,8 +57,37 @@
         >
           <a href="{% url 'store:products' %}">Home</a>
         </li>
-        <li class="text-xl mx-4 hover:text-cyan-500 duration-500">
-          <a href="">Menu</a>
+        <li id="menu" class="text-xl mx-4">
+          <div class="dropdown inline-block relative">
+            <button
+              class="hover:text-cyan-500 py-2 px-4 inline-flex items-center"
+            >
+              Menu
+            </button>
+            <ul class="dropdown-menu hidden absolute pt-1 left-0 right-0">
+              <li class="">
+                <a
+                  class="hover:text-cyan-500 bg-white py-2 px-4 block whitespace-no-wrap"
+                  href="#"
+                  >Pizza</a
+                >
+              </li>
+              <li class="">
+                <a
+                  class="hover:text-cyan-500 bg-white py-2 px-4 block whitespace-no-wrap"
+                  href="#"
+                  >Drinks</a
+                >
+              </li>
+              <li class="">
+                <a
+                  class="hover:text-cyan-500 bg-white py-2 px-4 block whitespace-no-wrap"
+                  href="#"
+                  >Salads</a
+                >
+              </li>
+            </ul>
+          </div>
         </li>
 
         {% if user.is_authenticated %}
@@ -70,6 +99,11 @@
           class="text-xl mx-4 hover:text-cyan-500 duration-500 {% if url_name == 'login' %} text-cyan-500 {% endif %}"
         >
           <a href="{% url 'users:login' %}">Log In</a>
+        </li>
+        <li
+          class="text-xl mx-4 hover:text-cyan-500 duration-500 {% if url_name == 'register' %} text-cyan-500 {% endif %}"
+        >
+          <a href="{% url 'users:register' %}">Register</a>
         </li>
         {% endif %}
         <li>
@@ -94,3 +128,14 @@
     <!-- <script src="https://unpkg.com/flowbite@1.5.4/dist/flowbite.js"></script> -->
   </body>
 </html>
+<script>
+  const menu = document.querySelector("#menu");
+  menu.addEventListener("mouseover", (event) => {
+    const dropdownMenu = document.querySelector(".dropdown-menu");
+    dropdownMenu.style.display = "block";
+  });
+  menu.addEventListener("mouseout", (event) => {
+    const dropdownMenu = document.querySelector(".dropdown-menu");
+    dropdownMenu.style.display = "none";
+  });
+</script>
