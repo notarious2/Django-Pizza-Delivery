@@ -26,18 +26,18 @@
 
 <div>
   <h1 class="text-2xl text-center font-bold mb-3">List of Pizzas</h1>
-  <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5">
+  <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5 mx-3">
     {% for product in products %}
     <div
-      class="flex flex-col m-2 bg-white border border-gray-200 rounded-lg shadow-md dark:bg-gray-800 dark:border-gray-700 individual-container"
+      class="flex flex-col m-2 bg-white rounded-xl shadow-md individual-container"
     >
       <img
-        class="w-full h-full block mx-auto"
+        class="h-72 w-full rounded-t-xl"
         src="{{ product.image.url }}"
         alt=""
       />
       <h5
-        class="mb-2 text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+        class="mb-2 text-center text-2xl font-bold tracking-tight text-gray-900"
       >
         {{product.name}}
       </h5>
