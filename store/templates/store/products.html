@@ -41,29 +41,6 @@
       >
         {{product.name}}
       </h5>
-      {% if product.has_variants %}
-      <div class="flex mx-3">
-        <p
-          class="mt-auto mb-5 ml-auto font-bold text-green-500 prices-{{forloop.counter}} small-{{forloop.counter}}"
-        >
-          ${{product.get_product_variants.0.price}}
-        </p>
-        <p
-          class="mt-auto mb-5 ml-auto font-bold text-green-500 prices-{{forloop.counter}} hidden medium-{{forloop.counter}}"
-        >
-          ${{product.get_product_variants.1.price}}
-        </p>
-        <p
-          class="mt-auto mb-5 ml-auto font-bold text-green-500 prices-{{forloop.counter}} hidden large-{{forloop.counter}}"
-        >
-          ${{product.get_product_variants.2.price}}
-        </p>
-      </div>
-      {% else %}
-      <div class="flex mx-3">
-        <p class="mt-auto mb-5 ml-auto font-bold text-green-500">${{product.price}}</p>
-      </div>
-        {% endif %}
 
         <form
           action="{% url 'order:add_to_cart' product.id %}"
@@ -72,6 +49,52 @@
           id = "product-form"
         >
           {% csrf_token %}
+          <div class="flex my-3">
+          <!-- Start Choosing Quantity -->
+          <div class="flex ml-3 w-4/5">
+            <button class="decrement" type="button">
+              <svg class="fill-current text-gray-600 w-4" viewBox="0 0 448 512">
+                <path
+                  d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
+              </svg>
+            </button>
+            <input class="w-1/3 mx-2 text-center" type="number" value="1" name="quantity" min="1" oninput="validity.valid||(value='');">
+            <button class="increment" type="button">
+            <svg class="fill-current text-gray-600 w-4" viewBox="0 0 448 512">
+              <path
+                d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+              />
+            </svg>
+            </button>
+          </div>
+          <!-- End Choosing Quantity -->
+          <!-- Start Display Variant Prices -->
+          {% if product.has_variants %}
+          <div class="flex items-center font-bold text-xl text-green-500">
+            <p
+              class="prices-{{forloop.counter}} small-{{forloop.counter}}"
+            >
+              ${{product.get_product_variants.0.price}}
+            </p>
+            <p
+              class="prices-{{forloop.counter}} hidden medium-{{forloop.counter}}"
+            >
+              ${{product.get_product_variants.1.price}}
+            </p>
+            <p
+              class="prices-{{forloop.counter}} hidden large-{{forloop.counter}}"
+            >
+              ${{product.get_product_variants.2.price}}
+            </p>
+          </div>
+          {% else %}
+          <div class="flex items-center font-bold text-xl text-green-500">
+            <p>${{product.price}}</p>
+          </div>
+          {% endif %}
+          <!-- End Display Variant Prices -->
+        </div>
           <!-- Start Choosing Size -->
           {% if product.has_variants %}
           <div class="flex m-2 w-1/2">
@@ -119,17 +142,18 @@
               >
             </div>
           </div>
+          {% else %}
+          <div class="p-5"></div>
           {% endif %}
           <!-- End Choosing Size -->
           <div class="flex">
             <button
-            class="bg-green-200 rounded-xl w-full py-2 hover:text-green-700 js-add"
+            class="bg-green-300 hover:bg-green-500 rounded-xl w-full py-2 js-add"
             type="button"
           >  
           <img class="absolute w-7 ml-6 hidden bg-transparent product-added" 
           src="{% static 'store/images/checkmark.png' %}" alt=""> 
             Add to cart
-       
           </button>
           </div>
 
@@ -170,7 +194,8 @@
    $(document).on('click', '.js-add', function(){
    var closestDiv =  $(this).closest(".individual-container")
    var size =  closestDiv.find("input[name='size']:checked").val()
-
+   var quantity =  closestDiv.find("input[name='quantity']").val()
+   console.log(quantity);
   $.ajax({
     headers:{
                 'Content-Type':'application/json',
@@ -178,7 +203,7 @@
                 },
     type: "POST",
     url: $(this).closest(".individual-container").find("form").attr("action"),
-    data: JSON.stringify({"size": size}),
+    data: JSON.stringify({"size": size, "quantity": quantity}),
     success: function (data) {
       $(document).find(".cart-count").text(data.cart_total)
       var popupMessage = closestDiv.find(".product-added")
@@ -197,6 +222,30 @@
       $(".prices-" + product_number).hide();
       $("." + checked_size_id).show();
     });
+
+  // incrementing quantity
+  $(".increment").click(function () {
+    // find closest input
+    var closestDiv =  $(this).closest(".individual-container")
+    var quantityInput =  closestDiv.find("input[name='quantity']")
+    var inputValue = parseInt(quantityInput.val());
+    inputValue++
+    quantityInput.val(inputValue)
+  })
+  
+  // decrementing quantity
+  $(".decrement").click(function () {
+    // find closest input
+    var closestDiv =  $(this).closest(".individual-container")
+    var quantityInput =  closestDiv.find("input[name='quantity']")
+    var inputValue = parseInt(quantityInput.val());
+    // only decrement if value is greater than 1
+    if ($(quantityInput).val() > 1) {
+      inputValue--
+      quantityInput.val(inputValue)
+    }
+  })
+  
   </script>
   {% endblock %}
 </div>

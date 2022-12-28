@@ -57,6 +57,9 @@ def add_to_cart(request, pk):
     if user is not registered, device id from the cookies is used
     """
     product = get_object_or_404(Product, pk=pk)
+    # getting product quantity
+    quantity = int(json.loads(request.body)['quantity'])
+
     # getting product variation
     if product.has_variants:
         size = json.loads(request.body)['size']
@@ -76,9 +79,9 @@ def add_to_cart(request, pk):
     order_item, created = OrderItem.objects.get_or_create(
         order=order,
         product=product,
-        variation=variation
+        variation=variation,
     )
-    order_item.quantity += 1
+    order_item.quantity += quantity
     order_item.save()
     order.save()  # to update modified field of order model
     # redirects to the same page

@@ -114,8 +114,10 @@
           </form>
           <input
             class="quantity mx-2 border text-center w-12"
-            type="text"
+            type="number"
             value="{{item.quantity}}"
+            min="1"
+            oninput="validity.valid||(value='');"
             id="{{item.pk}}"
           />
           <form
