@@ -1,33 +1,9 @@
 {% extends "store/base.html" %} {% block content %} {% load static %}
 
-<!-- Search Button Start -->
-<div class="flex">
-  <div class="ml-auto mr-2 my-2">
-    <form method="GET" class="flex bg-green-200 rounded-lg" id="search-box">
-      <input
-        class="border-none outline-none bg-transparent focus:ring-0"
-        type="text"
-        placeholder="Search Products"
-        name="product"
-        value="{{search_string}}"
-      />
-      <!-- clicking on the button will submit the form -->
-      <a
-        class="mt-2"
-        href="javascript:void(0);"
-        onclick="document.getElementById('search-box').submit();"
-      >
-        <img class="mr-2" src="{% static 'store/images/search.svg' %}" alt="" />
-      </a>
-    </form>
-  </div>
-</div>
-<!-- Search Button End -->
-
 <!-- Start Products List -->
 <div>
   <h1
-    class="text-2xl text-center uppercase rounded-lg mx-5 py-2 w-48 bg-red-200"
+    class="text-2xl text-center uppercase rounded-lg mx-5 mt-5 py-2 w-48 bg-red-200"
   >
     Pizzas
   </h1>
@@ -178,107 +154,4 @@
 </div>
 <!-- End Products List -->
 
-<!-- Start Pagination -->
-<div class="flex items-center justify-center my-5">
-  {% if products.has_previous %}
-  <a class="text-sm font-bold items-center inline-flex relative" href="?page=1"
-    ><<</a
-  >
-  <a
-    class="text-sm font-bold px-2 items-center inline-flex relative"
-    href="?page={{products.previous_page_number}}"
-    ><</a
-  >
-  {% else %}
-  <span class="text-sm items-center inline-flex relative"><<</span>
-  <span class="text-sm px-2 items-center inline-flex relative"><</span>
-
-  {% endif %}
-  <span class="pagination"
-    >{{products.number}} of {{products.paginator.num_pages}}</span
-  >
-  {% if products.has_next %}
-  <a
-    class="text-sm font-bold px-2 items-center inline-flex relative"
-    href="?page={{products.next_page_number}}"
-    >></a
-  >
-  <a
-    class="text-sm font-bold items-center inline-flex relative"
-    href="?page={{products.paginator.num_pages}}"
-    >>></a
-  >
-  {% else %}
-  <a
-    class="text-sm px-2 items-center inline-flex relative pointer-events-none cursor-default"
-    href="#"
-    >></a
-  >
-  <a
-    class="text-sm items-center inline-flex relative pointer-events-none cursor-default"
-    href="#"
-    >>></a
-  >
-  {% endif %}
-</div>
-<!-- End Pagination-->
-
-<script>
-  var csrftoken = "{{csrf_token}}";
-  $(document).on("click", ".js-add", function () {
-    var closestDiv = $(this).closest(".individual-container");
-    var size = closestDiv.find("input[name='size']:checked").val();
-    var quantity = closestDiv.find("input[name='quantity']").val();
-    $.ajax({
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrftoken,
-      },
-      type: "POST",
-      url: $(this).closest(".individual-container").find("form").attr("action"),
-      data: JSON.stringify({ size: size, quantity: quantity }),
-      success: function (data) {
-        $(document).find(".cart-count").text(data.cart_total);
-        var popupMessage = closestDiv.find(".product-added");
-        popupMessage.show();
-        setTimeout(function () {
-          popupMessage.hide();
-        }, 1000);
-        // reset input field
-        closestDiv.find("input[name='quantity']").val("1");
-      },
-    });
-  });
-  $("input:radio").change(function () {
-    // retrieve id of the checked button
-    var checked_size_id = $(this).attr("id");
-    // retrieve product number to hide price
-    var product_number = checked_size_id.split("-")[1];
-    $(".prices-" + product_number).hide();
-    $("." + checked_size_id).show();
-  });
-
-  // incrementing quantity
-  $(".increment").click(function () {
-    // find closest input
-    var closestDiv = $(this).closest(".individual-container");
-    var quantityInput = closestDiv.find("input[name='quantity']");
-    var inputValue = parseInt(quantityInput.val());
-    inputValue++;
-    quantityInput.val(inputValue);
-  });
-
-  // decrementing quantity
-  $(".decrement").click(function () {
-    // find closest input
-    var closestDiv = $(this).closest(".individual-container");
-    var quantityInput = closestDiv.find("input[name='quantity']");
-    var inputValue = parseInt(quantityInput.val());
-    // only decrement if value is greater than 1
-    if ($(quantityInput).val() > 1) {
-      inputValue--;
-      quantityInput.val(inputValue);
-    }
-  });
-</script>
 {% endblock %}

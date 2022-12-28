@@ -5,6 +5,8 @@ from django.conf.urls.static import static
 app_name = 'store'
 urlpatterns = [
     path('', views.products, name='products'),
+    path('pizza/', views.pizzas, name='pizzas'),
+    path('drinks/', views.drinks, name='drinks'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('products/add/', views.ProductCreateView.as_view(), name='add_product'),
     path('products/update/<uuid:pk>/',

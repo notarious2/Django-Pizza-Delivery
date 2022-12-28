@@ -6,8 +6,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.auth.decorators import user_passes_test
 from django.core.paginator import Paginator
 
-# Create your views here.
-
 
 def index(request):
     return render(request, 'store/index.html')
@@ -23,7 +21,6 @@ def dashboard(request):
 
 
 def products(request):
-
     products = Product.objects.all()
     # get the keywords from the search field to alter products list
     product_name = request.GET.get('product')
@@ -42,6 +39,18 @@ def products(request):
     context = {'products': products,
                "search_string": product_name}
     return render(request, 'store/products.html', context=context)
+
+
+def pizzas(request):
+    products = Product.objects.filter(product_type="Pizza")
+    context = {'products': products}
+    return render(request, 'store/pizzas.html', context=context)
+
+
+def drinks(request):
+    products = Product.objects.filter(product_type="Nonpizza")
+    context = {'products': products}
+    return render(request, 'store/drinks.html', context=context)
 
 
 class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
