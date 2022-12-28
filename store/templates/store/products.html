@@ -195,7 +195,6 @@
    var closestDiv =  $(this).closest(".individual-container")
    var size =  closestDiv.find("input[name='size']:checked").val()
    var quantity =  closestDiv.find("input[name='quantity']").val()
-   console.log(quantity);
   $.ajax({
     headers:{
                 'Content-Type':'application/json',
@@ -206,11 +205,13 @@
     data: JSON.stringify({"size": size, "quantity": quantity}),
     success: function (data) {
       $(document).find(".cart-count").text(data.cart_total)
-      var popupMessage = closestDiv.find(".product-added")
-      popupMessage.show()
-      setTimeout(function() {
-        popupMessage.hide();
-    }, 1000);
+        var popupMessage = closestDiv.find(".product-added")
+        popupMessage.show()
+        setTimeout(function() {
+          popupMessage.hide();
+      }, 1000);
+      // reset input field
+      closestDiv.find("input[name='quantity']").val('1')
     },
   });
 });
