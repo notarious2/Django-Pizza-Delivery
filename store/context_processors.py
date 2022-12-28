@@ -6,7 +6,10 @@ from users.models import Customer
 
 def get_cart_quantity(request):
     if request.user.is_authenticated:
-        customer = request.user.customer
+        try:
+            customer = request.user.customer
+        except:
+            number_of_items = 0
     else:
         try:
             # create customer assigning device cookie

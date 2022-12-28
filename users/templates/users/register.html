@@ -38,9 +38,8 @@
         >Already have an account?</a
       >
     </p>
-
     {% if form.errors %} {% for key, value in form.errors.items %}
-    <p class="w-full text-red-500 text-left">
+    <p class="overflow-hidden text-red-500 text-left">
       {{value.as_text|cut:"*"|linebreaksbr}}
     </p>
     {% endfor %} {% endif %}

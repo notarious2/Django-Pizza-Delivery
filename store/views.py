@@ -42,15 +42,21 @@ def products(request):
 
 
 def pizzas(request):
-    products = Product.objects.filter(product_type="Pizza")
+    products = Product.objects.filter(product_category__name="Pizza")
     context = {'products': products}
     return render(request, 'store/pizzas.html', context=context)
 
 
 def drinks(request):
-    products = Product.objects.filter(product_type="Nonpizza")
+    products = Product.objects.filter(product_category__name="Drink")
     context = {'products': products}
     return render(request, 'store/drinks.html', context=context)
+
+
+def sides(request):
+    products = Product.objects.filter(product_category__name="Side")
+    context = {'products': products}
+    return render(request, 'store/sides.html', context=context)
 
 
 class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -67,7 +73,7 @@ class SuperUserRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class ProductCreateView(SuperUserRequiredMixin, CreateView):
     model = Product
-    fields = ['name', 'price', 'desc', 'image', 'product_type']
+    fields = ['name', 'price', 'desc', 'image']
 
     # redirects to the dashboard
     def get_success_url(self):
