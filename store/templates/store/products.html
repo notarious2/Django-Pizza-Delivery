@@ -1,5 +1,4 @@
 {% extends "store/base.html" %} {% block content %} {% load static %}
-
 <!-- Search Button Start -->
 <div class="flex">
   <div class="ml-auto mr-2 my-2">
@@ -222,7 +221,6 @@
   {% endif %}
 </div>
 <!-- End Pagination-->
-
 <script>
   var csrftoken = "{{csrf_token}}";
   $(document).on("click", ".js-add", function () {

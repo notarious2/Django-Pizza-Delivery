@@ -1,153 +1,147 @@
 {% extends 'store/base.html' %} {% block content %} {% load static%}
-
-<form
-id="address-form"
-method="POST"
-enctype="multipart/form-data"
->
-{% csrf_token %}
-
 <div class="my-5">
   <h1 class="flex items-center justify-center font-bold text-md lg:text-3xl">
     Checkout Page
   </h1>
 </div>
-<div class="flex justify-between mx-3 mb-5 bg-transparent rounded-xl">
-  <div class="p-3 m-3 bg-white w-3/5 rounded-xl">
-    <!-- Contact Info -->
-    <div class="p-2">
-      <h2 class="font-bold mb-3 text-2xl">Contact Information</h2>
-      <div class="flex flex-col w-2/3 mb-5">
-        <label class="mb-2 font-bold text-slate-500" for="email">Email:</label>
-        <input
-          class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-          type="email"
-          name="email"
-          placeholder="Please enter your email"
-          value="vasya@gmail.com"
-          required
-        />
-      </div>
-    </div>
-    <!-- Shipping Info -->
+<!-- Shipping Option -->
+<div class="flex w-3/5">
+  <div class="w-4/5 mx-auto py-3 bg-white rounded-xl text-center">
+    <form action="" id="delivery-form">
+      <label class="m-2" for="delivery">Delivery</label>
+      <input class="m-2" type="radio" name="shipping-option" id="delivery" checked>
+      <label class="m-2" for="carryout">Carry-out</label>
+      <input class="m-2" type="radio" name="shipping-option" id="carryout">
+    </form>
+  </div>
+</div>
 
+<div class="flex">
+  <!-- Delivery Information -->
+  <form id="address-form" method="POST" enctype="multipart/form-data" class="w-3/5 bg-white rounded-xl p-3 m-3">
+    {% csrf_token %}
+
+    <div class="flex flex-col justify-between mx-3 mb-5 bg-transparent rounded-xl">
+      <!-- Contact Info -->
+      <div class="p-2">
+        <h2 class="font-bold mb-3 text-2xl">Contact Information</h2>
+        <div class="flex flex-col w-2/3 mb-5">
+          <label class="mb-2 font-bold text-slate-500" for="email">Email:</label>
+          <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="email" name="email"
+            placeholder="Please enter your email" value="vasya@gmail.com" required />
+        </div>
+        <div class="flex flex-col w-2/3 mb-2">
+          <label class="mb-2 font-bold text-slate-500" for="phone">Phone</label>
+          <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="phone"
+            value="phone" required />
+        </div>
+      </div>
+      <!-- Shipping Info -->
       <div class="p-2">
         <h2 class="font-bold mb-5 text-2xl">Shipping Information</h2>
         <div class="flex flex-col">
           <div class="flex justify-between mb-2">
             <div class="flex flex-col w-1/2 mb-2">
-              <label class="mb-2 font-bold text-slate-500" for="first_name"
-                >First Name</label
-              >
-              <input
-                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-                type="text"
-                name="first_name"
-                value="first-name"
-                required
-              />
+              <label class="mb-2 font-bold text-slate-500" for="first_name">First Name</label>
+              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="first_name"
+                value="first-name" required />
             </div>
             <div class="flex flex-col w-1/2 ml-2">
-              <label class="mb-2 font-bold text-slate-500" for="last_name"
-                >Last Name</label
-              >
-              <input
-                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-                type="text"
-                name="last_name"
-                value="last-name"
-              />
+              <label class="mb-2 font-bold text-slate-500" for="last_name">Last Name</label>
+              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="last_name"
+                value="last-name" />
             </div>
           </div>
           <div class="flex flex-col w-full mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="address_1"
-              >Address</label
-            >
-            <input
-              class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-              type="text"
-              name="address_1"
-              value="address-1"
-              required
-            />
+            <label class="mb-2 font-bold text-slate-500" for="address_1">Address</label>
+            <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="address_1"
+              value="address-1" required />
           </div>
           <div class="flex flex-col w-full mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="address_2"
-              >Apartment, suite, etc.</label
-            >
-            <input
-              class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-              type="text"
-              name="address_2"
-            />
+            <label class="mb-2 font-bold text-slate-500" for="address_2">Apartment, suite, etc.</label>
+            <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="address_2" />
           </div>
           <div class="flex justify-between mb-2">
             <div class="flex flex-col w-1/2 mb-2">
-              <label class="mb-2 font-bold text-slate-500" for="city"
-                >City</label
-              >
-              <input
-                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-                type="text"
-                name="city"
-                value="Angren"
-                required
-              />
+              <label class="mb-2 font-bold text-slate-500" for="city">City</label>
+              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="city"
+                value="Angren" required />
             </div>
             <div class="flex flex-col w-1/2 ml-2">
-              <label class="mb-2 font-bold text-slate-500" for="country"
-                >Country</label
-              >
-              <input
-                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-                type="text"
-                name="country"
-                value="Uzbekistan"
-                required
-              />
+              <label class="mb-2 font-bold text-slate-500" for="country">Country</label>
+              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="country"
+                value="Uzbekistan" required />
             </div>
           </div>
           <div class="flex justify-between mb-2">
             <div class="flex flex-col w-1/2 mb-2">
-              <label class="mb-2 font-bold text-slate-500" for="state"
-                >State / Provice</label
-              >
-              <input
-                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-                type="text"
-                name="state"
-                value="Tashkent Region"
-                required
-              />
+              <label class="mb-2 font-bold text-slate-500" for="state">State / Provice</label>
+              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="state"
+                value="Tashkent Region" required />
             </div>
             <div class="flex flex-col w-1/2 ml-2">
-              <label class="mb-2 font-bold text-slate-500" for="postal_code"
-                >Postal Code</label
-              >
-              <input
-                class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-                type="text"
-                name="postal_code"
-              />
+              <label class="mb-2 font-bold text-slate-500" for="postal_code">Postal Code</label>
+              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text"
+                name="postal_code" />
             </div>
-          </div>
-          <div class="flex flex-col w-2/3 mb-2">
-            <label class="mb-2 font-bold text-slate-500" for="phone"
-              >Phone</label
-            >
-            <input
-              class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]"
-              type="text"
-              name="phone"
-              value="phone"
-              required
-            />
           </div>
         </div>
         <div id="error-messages"></div>
       </div>
+    </div>
+  </form>
+
+  <!-- Carry-out Information -->
+  <div class="w-3/5 bg-white rounded-xl p-3 m-3 hidden" id="carryout-info">
+    <div class="p-2">
+      <h2 class="font-bold mb-3 text-2xl">Contact Information</h2>
+      <div class="flex flex-col w-2/3 mb-2">
+        <label class="mb-2 font-bold text-slate-500" for="phone">Phone</label>
+        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="phone" required />
+      </div>
+      <div class="p-2 mt-3">
+        <h2 class="font-bold mb-3 text-2xl">Pick-up Details</h2>
+        <div>
+          <!-- SELECT TIME -->
+          <h2 class="font-semibold my-3">Pick-up Time</h2>
+          <div class="flex gap-3 mb-3">
+            <div>
+              <input type="radio" name="size" id="asap" class="peer hidden" checked />
+              <label for="asap"
+                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-cyan-300">As soon
+                as possible
+              </label>
+            </div>
+            <div>
+              <input type="radio" name="size" id="select-time" class="peer hidden" />
+              <label for="select-time"
+                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-lime-300 peer-checked:font-bold">Select
+                time</label>
+            </div>
+          </div>
+        </div>
+        <div>
+          <!-- SELECT PAYMENT -->
+          <h2 class="font-semibold my-3">Payment Method</h2>
+          <div class="flex gap-3 mb-3">
+            <div>
+              <input type="radio" name="payment" id="online" class="peer hidden" checked />
+              <label for="online"
+                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-teal-300 peer-checked:font-bold">
+                Online
+              </label>
+            </div>
+            <div>
+              <input type="radio" name="payment" id="cash" class="peer hidden" />
+              <label for="cash"
+                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-green-300 peer-checked:font-bold">
+                Cash</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</form>
 
   <!-- Order Summary -->
   <div class="flex flex-col p-3 m-3 bg-gray-50 w-2/5 rounded-xl">
@@ -158,15 +152,10 @@ enctype="multipart/form-data"
         <p class="text-blue-700"><a href="{% url 'order:cart' %}">Edit</a></p>
       </div>
       <!-- Order Items -->
-
       <div class="flex flex-col shadow-xl p-2 rounded-xl bg-white">
         {% for item in order_items %}
         <div class="flex gap-3 items-center mx-3 mb-2">
-          <img
-            class="w-14 rounded-lg"
-            src="{{item.product.image.url}}"
-            alt=""
-          />
+          <img class="w-14 rounded-lg" src="{{item.product.image.url}}" alt="" />
           <div>
             <h3 class="text-slate-500 text-xl">{{item.product.name}}</h3>
             <p>
@@ -223,13 +212,9 @@ enctype="multipart/form-data"
       </div>
       <!-- Start Payment Button -->
       <div class="flex mt-5">
-        <input
-          id="checkout"
+        <input id="checkout"
           class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 cursor-pointer p-3 text-sm text-white uppercase"
-          value="Proceed to payment"
-          type="submit"
-          form="address-form"
-        >
+          value="Proceed to payment" type="submit" form="address-form">
         </input>
       </div>
       <!-- End Payment Button -->
@@ -248,91 +233,48 @@ enctype="multipart/form-data"
     const formData = new FormData(checkoutForm);
     // convert form data into an object
     var dict = {};
-    for (var [key, value] of formData.entries()) { 
+    for (var [key, value] of formData.entries()) {
       dict[key] = value;
     }
     fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dict)})
-    .then((response) => {
-      // handle validation errors
-      if (response.status==422) {
-        const showError = document.getElementById("error-messages")
-        showError.innerText = "" // clear field first
-        return response.json().then(data => {
-          for (let i = 0; i < data['errors'].length; i++) {
-            console.log(i, data['errors'][i]);
-            showError.innerText += "\n" + data['errors'][i]
-          }
-        })
-      } else { response.json().then(data => {
-        return stripe.redirectToCheckout({ sessionId: data.sessionId });
-      } )
+      body: JSON.stringify(dict)
+    })
+      .then((response) => {
+        // handle validation errors
+        if (response.status == 422) {
+          const showError = document.getElementById("error-messages")
+          showError.innerText = "" // clear field first
+          return response.json().then(data => {
+            for (let i = 0; i < data['errors'].length; i++) {
+              console.log(i, data['errors'][i]);
+              showError.innerText += "\n" + data['errors'][i]
+            }
+          })
+        } else {
+          response.json().then(data => {
+            return stripe.redirectToCheckout({ sessionId: data.sessionId });
+          })
 
-      }
+        }
       })
-    .catch((error) => {
+      .catch((error) => {
         console.error("Error", error);
       });
-    });
-  //   fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
-  //     method: "POST",
-  //   })
-  //     .then(function (response) {
-  //       return response.json();
-  //     })
-  //     .then(function (session) {
-  //       return stripe.redirectToCheckout({ sessionId: session.sessionId });
-  //     })
-  //     .then(function (result) {
-  //       if (result.error) {
-  //         alert(result.error.message);
-  //       }
-  //     })
-  //     .catch(function (error) {
-  //       console.error("Error", error);
-  //     });
-  // });
+  });
 
-  // var checkoutButton = document.getElementById("checkout");
-  // checkoutButton.addEventListener("click", (event) => {
-  //   event.preventDefault();
-  // document.getElementById("address-form").submit();
+  // listen to radio buttons
+  document.getElementById("delivery").addEventListener('click', function (event) {
+    document.getElementById("carryout-info").style.display = "none";
+    document.getElementById("address-form").style.display = "block";
+  })
+  document.getElementById("carryout").addEventListener('click', function (event) {
+    document.getElementById("address-form").style.display = "none";
+    document.getElementById("carryout-info").style.display = "block";
 
-  // fetch("", {
-  //   method: "POST",
-  //   body: JSON.stringify({ name: "Bekzod", phone: "123124" }),
-  // })
-  //   .then((response) => {
-  //     if (response.ok) {
-  //       console.log("RESPONSE IS OK");
-  //     } else {
-  //       console.log("RESPONSE", response);
-  //     }
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
+  })
 
-  //   fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
-  //     method: "POST",
-  //   })
-  //     .then(function (response) {
-  //       return response.json();
-  //     })
-  //     .then(function (session) {
-  //       return stripe.redirectToCheckout({ sessionId: session.sessionId });
-  //     })
-  //     .then(function (result) {
-  //       if (result.error) {
-  //         alert(result.error.message);
-  //       }
-  //     })
-  //     .catch(function (error) {
-  //       console.error("Error", error);
-  //     });
-  // });
 </script>
 
 {% endblock %}
