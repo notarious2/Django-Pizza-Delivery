@@ -81,11 +81,10 @@ def add_to_cart(request, pk):
         product=product,
         variation=variation,
     )
+    print("Quantity", quantity)
     order_item.quantity += quantity
     order_item.save()
     order.save()  # to update modified field of order model
-    # redirects to the same page
-    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
     return JsonResponse({'cart_total': order.get_cart_items})
 
 
@@ -98,6 +97,7 @@ def remove_from_cart(request, pk):
     order_item.delete()
     # save corresponding order to update modified date field
     order_item.order.save()
+    # redirects to the same page
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 

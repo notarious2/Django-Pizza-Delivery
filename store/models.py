@@ -6,11 +6,6 @@ import uuid
 
 
 class Product(models.Model):
-    PRODUCT_TYPES = (
-        ("Pizza", "pizza"),
-        ("Nonpizza", "nonpizza")
-    )
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
     price = models.PositiveIntegerField(blank=True, null=True)
