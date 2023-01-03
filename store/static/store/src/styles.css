@@ -1357,6 +1357,14 @@ input[type="number"]::-webkit-inner-spin-button,
   width: 8rem;
 }
 
+.w-10 {
+  width: 2.5rem;
+}
+
+.w-36 {
+  width: 9rem;
+}
+
 .flex-1 {
   flex: 1 1 0%;
 }
@@ -1762,6 +1770,11 @@ input[type="number"]::-webkit-inner-spin-button,
   padding-bottom: 1.25rem;
 }
 
+.px-7 {
+  padding-left: 1.75rem;
+  padding-right: 1.75rem;
+}
+
 .pt-1 {
   padding-top: 0.25rem;
 }
@@ -2149,9 +2162,9 @@ input[type="number"]::-webkit-inner-spin-button,
   background-color: rgb(14 159 110 / var(--tw-bg-opacity));
 }
 
-.peer:checked ~ .peer-checked\:bg-slate-300 {
+.peer:checked ~ .peer-checked\:bg-cyan-300 {
   --tw-bg-opacity: 1;
-  background-color: rgb(203 213 225 / var(--tw-bg-opacity));
+  background-color: rgb(103 232 249 / var(--tw-bg-opacity));
 }
 
 .peer:checked ~ .peer-checked\:bg-lime-300 {
@@ -2162,11 +2175,6 @@ input[type="number"]::-webkit-inner-spin-button,
 .peer:checked ~ .peer-checked\:bg-teal-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(126 220 226 / var(--tw-bg-opacity));
-}
-
-.peer:checked ~ .peer-checked\:bg-cyan-300 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(103 232 249 / var(--tw-bg-opacity));
 }
 
 .peer:checked ~ .peer-checked\:bg-green-300 {

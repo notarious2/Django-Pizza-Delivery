@@ -92,14 +92,14 @@
   </form>
 
   <!-- Carry-out Information -->
-  <div class="w-3/5 bg-white rounded-xl p-3 m-3 hidden" id="carryout-info">
+  <form class="w-3/5 bg-white rounded-xl p-3 m-3 hidden" id="carryout-form">
     <div class="p-2">
       <h2 class="font-bold mb-3 text-2xl">Contact Information</h2>
       <div class="flex flex-col w-2/3 mb-2">
         <label class="mb-2 font-bold text-slate-500" for="phone">Phone</label>
         <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="phone" required />
       </div>
-      <div class="p-2 mt-3">
+      <div class="py-2 mt-3">
         <h2 class="font-bold mb-3 text-2xl">Pick-up Details</h2>
         <div>
           <!-- SELECT TIME -->
@@ -108,17 +108,22 @@
             <div>
               <input type="radio" name="size" id="asap" class="peer hidden" checked />
               <label for="asap"
-                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-cyan-300">As soon
-                as possible
+                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-cyan-300 peer-checked:font-bold">As
+                soon as possible
               </label>
             </div>
             <div>
               <input type="radio" name="size" id="select-time" class="peer hidden" />
               <label for="select-time"
-                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-lime-300 peer-checked:font-bold">Select
-                time</label>
+                class="cursor-pointer select-none rounded-xl py-2 px-7 text-sm text-center peer-checked:bg-lime-300 peer-checked:font-bold">
+                Select time</label>
             </div>
           </div>
+          <div class="hidden" id="date-time-picker">
+            <input type="date" name="datepicker" id="datepicker" class="w-36 rounded text-center">
+            <input type="text" class="timepicker w-36 rounded text-center">
+          </div>
+
         </div>
         <div>
           <!-- SELECT PAYMENT -->
@@ -127,21 +132,21 @@
             <div>
               <input type="radio" name="payment" id="online" class="peer hidden" checked />
               <label for="online"
-                class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:bg-teal-300 peer-checked:font-bold">
+                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-teal-300 peer-checked:font-bold">
                 Online
               </label>
             </div>
             <div>
               <input type="radio" name="payment" id="cash" class="peer hidden" />
               <label for="cash"
-                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-green-300 peer-checked:font-bold">
+                class="cursor-pointer select-none rounded-xl py-2 px-7 text-sm text-center peer-checked:bg-green-300 peer-checked:font-bold">
                 Cash</label>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </form>
 
   <!-- Order Summary -->
   <div class="flex flex-col p-3 m-3 bg-gray-50 w-2/5 rounded-xl">
@@ -183,7 +188,6 @@
     </div>
     {% endfor %}
     <!-- Start Promo Code Message  -->
-
     <div class="mt-5 py-5 shadow-xl rounded-xl bg-white">
       <div class="flex justify-between m-3 p-3">
         <p>Subtotal</p>
@@ -212,9 +216,15 @@
       </div>
       <!-- Start Payment Button -->
       <div class="flex mt-5">
-        <input id="checkout"
+        <!-- submits address form -->
+        <input id="online-payment"
           class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 cursor-pointer p-3 text-sm text-white uppercase"
           value="Proceed to payment" type="submit" form="address-form">
+        </input>
+        <!-- submits carry-out form -->
+        <input id="cash-payment"
+        class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 cursor-pointer p-3 text-sm text-white uppercase hidden"
+        value="Place Order" type="submit" form="carryout-form">
         </input>
       </div>
       <!-- End Payment Button -->
@@ -224,22 +234,65 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
-  var stripe = Stripe("{{ stripe_publishable_key }}");
+  var delivery = true;
+  var carrOut = false;
+  // listen to radio buttons to swith between Delivery and Carry-out forms
+  // delivery form
+  document.getElementById("delivery").addEventListener('click', function (event) {
+    document.getElementById("carryout-form").style.display = "none";
+    document.getElementById("address-form").style.display = "block";
+    // To exclude order placement without payment
+    document.getElementById('cash-payment').style.display = "none";
+    document.getElementById('online-payment').style.display = "block";
+  })
+  // carry-out form
+  document.getElementById("carryout").addEventListener('click', function (event) {
+    document.getElementById("address-form").style.display = "none";
+    document.getElementById("carryout-form").style.display = "block";
+    // online must be checked at initial navigation
+    document.getElementById('online').checked = true;
+  })
 
-  var checkoutForm = document.getElementById("address-form");
-  checkoutForm.addEventListener("submit", (event) => {
+  // Check if Cash Payment option is selected change type of submit input
+  
+    document.getElementById('cash').addEventListener("change", function (event) {
+    // if cash button is checked
+    document.getElementById('cash-payment').style.display = "block";
+    document.getElementById('online-payment').style.display = "none";
+    })
+    document.getElementById('online').addEventListener("change", function (event) {
+    // if online button is checked
+    document.getElementById('cash-payment').style.display = "none";
+    document.getElementById('online-payment').style.display = "block";
+    })
+
+    
+  
+
+  // CODE FOR CARRY-OUT CHECKOUT
+  var carryOutForm = document.getElementById("carryout-form")
+  carryOutForm.addEventListener("submit", (event)=> {
+    event.preventDefault()
+    console.log(("Carryout Submitted!"));
+  }) 
+
+
+  // CODE FOR DELIVERY CHECKOUT
+  var stripe = Stripe("{{ stripe_publishable_key }}");
+  var deliveryForm = document.getElementById("address-form");
+  deliveryForm.addEventListener("submit", (event) => {
     event.preventDefault();
     console.log("SUBMITTED!");
-    const formData = new FormData(checkoutForm);
+    const formData = new FormData(deliveryForm);
     // convert form data into an object
-    var dict = {};
+    var address_info = {};
     for (var [key, value] of formData.entries()) {
-      dict[key] = value;
+      address_info[key] = value;
     }
     fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dict)
+      body: JSON.stringify(address_info)
     })
       .then((response) => {
         // handle validation errors
@@ -264,17 +317,33 @@
       });
   });
 
-  // listen to radio buttons
-  document.getElementById("delivery").addEventListener('click', function (event) {
-    document.getElementById("carryout-info").style.display = "none";
-    document.getElementById("address-form").style.display = "block";
-  })
-  document.getElementById("carryout").addEventListener('click', function (event) {
-    document.getElementById("address-form").style.display = "none";
-    document.getElementById("carryout-info").style.display = "block";
 
+  // listen to radio buttons to show/hide pick-up time and date
+  document.getElementById("asap").addEventListener('click', function (event) {
+    document.getElementById("date-time-picker").style.display = "none";
+  })
+  document.getElementById("select-time").addEventListener('click', function (event) {
+    document.getElementById("date-time-picker").style.display = "block";
   })
 
+  var today = new Date();
+  var time = today.getHours()
+  // set default date in date-picker as today
+  document.getElementById('datepicker').valueAsDate = new Date();
+  // jQuery TimePicker
+  $(document).ready(function () {
+    $('input.timepicker').timepicker({
+      timeFormat: 'h:mm p',
+      interval: 30,
+      minTime: String(time) + ':30',
+      maxTime: '9:00pm',
+      defaultTime: String(time + 1),
+      startTime: String(time) + ':30',
+      dynamic: false,
+      dropdown: true,
+      scrollbar: true
+    });
+  });  
 </script>
 
 {% endblock %}
