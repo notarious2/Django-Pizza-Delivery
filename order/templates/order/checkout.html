@@ -86,7 +86,7 @@
             </div>
           </div>
         </div>
-        <div id="error-messages"></div>
+        <div id="error-messages" class="text-red-500"></div>
       </div>
     </div>
   </form>
@@ -96,8 +96,12 @@
     <div class="p-2">
       <h2 class="font-bold mb-3 text-2xl">Contact Information</h2>
       <div class="flex flex-col w-2/3 mb-2">
-        <label class="mb-2 font-bold text-slate-500" for="phone">Phone</label>
-        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="phone" required />
+        <label class="mb-2 font-bold text-slate-500" for="carryout-email">Email</label>
+        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="email" name="carryout-email" id = "carryout-email" required />
+      </div>
+      <div class="flex flex-col w-2/3 mb-2">
+        <label class="mb-2 font-bold text-slate-500" for="carryout-phone">Phone</label>
+        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="carryout-phone" id = "carryout-phone"  required />
       </div>
       <div class="py-2 mt-3">
         <h2 class="font-bold mb-3 text-2xl">Pick-up Details</h2>
@@ -121,7 +125,7 @@
           </div>
           <div class="hidden" id="date-time-picker">
             <input type="date" name="datepicker" id="datepicker" class="w-36 rounded text-center">
-            <input type="text" class="timepicker w-36 rounded text-center">
+            <input type="text" class="timepicker w-36 rounded text-center" id="timepicker">
           </div>
 
         </div>
@@ -217,14 +221,14 @@
       <!-- Start Payment Button -->
       <div class="flex mt-5">
         <!-- submits address form -->
-        <input id="online-payment"
+        <input id="delivery-submit"
           class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 cursor-pointer p-3 text-sm text-white uppercase"
-          value="Proceed to payment" type="submit" form="address-form">
+          value="Place Order" type="submit" form="address-form">
         </input>
         <!-- submits carry-out form -->
-        <input id="cash-payment"
-        class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 cursor-pointer p-3 text-sm text-white uppercase hidden"
-        value="Place Order" type="submit" form="carryout-form">
+        <input id="carryout-submit"
+          class="w-2/3 text-center mx-auto rounded-lg bg-indigo-500 font-semibold hover:bg-indigo-600 cursor-pointer p-3 text-sm text-white uppercase hidden"
+          value="Place Order" type="submit" form="carryout-form">
         </input>
       </div>
       <!-- End Payment Button -->
@@ -235,85 +239,132 @@
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
   var delivery = true;
-  var carrOut = false;
+  var online = true;
   // listen to radio buttons to swith between Delivery and Carry-out forms
   // delivery form
   document.getElementById("delivery").addEventListener('click', function (event) {
     document.getElementById("carryout-form").style.display = "none";
     document.getElementById("address-form").style.display = "block";
-    // To exclude order placement without payment
-    document.getElementById('cash-payment').style.display = "none";
-    document.getElementById('online-payment').style.display = "block";
+    // toggle form submission buttons
+    document.getElementById('carryout-submit').style.display = "none";
+    document.getElementById('delivery-submit').style.display = "block";
   })
   // carry-out form
   document.getElementById("carryout").addEventListener('click', function (event) {
     document.getElementById("address-form").style.display = "none";
     document.getElementById("carryout-form").style.display = "block";
+    // toggle form submission buttons
+    document.getElementById('carryout-submit').style.display = "block";
+    document.getElementById('delivery-submit').style.display = "none";
     // online must be checked at initial navigation
     document.getElementById('online').checked = true;
+    // change delivery method
+    delivery = false;
   })
 
-  // Change type of submit input based on payment option selection (Cash/Online)
-    document.getElementById('cash').addEventListener("change", function (event) {
-    // if cash button is checked
-    document.getElementById('cash-payment').style.display = "block";
-    document.getElementById('online-payment').style.display = "none";
-    })
-    document.getElementById('online').addEventListener("change", function (event) {
-    // if online button is checked
-    document.getElementById('cash-payment').style.display = "none";
-    document.getElementById('online-payment').style.display = "block";
-    })
+  // Change payment method
+  // if cash button is checked
+  document.getElementById('cash').addEventListener("change", function (event) {
+    online = false;
+  })
+  // if online button is checked
+  document.getElementById('online').addEventListener("change", function (event) {
+    online = true;
+  })
 
-    
-  
+
+  var stripe = Stripe("{{ stripe_publishable_key }}");
+
 
   // CODE FOR CARRY-OUT CHECKOUT
   var carryOutForm = document.getElementById("carryout-form")
-  carryOutForm.addEventListener("submit", (event)=> {
+  carryOutForm.addEventListener("submit", (event) => {
     event.preventDefault()
-    console.log(("Carryout Submitted!"));
-  }) 
+    var carryOutInfo = {}
+    carryOutInfo['delivery'] = false;
+    carryOutInfo['phone'] = document.getElementById("carryout-phone").value
+    carryOutInfo['email'] = document.getElementById("carryout-email").value
+
+    if (online) {
+      // get preparation time selections
+      if (document.getElementById('asap').checked == true) {
+        carryOutInfo['urgency'] = "asap"
+      } else {
+        carryOutInfo['urgency'] = "custom"
+        const date = document.getElementById('datepicker').value;
+        const time = document.getElementById('timepicker').value;
+        carryOutInfo['pickup_date'] = date + " " + time
+        }
+      // send POST request to Stripe checkout for Carryout order
+      fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(carryOutInfo)
+      })
+      .then(function (response) {
+        return response.json();
+        })
+      .then(function (session) {
+        return stripe.redirectToCheckout({ sessionId: session.sessionId });
+        })
+      .catch((error) => {
+          console.error("Error", error);
+        });  
+    } else {
+      console.log("Need to handle cash payment");
+    }
+     
+
+  })
 
 
   // CODE FOR DELIVERY CHECKOUT
-  var stripe = Stripe("{{ stripe_publishable_key }}");
   var deliveryForm = document.getElementById("address-form");
   deliveryForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    console.log("SUBMITTED!");
-    const formData = new FormData(deliveryForm);
-    // convert form data into an object
-    var address_info = {};
-    for (var [key, value] of formData.entries()) {
-      address_info[key] = value;
-    }
-    fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(address_info)
-    })
-      .then((response) => {
-        // handle validation errors
-        if (response.status == 422) {
-          const showError = document.getElementById("error-messages")
-          showError.innerText = "" // clear field first
-          return response.json().then(data => {
-            for (let i = 0; i < data['errors'].length; i++) {
-              console.log(i, data['errors'][i]);
-              showError.innerText += "\n" + data['errors'][i]
-            }
-          })
-        } else {
-          response.json().then(data => {
-            return stripe.redirectToCheckout({ sessionId: data.sessionId });
-          })
-
-        }
+    if (online) {
+      // grab data from the form
+      const formData = new FormData(deliveryForm);
+      // convert form data into an object
+      var addressInfo = {};
+      for (var [key, value] of formData.entries()) {
+        addressInfo[key] = value;
+      }
+      // delete csrf middleware token
+      delete addressInfo['csrfmiddlewaretoken']
+      // add Delivery Method
+      addressInfo['delivery'] = true;
+      // send POST request to Stripe checkout session - Delivery Order 
+      fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(addressInfo)
       })
-      .catch((error) => {
-        console.error("Error", error);
-      });
+        .then((response) => {
+          // handle validation errors
+          if (response.status == 422) {
+            const showError = document.getElementById("error-messages")
+            showError.innerText = "" // clear field first
+            return response.json().then(data => {
+              for (let i = 0; i < data['errors'].length; i++) {
+                // console.log(i, data['errors'][i]);
+                showError.innerText += "\n" + data['errors'][i]
+              }
+            })
+          } else {
+            response.json().then(data => {
+              return stripe.redirectToCheckout({ sessionId: data.sessionId });
+            })
+
+          }
+        })
+        .catch((error) => {
+          console.error("Error", error);
+        });
+    } else {
+      console.log("Need to handle cash payment");
+    }
+
   });
 
 

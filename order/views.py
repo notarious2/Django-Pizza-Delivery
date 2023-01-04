@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from store.models import Product, ProductVariant, Size
 from users.models import Customer
-from .models import OrderItem, Order, Coupon, ShippingAddress
+from .models import OrderItem, Order, Coupon, ShippingAddress, PickUpDetail
 from .forms import CouponApplyForm
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -16,6 +16,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http.response import HttpResponseNotFound, JsonResponse, HttpResponse
 import requests
 import json
+import datetime
+from django.utils.timezone import make_aware
 
 # Create your views here.
 
@@ -81,7 +83,6 @@ def add_to_cart(request, pk):
         product=product,
         variation=variation,
     )
-    print("Quantity", quantity)
     order_item.quantity += quantity
     order_item.save()
     order.save()  # to update modified field of order model
@@ -250,32 +251,67 @@ def checkout(request):
     return render(request, 'order/checkout.html', context=context)
 
 
-@csrf_exempt
+@require_POST
 def create_checkout_session(request, pk):
     # get order by transaction_id
     order = get_object_or_404(Order, transaction_id=pk)
-    if request.method == "POST":
-        # load data from body and create address object
-        data = json.loads(request.body)
-        del data['csrfmiddlewaretoken']
-        shipping_address = ShippingAddress(
-            order=order, **data)
-        # manually triggering fields validation
+    # change order payment method to Online
+    order.payment_method = "online"
+    # load data from body and create address object
+    data = json.loads(request.body)
+    # get delivery status
+    delivery = data.pop("delivery")
+    print("delivery", delivery)
+    print("DATA", data)
+    if delivery:
+        # change order delivery method to 'delivery'
+        order.delivery_method = "delivery"
+        # populate shipping address model
+        shipping_address = ShippingAddress(order=order, **data)
+        # manually trigger fields validation
         try:
             # validate data
             shipping_address.full_clean()
-            # save shipping address after payment is complete
+            # save now - will be adjusted after payment is complete
             shipping_address.save()
             # shipping id that will be passed as a url parameter
             shipping_id = shipping_address.id
         except Exception as e:
+            # Collect errors and return Unprocessable Entity HTTP response 
             errors = []
             for key, value in e:
                 validation_error = key.upper() + " " + value[0]
                 errors.append(validation_error)
-            result = {"errors": errors}
-            return JsonResponse(result, status=422)
+            return JsonResponse({"errors": errors}, status=422)
+    else:
+        # if carryout
+        # change order delivery method to 'carryout'
+        order.delivery_method = "carryout"
+        
+        if data['urgency'] == 'custom':
+            # change data format and make naive datetime object timezone aware
+            data['pickup_date'] = make_aware(datetime.datetime.strptime(data['pickup_date'], '%Y-%m-%d %I:%M %p'))
+        # populate PickUpDetails model
+        pickup_details = PickUpDetail(order=order, **data)
+        try:
+            # validate PickUp details
+            pickup_details.full_clean()
+            # save now - will be adjusted after payment is complete
+            pickup_details.save()
+            # pickup id that will be passed as a url parameter
+            carryout_id = pickup_details.id
+        except Exception as e:
+            print(e)
+            # Collect errors and return Unprocessable Entity HTTP response 
+            errors = []
+            for key, value in e:
+                validation_error = key.upper() + " " + value[0]
+                errors.append(validation_error)
+            return JsonResponse({"errors": errors}, status=422)
+    # save order to apply payment and delivery methods
+    order.save()
 
+    print("order", order.delivery_method, order.payment_method)
     # check if order has coupon
     if order.coupon:
         coupon_id = order.coupon.stripe_coupon_id
@@ -304,21 +340,26 @@ def create_checkout_session(request, pk):
                     'quantity': item.quantity,
                 }
             )
-
+    # change success url based on delivery/carryout status
+    if delivery:
+        success_url = request.build_absolute_uri(
+            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}"+"&shipping_id=" + str(shipping_id)
+    else:
+        success_url = request.build_absolute_uri(
+            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}"+"&carryout_id=" + str(carryout_id)
     stripe.api_key = settings.STRIPE_SECRET_KEY
     checkout_session = stripe.checkout.Session.create(
-        # customer_email=request.user.email,
+        customer_email=data["email"],
         payment_method_types=['card'],
         line_items=line_items,
         discounts=[{
             'coupon': coupon_id,
         }],
         mode='payment',
-        success_url=request.build_absolute_uri(
-            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}"+"&shipping_id=" + str(shipping_id),
+        success_url=success_url,
         cancel_url=request.build_absolute_uri(
             reverse('order:failed')),
-    )
+        )
     return JsonResponse({'sessionId': checkout_session.id})
 
 
@@ -328,6 +369,9 @@ class PaymentSuccessView(TemplateView):
     def get(self, request, *args, **kwargs):
         session_id = request.GET.get('session_id')
         shipping_id = request.GET.get('shipping_id')
+        carryout_id = request.GET.get('carryout_id')
+        print("shipping_id", shipping_id)
+        print("carryout_id", carryout_id)
         if session_id is None:
             return HttpResponseNotFound()
         # session = stripe.checkout.Session.retrieve(session_id)
@@ -345,13 +389,30 @@ class PaymentSuccessView(TemplateView):
         if order_qs.exists():
             order = order_qs[0]
             order.complete = True
+            order.paid = True
+            if shipping_id:
+                order.delivery_method = "delivery"
+            elif carryout_id:
+                order.delivery_method = "carryout"
+            order.payment_method = "online"
             order.save()
-        # get all shippings that contain order id and delete excluding current shipping address
-        existing_orders = ShippingAddress.objects.filter(
-            order=order).exclude(id=int(shipping_id))
-        existing_orders.delete()
-
-        stripe.api_key = settings.STRIPE_SECRET_KEY
+        
+        if shipping_id:
+            # get all shippings that contain order id and delete excluding current shipping address
+            existing_shippings = ShippingAddress.objects.filter(
+                order=order).exclude(id=int(shipping_id))
+            existing_shippings.delete()
+            # delete all PickUpDetails pertaining to the order
+            PickUpDetail.objects.filter(order=order).delete()
+        elif carryout_id:
+            # get all PickupDetails that contain order id and delete excluding current shipping address
+            existing_pickup_details = PickUpDetail.objects.filter(
+                order=order).exclude(id=int(carryout_id))
+            existing_pickup_details.delete()
+            # delete all shippings pertaining to the order
+            ShippingAddress.objects.filter(order=order).delete()
+        else:
+            return HttpResponseNotFound()
         return render(request, self.template_name)
 
 

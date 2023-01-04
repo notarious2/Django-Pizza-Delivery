@@ -1145,11 +1145,6 @@ input[type="number"]::-webkit-inner-spin-button,
   margin-right: 1.5rem;
 }
 
-.mx-1 {
-  margin-left: 0.25rem;
-  margin-right: 0.25rem;
-}
-
 .ml-auto {
   margin-left: auto;
 }
@@ -1346,6 +1341,10 @@ input[type="number"]::-webkit-inner-spin-button,
   width: 66.666667%;
 }
 
+.w-36 {
+  width: 9rem;
+}
+
 .w-14 {
   width: 3.5rem;
 }
@@ -1360,35 +1359,6 @@ input[type="number"]::-webkit-inner-spin-button,
 
 .w-32 {
   width: 8rem;
-}
-
-.w-10 {
-  width: 2.5rem;
-}
-
-.w-36 {
-  width: 9rem;
-}
-
-.max-w-sm {
-  max-width: 24rem;
-}
-
-.max-w-xs {
-  max-width: 20rem;
-}
-
-.max-w-lg {
-  max-width: 32rem;
-}
-
-.max-w-3xl {
-  max-width: 48rem;
-}
-
-.max-w-min {
-  max-width: -moz-min-content;
-  max-width: min-content;
 }
 
 .max-w-max {
@@ -2357,10 +2327,6 @@ input[type="number"]::-webkit-inner-spin-button,
   .md\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
-
-  .md\:grid-cols-5 {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
 }
 
 @media (min-width: 1024px) {
@@ -2370,10 +2336,6 @@ input[type="number"]::-webkit-inner-spin-button,
 
   .lg\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .lg\:grid-cols-3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .lg\:text-3xl {

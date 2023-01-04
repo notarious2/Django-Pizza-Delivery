@@ -2,11 +2,20 @@ from django.db import models
 from users.models import Customer
 import uuid
 from store.models import Product, ProductVariant
-from django.core.validators import MinValueValidator, MaxValueValidator
+import datetime
+
 # Create your models here.
 
 
 class Order(models.Model):
+    PAYMENT_CHOICES = (
+        ("cash", "cash"),
+        ("online", "online")
+        )
+    DELIVERY_CHOICES = (
+        ("delivery", "delivery"),
+        ("carryout", "carryout")
+    )
     transaction_id = models.UUIDField(
         primary_key=True, default=uuid.uuid4, editable=True)
     customer = models.ForeignKey(
@@ -15,7 +24,10 @@ class Order(models.Model):
     date_ordered = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     complete = models.BooleanField(default=False)
-
+    paid = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
+    delivery_method = models.CharField(max_length=10, choices=DELIVERY_CHOICES)
+    
     coupon = models.ForeignKey(
         'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
 
@@ -157,3 +169,17 @@ class ShippingAddress(models.Model):
 
     def __str__(self):
         return f"{self.order} {self.first_name} {self.last_name} {self.address_1}"
+
+class PickUpDetail(models.Model):
+    URGENCY_CHOICES = (
+    ("asap", "asap"),
+    ("custom", "custom")
+    )
+    order = models.ForeignKey(Order, null=True, blank=True, on_delete=models.CASCADE) 
+    urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES)
+    pickup_date = models.DateTimeField(null=True, blank=True, default=datetime.datetime.now)
+    phone = models.CharField(max_length=20)
+    email = models.EmailField()
+
+    def __str__(self):
+        return f"{self.urgency} {self.phone} {self.email}"
