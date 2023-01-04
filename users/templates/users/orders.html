@@ -1,129 +1,139 @@
 {% extends 'store/base.html' %} {% block content %}
 
-    <div class="flex flex-col shadow-md my-5 mx-3">
-      <div class="w-full bg-white px-10 py-10">
-        <a
-          href="{% url 'store:products' %}"
-          class="flex font-semibold text-indigo-600 text-sm my-5 w-1/4"
-        >
-          <svg
-            class="fill-current mr-2 text-indigo-600 w-4"
-            viewBox="0 0 448 512"
-          >
-            <path
-              d="M134.059 296H436c6.627 0 12-5.373 12-12v-56c0-6.627-5.373-12-12-12H134.059v-46.059c0-21.382-25.851-32.09-40.971-16.971L7.029 239.029c-9.373 9.373-9.373 24.569 0 33.941l86.059 86.059c15.119 15.119 40.971 4.411 40.971-16.971V296z"
-            />
-          </svg>
-          Continue Shopping
-        </a>
-        <div class="flex mt-10 mb-2">
-            <h3 class="font-bold ml-3 text-gray-600 text-md uppercase w-2/5">
-              Orders
-            </h3>
-        </div>
-            <hr>
-            <br>
-        <!-- Headings Start -->
-        <div class="flex font-semibold uppercase space-around bg-gray-200 rounded-lg p-3">
-            <div class="text-sm w-1/6">Date</div>
-            <div class="w-2/5">Order details</div>
-            <div class="w-1/5">Items</div>
-            <div class="w-1/5">Subtotal</div>
-            <div class="w-1/5">Coupon</div>
-            <div class="w-1/5">Total</div>
-            <div class="w-1/12">Details</div>
-        </div>
-        <!-- Headings End -->
+<div class="flex flex-col shadow-md my-5 mx-3">
+  <div class="w-full bg-white px-10 py-10">
+    <a href="{% url 'store:products' %}" class="flex font-semibold text-indigo-600 text-sm my-5 w-1/4">
+      <svg class="fill-current mr-2 text-indigo-600 w-4" viewBox="0 0 448 512">
+        <path
+          d="M134.059 296H436c6.627 0 12-5.373 12-12v-56c0-6.627-5.373-12-12-12H134.059v-46.059c0-21.382-25.851-32.09-40.971-16.971L7.029 239.029c-9.373 9.373-9.373 24.569 0 33.941l86.059 86.059c15.119 15.119 40.971 4.411 40.971-16.971V296z" />
+      </svg>
+      Continue Shopping
+    </a>
+    <div class="flex mt-10 mb-2">
+      <h3 class="font-bold ml-3 text-gray-600 text-md uppercase w-2/5">
+        Orders
+      </h3>
+    </div>
+    <hr>
+    <br>
+    <!-- Headings Start -->
+    <div class="flex font-semibold uppercase space-around bg-gray-200 rounded-lg p-3">
+      <div class="text-sm w-1/6">Date</div>
+      <div class="w-2/5">Order details</div>
+      <div class="w-1/5">Items</div>
+      <div class="w-1/5">Subtotal</div>
+      <div class="w-1/5">Coupon</div>
+      <div class="w-1/5">Total</div>
+      <div class="w-1/12">Details</div>
+    </div>
+    <!-- Headings End -->
 
-        {% for order in orders %}
-        <div class="flex space-around hover:bg-gray-100 rounded-lg p-3">
-          <div class="text-sm w-1/6">{{order.date_modified|date:"M d, Y" }}</div>
-          <div class="w-2/5">
-            {{order.display_items}}
-          </div>
-          <div class="w-1/5">{{order.get_cart_items}}</div>
-          <div class="w-1/5">${{order.get_cart_subtotal}}</div>
-          {% if order.coupon %}
-          <div class="w-1/5">-${{order.get_coupon_value}}</div>
-          {% else %}
-          <div class="w-1/5">-</div>
-           {% endif %}
-          <div class="w-1/5 font-semibold">${{order.get_cart_total}}</div>
-          <button class="w-1/12 text-blue-600" onclick="toggleModal('{{forloop.counter}}')">view</button>
-          <div>
-          </div>
-        </div>
-        <!-- Order details Start -->
-        <div class="-mb-5 fixed z-10 overflow-y-auto top-0 w-full left-0 hidden" id="modal-{{forloop.counter}}">
-          <div class="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div class="inline-block align-center bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" role="dialog" aria-modal="true" aria-labelledby="modal-headline">
-              <div class="flex flex-col p-5 bg-dimly-blue max-h-screen overflow-y-auto">
-                <h2 class="font-semibold">Order Details</h2>
-                <div class="border-b border-black border-3 mt-1"></div>
-                <!-- headings -->
-                <div class="flex gap-3 mt-3 font-semibold text-sm uppercase">
-                  <h3 class="w-12"></h3>
-                  <h3 class="w-32">Product</h3>
-                  <h3 class="w-1/5 text-center">Price</h3>
-                  <h3 class="w-1/5 text-center">Quantity</h3>
-                  <h3 class="w-1/5 text-center">Total</h3>
-                </div>
-                <div class="border-b border-black/50 border-3 mx-3 mt-1"></div>
-                <!-- List of products -->
-                {% for item in order.orderitem_set.all %}
-                  <div class="flex gap-3 mt-3 items-center">
-                    <img
-                    class="w-12 rounded-xl"
-                      src="{{item.product.image.url}}"
-                    />
-                    <div>
-                    <p class="w-32 font-semibold">{{item.product.name}}</p>
-                    {% if item.product.has_variants %}
-                    <p>{{item.variation.size}}</p>
-                    {% endif %}
-                    </div>
-                    <p class="w-1/5 text-center">${{item.get_item_price}}</p>
-                    <p class="w-1/5 text-center">{{item.quantity}}</p>
-                    <p class="w-1/5 text-center">${{item.get_total}}</p>
-                </div>
-                  {% endfor %}
-                <!-- Brief summary -->
-                <div class="mt-5 mx-5 font-semibold ml-auto uppercase">
-                  <div class="border-b border-black/50 border-3 mb-3"></div>
-                  <div class="flex">
-                    <p class="w-48">Subtotal:</p>
-                    <p class="">${{order.get_cart_subtotal}}</p>
-                  </div>
-                  <div class="flex">
-                    <p class="w-48">Coupon: {% if order.coupon %} ({{order.coupon.code}}) {% endif %}</p>
-                    {% if order.coupon %}
-                    <p class="">(${{order.get_coupon_value}})</p>
-                    {% else %}
-                    <p class="">-</p>
-                    {% endif %}
-                  </div>
-                  <div class="flex">
-                    <p class="w-48">Total:</p>
-                    <p class="">${{order.get_cart_total}}</p>
-                  </div>
-                </div>
-                <button type="button" class="w-1/2 mx-auto my-5 py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-700" onclick="toggleModal('{{forloop.counter}}')">Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Order details End -->
-        {% endfor %}
+    {% for order in orders %}
+    <div class="flex space-around hover:bg-gray-100 rounded-lg p-3">
+      <div class="text-sm w-1/6">{{order.date_modified|date:"M d, Y" }}</div>
+      <div class="w-2/5">
+        {{order.display_items}}
+      </div>
+      <div class="w-1/5">{{order.get_cart_items}}</div>
+      <div class="w-1/5">${{order.get_cart_subtotal}}</div>
+      {% if order.coupon %}
+      <div class="w-1/5">-${{order.get_coupon_value}}</div>
+      {% else %}
+      <div class="w-1/5">-</div>
+      {% endif %}
+      <div class="w-1/5 font-semibold">${{order.get_cart_total}}</div>
+      <button class="w-1/12 text-blue-600" onclick="toggleModal('{{forloop.counter}}')">view</button>
+      <div>
       </div>
     </div>
-  </div> 
+    <!-- Order details Start -->
+    <div class="-mb-5 fixed z-10 overflow-y-auto top-0 w-full left-0 hidden" id="modal-{{forloop.counter}}">
+      <div class="flex items-center justify-center min-height-100vh pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+        <div
+          class="inline-block align-center bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+          role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+          <div class="flex flex-col p-5 bg-dimly-blue max-h-screen overflow-y-auto">
+            <div class="flex">
+              <h2 class="font-semibold">Order Details</h2>
+              <p class="ml-auto">{{order.date_modified}}</p>
+            </div>
+            <div class="border-b border-black border-3 mt-1"></div>
+            <!-- headings -->
+            <div class="flex gap-3 mt-3 font-semibold text-sm uppercase">
+              <h3 class="w-12"></h3>
+              <h3 class="w-32">Product</h3>
+              <h3 class="w-1/5 text-center">Price</h3>
+              <h3 class="w-1/5 text-center">Quantity</h3>
+              <h3 class="w-1/5 text-center">Total</h3>
+            </div>
+            <div class="border-b border-black/50 border-3 mx-3 mt-1"></div>
+            <!-- List of products -->
+            {% for item in order.orderitem_set.all %}
+            <div class="flex gap-3 mt-3 mb-3 items-center">
+              <img class="w-12 rounded-xl" src="{{item.product.image.url}}" />
+              <div>
+                <p class="w-32 font-semibold">{{item.product.name}}</p>
+                {% if item.product.has_variants %}
+                <p>{{item.variation.size}}</p>
+                {% endif %}
+              </div>
+              <p class="w-1/5 text-center">${{item.get_item_price}}</p>
+              <p class="w-1/5 text-center">{{item.quantity}}</p>
+              <p class="w-1/5 text-center">${{item.get_total}}</p>
+            </div>
+            {% endfor %}
+            <!-- Brief summary -->
+            <div class="flex">
+              <div class="mt-3 font-semibold capitalize">
+                <p>Payment Method:</p>
+                <p class="text-green-700">{{order.payment_method}}</p>
+                <p class="mt-2">Delivery Method:</p>
+                <p class="text-green-700">{{order.delivery_method}}</p>
+                <p class="mt-2">Payment Status:</p>
+                {% if order.paid %}
+                <p class="text-green-700">Paid</p>
+                {% else %}
+                <p class="text-red-700">Unpaid</p>
+                {% endif %}
+              </div>
+              <div class="mt-5 mx-5 font-semibold ml-auto uppercase">
+                <div class="border-b border-black/50 border-3 mb-3"></div>
+                <div class="flex">
+                  <p class="w-48">Subtotal:</p>
+                  <p>${{order.get_cart_subtotal}}</p>
+                </div>
+                <div class="flex">
+                  <p class="w-48">Coupon: {% if order.coupon %} ({{order.coupon.code}}) {% endif %}</p>
+                  {% if order.coupon %}
+                  <p>(${{order.get_coupon_value}})</p>
+                  {% else %}
+                  <p>-</p>
+                  {% endif %}
+                </div>
+                <div class="flex">
+                  <p class="w-48">Total:</p>
+                  <p>${{order.get_cart_total}}</p>
+                </div>
+              </div>
+            </div>
+            <button type="button" class="w-1/2 mx-auto my-5 py-2 px-4 bg-gray-500 text-white rounded hover:bg-gray-700"
+              onclick="toggleModal('{{forloop.counter}}')">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Order details End -->
+    {% endfor %}
+  </div>
+</div>
+</div>
 </div>
 
 
 <script>
   function toggleModal(counter) {
-  document.getElementById('modal-'+ counter).classList.toggle('hidden')
-}
+    document.getElementById('modal-' + counter).classList.toggle('hidden')
+  }
 </script>
 {% endblock %}
