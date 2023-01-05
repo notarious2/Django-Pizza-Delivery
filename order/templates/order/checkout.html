@@ -418,19 +418,22 @@
     document.getElementById("date-time-picker").style.display = "block";
   })
 
-  var today = new Date();
-  var time = today.getHours()
   // set default date in date-picker as today
-  document.getElementById('datepicker').valueAsDate = new Date();
+  var today = new Date();
+  var hours = today.getHours()
+  var datePicker = document.getElementById('datepicker')
+  datePicker.valueAsDate = today;
+  // set minimum date as today
+  datePicker.setAttribute("min", today.toISOString().substr(0, 10) )
   // jQuery TimePicker
   $(document).ready(function () {
     $('input.timepicker').timepicker({
       timeFormat: 'h:mm p',
       interval: 30,
-      minTime: String(time) + ':30',
+      minTime: '08:30am',
       maxTime: '9:00pm',
-      defaultTime: String(time + 1),
-      startTime: String(time) + ':30',
+      defaultTime: String(hours + 1),
+      startTime: '08:30am',
       dynamic: false,
       dropdown: true,
       scrollbar: true
