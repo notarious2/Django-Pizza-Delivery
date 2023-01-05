@@ -261,8 +261,6 @@
 
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
-  // var delivery = true;
-  // var online = true;
 
   // listen to radio buttons to swith between Delivery and Carry-out forms
   // delivery form
@@ -280,21 +278,8 @@
     // toggle form submission buttons
     document.getElementById('carryout-submit').style.display = "block";
     document.getElementById('delivery-submit').style.display = "none";
-    // do I need this?
-    // delivery = false;
   })
 
-  // // Change payment method
-  // // if cash button is checked
-  // document.getElementById('cash').addEventListener("change", function (event) {
-  //   console.log("CASH!")
-  //   online = false;
-  // })
-  // // if online button is checked
-  // document.getElementById('online').addEventListener("change", function (event) {
-  //   console.log("ONLINE!")
-  //   online = true;
-  // })
 
 
   var stripe = Stripe("{{ stripe_publishable_key }}");
@@ -398,20 +383,20 @@
     } else {
       var online = false;
     }
+    // grab data from the form
+    const formData = new FormData(deliveryForm);
+    // convert form data into an object
+    var addressInfo = {};
+    for (var [key, value] of formData.entries()) {
+      addressInfo[key] = value;
+    }
+    // delete csrf middleware token
+    delete addressInfo['csrfmiddlewaretoken']
+    // delete payment method
+    delete addressInfo['payment']
+    // add Delivery Method
+    addressInfo['delivery'] = true;
     if (online) {
-      // grab data from the form
-      const formData = new FormData(deliveryForm);
-      // convert form data into an object
-      var addressInfo = {};
-      for (var [key, value] of formData.entries()) {
-        addressInfo[key] = value;
-      }
-      // delete csrf middleware token
-      delete addressInfo['csrfmiddlewaretoken']
-      // delete payment method
-      delete addressInfo['payment']
-      // add Delivery Method
-      addressInfo['delivery'] = true;
       // send POST request to Stripe checkout session - Delivery Order 
       fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
         method: "POST",
@@ -445,6 +430,32 @@
         });
     } else {
       console.log("Need to handle cash payment");
+      // send POST request to Cash checkout
+      fetch("{% url 'order:cash-checkout' order.transaction_id %}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+        },
+        body: JSON.stringify(addressInfo)
+      })
+        .then((response) => {
+          // handle carry-out form validations (PickUpDetails Model) for cash payment
+          if (response.status == 422) {
+            const showError = document.getElementById("error-messages-delivery")
+            showError.innerText = "" // clear field first
+            return response.json().then(data => {
+              for (let i = 0; i < data['errors'].length; i++) {
+                showError.innerText += "\n" + data['errors'][i]
+              }
+            })
+          } else {
+            window.location.href = response.url
+          }
+        })
+        .catch((error) => {
+          console.log("Error", error)
+        })
     }
   });
 

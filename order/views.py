@@ -261,9 +261,24 @@ def cash_checkout(request, pk):
     # load data from POST to check delivery method
     data = json.loads(request.body)
     delivery = data.pop("delivery")
+    print("DATA", data)
     if delivery:
         order.delivery_method = "delivery"
         # populate ShippingAddress model
+        shipping_address = ShippingAddress(order=order, **data)
+        # manually trigger fields validation
+        try:
+            # validate data
+            shipping_address.full_clean()
+            # save now - will be adjusted after payment is complete
+            shipping_address.save()
+        except Exception as e:
+            # Collect errors and return Unprocessable Entity HTTP response 
+            errors = []
+            for key, value in e:
+                validation_error = key.upper() + " " + value[0]
+                errors.append(validation_error)
+            return JsonResponse({"errors": errors}, status=422)
     else:
         order.delivery_method = "carryout"
         if data['urgency'] == 'custom':
