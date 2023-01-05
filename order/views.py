@@ -250,9 +250,53 @@ def checkout(request):
                    "stripe_publishable_key": stripe_publishable_key}
     return render(request, 'order/checkout.html', context=context)
 
+@require_POST
+def cash_checkout(request, pk):
+    """
+    Finalizing order with deferred payment - Cash payment
+    """
+    order = get_object_or_404(Order, transaction_id=pk)
+    order.payment_method = "cash"
+
+    # load data from POST to check delivery method
+    data = json.loads(request.body)
+    delivery = data.pop("delivery")
+    if delivery:
+        order.delivery_method = "delivery"
+        # populate ShippingAddress model
+    else:
+        order.delivery_method = "carryout"
+        if data['urgency'] == 'custom':
+            # change data format and make naive datetime object timezone aware
+            data['pickup_date'] = make_aware(datetime.datetime.strptime(data['pickup_date'], '%Y-%m-%d %I:%M %p'))
+        # populate PickUpDetails model
+        pickup_details = PickUpDetail(order=order, **data)
+        try:
+            # validate PickUp details
+            pickup_details.full_clean()
+            # save now - will be adjusted after payment is complete
+            pickup_details.save()
+        except Exception as e:
+            print(e)
+            # Collect errors and return Unprocessable Entity HTTP response 
+            errors = []
+            for key, value in e:
+                validation_error = key.upper() + " " + value[0]
+                errors.append(validation_error)
+            return JsonResponse({"errors": errors}, status=422)
+    
+    # save order to apply payment and delivery methods
+    order.complete = True
+    order.save()
+    # return redirect('order:cash-success')
+    # return redirect(request, 'order/payment_success.html')
+    return redirect(request.build_absolute_uri(reverse('order:success'))+"?cash=true")
 
 @require_POST
 def create_checkout_session(request, pk):
+    """
+    Stripe payment gateway for Online payment checkout
+    """
     # get order by transaction_id
     order = get_object_or_404(Order, transaction_id=pk)
     # change order payment method to Online
@@ -363,56 +407,52 @@ def create_checkout_session(request, pk):
     return JsonResponse({'sessionId': checkout_session.id})
 
 
+
 class PaymentSuccessView(TemplateView):
     template_name = 'order/payment_success.html'
-
     def get(self, request, *args, **kwargs):
-        session_id = request.GET.get('session_id')
-        shipping_id = request.GET.get('shipping_id')
-        carryout_id = request.GET.get('carryout_id')
-        print("shipping_id", shipping_id)
-        print("carryout_id", carryout_id)
-        if session_id is None:
-            return HttpResponseNotFound()
-        # session = stripe.checkout.Session.retrieve(session_id)
+        if not request.GET.get('cash'):
+            session_id = request.GET.get('session_id')
+            shipping_id = request.GET.get('shipping_id')
+            carryout_id = request.GET.get('carryout_id')
+            print("shipping_id", shipping_id)
+            print("carryout_id", carryout_id)
+            if session_id is None:
+                return HttpResponseNotFound()
+            # session = stripe.checkout.Session.retrieve(session_id)
 
-        # checking if current user is authenticated/customer, if not customer will be created based on device id
-        if request.user.is_authenticated:
-            customer = request.user.customer
-        else:
-            customer, created = Customer.objects.get_or_create(
-                device=request.COOKIES['device'])
-        # order query set
-        order_qs = Order.objects.filter(
-            customer=customer, complete=False)
-        # if order exists, get all order items
-        if order_qs.exists():
-            order = order_qs[0]
-            order.complete = True
-            order.paid = True
+            # checking if current user is authenticated/customer, if not customer will be created based on device id
+            if request.user.is_authenticated:
+                customer = request.user.customer
+            else:
+                customer, created = Customer.objects.get_or_create(
+                    device=request.COOKIES['device'])
+            # order query set
+            order_qs = Order.objects.filter(
+                customer=customer, complete=False)
+            # if order exists, get all order items
+            if order_qs.exists():
+                order = order_qs[0]
+                order.complete = True
+                order.paid = True
+                order.save()
+            # clear previously created shipping/carryout models pertaining to the order
             if shipping_id:
-                order.delivery_method = "delivery"
+                # get all shippings that contain order id and delete excluding current shipping address
+                existing_shippings = ShippingAddress.objects.filter(
+                    order=order).exclude(id=int(shipping_id))
+                existing_shippings.delete()
+                # delete all PickUpDetails pertaining to the order
+                PickUpDetail.objects.filter(order=order).delete()
             elif carryout_id:
-                order.delivery_method = "carryout"
-            order.payment_method = "online"
-            order.save()
-        
-        if shipping_id:
-            # get all shippings that contain order id and delete excluding current shipping address
-            existing_shippings = ShippingAddress.objects.filter(
-                order=order).exclude(id=int(shipping_id))
-            existing_shippings.delete()
-            # delete all PickUpDetails pertaining to the order
-            PickUpDetail.objects.filter(order=order).delete()
-        elif carryout_id:
-            # get all PickupDetails that contain order id and delete excluding current shipping address
-            existing_pickup_details = PickUpDetail.objects.filter(
-                order=order).exclude(id=int(carryout_id))
-            existing_pickup_details.delete()
-            # delete all shippings pertaining to the order
-            ShippingAddress.objects.filter(order=order).delete()
-        else:
-            return HttpResponseNotFound()
+                # get all PickupDetails that contain order id and delete excluding current shipping address
+                existing_pickup_details = PickUpDetail.objects.filter(
+                    order=order).exclude(id=int(carryout_id))
+                existing_pickup_details.delete()
+                # delete all shippings pertaining to the order
+                ShippingAddress.objects.filter(order=order).delete()
+            else:
+                return HttpResponseNotFound()
         return render(request, self.template_name)
 
 

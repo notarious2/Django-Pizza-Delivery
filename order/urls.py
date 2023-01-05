@@ -17,8 +17,10 @@ urlpatterns = [
 
     path('apply_coupon/', views.coupon_apply, name='add-coupon'),
     path('remove_coupon/', views.coupon_remove, name='remove-coupon'),
-    path('checkout/success/', views.PaymentSuccessView.as_view(), name='success'),
-    path('checkout/failed/', views.PaymentFailedView.as_view(), name='failed'),
+
     path('api/checkout-session/<uuid:pk>',
          views.create_checkout_session, name='api_checkout_session'),
+    path("checkout/cash/<uuid:pk>", views.cash_checkout, name="cash-checkout"),
+    path('checkout/success/', views.PaymentSuccessView.as_view(), name='success'),
+    path('checkout/failed/', views.PaymentFailedView.as_view(), name='failed'), 
 ]

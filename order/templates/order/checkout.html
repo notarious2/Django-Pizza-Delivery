@@ -97,11 +97,11 @@
       <h2 class="font-bold mb-3 text-2xl">Contact Information</h2>
       <div class="flex flex-col w-2/3 mb-2">
         <label class="mb-2 font-bold text-slate-500" for="carryout-email">Email</label>
-        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="email" name="carryout-email" id = "carryout-email" required />
+        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="email" name="carryout-email" id = "carryout-email" value="notarious2@gmail.com" required />
       </div>
       <div class="flex flex-col w-2/3 mb-2">
         <label class="mb-2 font-bold text-slate-500" for="carryout-phone">Phone</label>
-        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="carryout-phone" id = "carryout-phone"  required />
+        <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="carryout-phone" id = "carryout-phone" value="12345"  required />
       </div>
       <div class="py-2 mt-3">
         <h2 class="font-bold mb-3 text-2xl">Pick-up Details</h2>
@@ -284,37 +284,56 @@
     carryOutInfo['delivery'] = false;
     carryOutInfo['phone'] = document.getElementById("carryout-phone").value
     carryOutInfo['email'] = document.getElementById("carryout-email").value
-
-    if (online) {
-      // get preparation time selections
-      if (document.getElementById('asap').checked == true) {
+    // get preparation time selections
+    if (document.getElementById('asap').checked == true) {
         carryOutInfo['urgency'] = "asap"
-      } else {
+    } else {
         carryOutInfo['urgency'] = "custom"
         const date = document.getElementById('datepicker').value;
         const time = document.getElementById('timepicker').value;
         carryOutInfo['pickup_date'] = date + " " + time
-        }
-      // send POST request to Stripe checkout for Carryout order
-      fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        body: JSON.stringify(carryOutInfo)
-      })
-      .then(function (response) {
-        return response.json();
-        })
-      .then(function (session) {
-        return stripe.redirectToCheckout({ sessionId: session.sessionId });
-        })
-      .catch((error) => {
-          console.error("Error", error);
-        });  
-    } else {
-      console.log("Need to handle cash payment");
     }
-     
 
+    if (online) {
+        // send POST request to Stripe checkout for Carryout order
+        fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(carryOutInfo)
+            })
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(session) {
+                return stripe.redirectToCheckout({
+                    sessionId: session.sessionId
+                });
+            })
+            .catch((error) => {
+                console.error("Error", error);
+            });
+    } else {
+        console.log("Need to handle cash payment");
+        fetch("{% url 'order:cash-checkout' order.transaction_id %}", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(carryOutInfo)
+            })
+            .then(function(response) {
+              if (response.ok) {
+                window.location.href = response.url
+              }
+            })
+            .catch((error) => {
+                console.log("Error", error)
+            })
+    }
   })
 
 
