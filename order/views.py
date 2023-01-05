@@ -288,8 +288,6 @@ def cash_checkout(request, pk):
     # save order to apply payment and delivery methods
     order.complete = True
     order.save()
-    # return redirect('order:cash-success')
-    # return redirect(request, 'order/payment_success.html')
     return redirect(request.build_absolute_uri(reverse('order:success'))+"?cash=true")
 
 @require_POST

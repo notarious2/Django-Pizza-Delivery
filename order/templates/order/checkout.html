@@ -86,7 +86,7 @@
             </div>
           </div>
         </div>
-        <div id="error-messages" class="text-red-500"></div>
+        <div id="error-messages-delivery" class="text-red-500"></div>
       </div>
     </div>
   </form>
@@ -125,7 +125,7 @@
           </div>
           <div class="hidden" id="date-time-picker">
             <input type="date" name="datepicker" id="datepicker" class="w-36 rounded text-center">
-            <input type="text" class="timepicker w-36 rounded text-center" id="timepicker">
+            <input type="text" class="timepicker w-36 rounded text-center" id="timepicker" onkeydown="event.preventDefault()"> 
           </div>
 
         </div>
@@ -149,6 +149,7 @@
           </div>
         </div>
       </div>
+      <div id="error-messages-carryout" class="text-red-500"></div>
     </div>
   </form>
 
@@ -277,7 +278,7 @@
 
 
   // CODE FOR CARRY-OUT CHECKOUT
-  var carryOutForm = document.getElementById("carryout-form")
+  var carryOutForm = document.getElementById("carryout-form");
   carryOutForm.addEventListener("submit", (event) => {
     event.preventDefault()
     var carryOutInfo = {}
@@ -304,19 +305,29 @@
                 },
                 body: JSON.stringify(carryOutInfo)
             })
-            .then(function(response) {
-                return response.json();
-            })
-            .then(function(session) {
-                return stripe.redirectToCheckout({
-                    sessionId: session.sessionId
-                });
+            .then((response) => {
+              // handle carry-out form validations (PickUpDetails Model) for online payment
+              if (response.status == 422) {
+                  const showError = document.getElementById("error-messages-carryout")
+                  showError.innerText = "" // clear field first
+                  return response.json().then(data => {
+                      for (let i = 0; i < data['errors'].length; i++) {
+                          // console.log(i, data['errors'][i]);
+                          showError.innerText += "\n" + data['errors'][i]
+                      }
+                  })
+              } else {
+                  response.json().then(data => {
+                      return stripe.redirectToCheckout({
+                          sessionId: data.sessionId
+                      });
+                  })
+              }
             })
             .catch((error) => {
                 console.error("Error", error);
             });
     } else {
-        console.log("Need to handle cash payment");
         fetch("{% url 'order:cash-checkout' order.transaction_id %}", {
                 method: "POST",
                 headers: {
@@ -325,10 +336,19 @@
                 },
                 body: JSON.stringify(carryOutInfo)
             })
-            .then(function(response) {
-              if (response.ok) {
-                window.location.href = response.url
-              }
+            .then((response) => {
+                // handle carry-out form validations (PickUpDetails Model) for cash payment
+                if (response.status == 422) {
+                    const showError = document.getElementById("error-messages-carryout")
+                    showError.innerText = "" // clear field first
+                    return response.json().then(data => {
+                        for (let i = 0; i < data['errors'].length; i++) {
+                            showError.innerText += "\n" + data['errors'][i]
+                        }
+                    })
+                } else {
+                  window.location.href = response.url
+                }
             })
             .catch((error) => {
                 console.log("Error", error)
@@ -342,48 +362,51 @@
   deliveryForm.addEventListener("submit", (event) => {
     event.preventDefault();
     if (online) {
-      // grab data from the form
-      const formData = new FormData(deliveryForm);
-      // convert form data into an object
-      var addressInfo = {};
-      for (var [key, value] of formData.entries()) {
-        addressInfo[key] = value;
-      }
-      // delete csrf middleware token
-      delete addressInfo['csrfmiddlewaretoken']
-      // add Delivery Method
-      addressInfo['delivery'] = true;
-      // send POST request to Stripe checkout session - Delivery Order 
-      fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
-        method: "POST",
-        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
-        body: JSON.stringify(addressInfo)
-      })
-        .then((response) => {
-          // handle validation errors
-          if (response.status == 422) {
-            const showError = document.getElementById("error-messages")
-            showError.innerText = "" // clear field first
-            return response.json().then(data => {
-              for (let i = 0; i < data['errors'].length; i++) {
-                // console.log(i, data['errors'][i]);
-                showError.innerText += "\n" + data['errors'][i]
-              }
+        // grab data from the form
+        const formData = new FormData(deliveryForm);
+        // convert form data into an object
+        var addressInfo = {};
+        for (var [key, value] of formData.entries()) {
+            addressInfo[key] = value;
+        }
+        // delete csrf middleware token
+        delete addressInfo['csrfmiddlewaretoken']
+        // add Delivery Method
+        addressInfo['delivery'] = true;
+        // send POST request to Stripe checkout session - Delivery Order 
+        fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify(addressInfo)
             })
-          } else {
-            response.json().then(data => {
-              return stripe.redirectToCheckout({ sessionId: data.sessionId });
+            .then((response) => {
+                // handle validation errors for Shipping Address model - Online Payment
+                if (response.status == 422) {
+                    const showError = document.getElementById("error-messages-delivery")
+                    showError.innerText = "" // clear field first
+                    return response.json().then(data => {
+                        for (let i = 0; i < data['errors'].length; i++) {
+                            // console.log(i, data['errors'][i]);
+                            showError.innerText += "\n" + data['errors'][i]
+                        }
+                    })
+                } else {
+                    response.json().then(data => {
+                        return stripe.redirectToCheckout({
+                            sessionId: data.sessionId
+                        });
+                    })
+                }
             })
-
-          }
-        })
-        .catch((error) => {
-          console.error("Error", error);
-        });
+            .catch((error) => {
+                console.error("Error", error);
+            });
     } else {
-      console.log("Need to handle cash payment");
+        console.log("Need to handle cash payment");
     }
-
   });
 
 
