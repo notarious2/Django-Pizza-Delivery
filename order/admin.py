@@ -24,10 +24,13 @@ class PickUpDetailInline(admin.TabularInline):
 
         
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'complete', 'paid', 'delivery_method', 'date_ordered',
+    list_display = ('customer', 'transaction_id', 'complete', 'paid', 'delivery_method', 'date_ordered',
                     'date_modified', 'get_cart_items', 'get_cart_subtotal',
                     'get_coupon_value', 'get_cart_total')
-    list_filter = ('complete',)
+    # list_filter = ('complete',)
+    search_fields = ['transaction_id']
+    # new in Django 4
+    search_help_text = 'search by transaction id'
     ordering = ("-complete", '-date_modified')
     # list_editable = ('complete',)
     # readonly_fields = ('customer', 'transaction_id',
