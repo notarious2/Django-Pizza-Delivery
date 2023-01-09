@@ -12,9 +12,21 @@
 </p>
 <h1>Features</h1>
 <ul>
-    <li><p>Customer Registration, Login and Logout</p></li>
-    <li><p>Customer and Guest Checkout (using device ID set in Cookies) </p></li>
-    <li><p>Deferred <strong>Cash</strong> payment and Instant online payment with Stripe</p></li>
+    <li>
+        <p>Customer Registration, Login and Logout</p>
+    </li>
+    <li>
+        <p>Customer and Guest Checkout (using device ID set in Cookies) </p>
+    </li>
+    <li>
+        <p>Delivery and Carry-out option</p>
+    </li>
+    <li>
+        <p>Registered users can see completed orders</p>
+    </li>
+    <li>
+        <p>Deferred <strong>Cash</strong> payment and Instant online payment with Stripe</p>
+    </li>
 
 </ul>
 
