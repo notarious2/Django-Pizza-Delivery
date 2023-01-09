@@ -1387,6 +1387,10 @@ input[type="number"]::-webkit-inner-spin-button,
   flex-shrink: 1;
 }
 
+.shrink-0 {
+  flex-shrink: 0;
+}
+
 .flex-grow {
   flex-grow: 1;
 }
@@ -1699,6 +1703,11 @@ input[type="number"]::-webkit-inner-spin-button,
   background-color: rgb(252 233 106 / var(--tw-bg-opacity));
 }
 
+.bg-black {
+  --tw-bg-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-bg-opacity));
+}
+
 .bg-opacity-50 {
   --tw-bg-opacity: 0.5;
 }
@@ -1975,6 +1984,11 @@ input[type="number"]::-webkit-inner-spin-button,
   color: rgb(200 30 30 / var(--tw-text-opacity));
 }
 
+.text-green-200 {
+  --tw-text-opacity: 1;
+  color: rgb(188 240 218 / var(--tw-text-opacity));
+}
+
 .opacity-0 {
   opacity: 0;
 }
@@ -2213,6 +2227,11 @@ input[type="number"]::-webkit-inner-spin-button,
 .peer:checked ~ .peer-checked\:bg-lime-300 {
   --tw-bg-opacity: 1;
   background-color: rgb(190 242 100 / var(--tw-bg-opacity));
+}
+
+.peer:checked ~ .peer-checked\:bg-green-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(188 240 218 / var(--tw-bg-opacity));
 }
 
 .peer:checked ~ .peer-checked\:font-bold {
