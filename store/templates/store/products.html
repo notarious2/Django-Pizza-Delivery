@@ -24,15 +24,13 @@
 <!-- Search Button End -->
 
 <!-- Start Products List -->
-<div>
+<div class="flex flex-col items-center">
   <h1
-    class="text-2xl text-center uppercase rounded-lg mx-5 py-2 w-48 bg-red-200"
+    class="text-2xl text-center uppercase rounded-lg ml-5 mr-auto py-2 w-48 bg-red-200"
   >
     Products
   </h1>
-  <div
-    class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5 mx-3 max-w-max"
-  >
+  <div class="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5 mx-3 max-w-max">
     {% for product in products %}
     <div
       class="flex flex-col m-2 bg-white rounded-xl shadow-md individual-container"
@@ -86,22 +84,22 @@
           {% if product.has_variants %}
           <div class="flex items-center font-bold text-xl text-green-500">
             <p class="prices-{{forloop.counter}} small-{{forloop.counter}}">
-              ${{product.get_product_variants.0.price}}
+              ${{product.get_product_variants.0.price|floatformat:1}}
             </p>
             <p
               class="prices-{{forloop.counter}} hidden medium-{{forloop.counter}}"
             >
-              ${{product.get_product_variants.1.price}}
+              ${{product.get_product_variants.1.price|floatformat:1}}
             </p>
             <p
               class="prices-{{forloop.counter}} hidden large-{{forloop.counter}}"
             >
-              ${{product.get_product_variants.2.price}}
+              ${{product.get_product_variants.2.price|floatformat:1}}
             </p>
           </div>
           {% else %}
           <div class="flex items-center font-bold text-xl text-green-500">
-            <p>${{product.price}}</p>
+            <p>${{product.price|floatformat:1}}</p>
           </div>
           {% endif %}
           <!-- End Display Variant Prices -->

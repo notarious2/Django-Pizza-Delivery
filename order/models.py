@@ -84,7 +84,7 @@ class Order(models.Model):
         # if discount type Percent
         if self.coupon:
             if self.coupon.discount_type == "Percent":
-                coupon_value = self.get_cart_subtotal*self.coupon.discount_amount//100
+                coupon_value = round(self.get_cart_subtotal*self.coupon.discount_amount/100, 2)
             else:
                 coupon_value = self.coupon.discount_amount
         # if discount type Absolute
