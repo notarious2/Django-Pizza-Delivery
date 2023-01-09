@@ -175,23 +175,20 @@ def coupon_apply(request):
                                         valid_from__lte=now,
                                         valid_to__gte=now,
                                         active=True)
-            # check stripe api id of the coupon
-            stripe_api_id = coupon.stripe_api_id
-            if stripe_api_id:
-                # retrieve coupon from stripe
-                get_coupon = requests.get("https://api.stripe.com/v1/promotion_codes/" + stripe_api_id,
-                                          auth=(settings.STRIPE_SECRET_KEY, ""))
-                if get_coupon.status_code == 200:
-                    # Use the json module to load response into a dictionary.
-                    response_dict = json.loads(get_coupon.text)
-                    coupon_id = response_dict["coupon"]["id"]
-                    # double check coupon ID
-                    if coupon.stripe_coupon_id == coupon_id:
-                        messages.success(request, 'Coupon applied')
+            print("COPUPON", coupon)
+            print(coupon.stripe_coupon_id)
+            # check Coupon ID with stripe webhook
+            stripe.api_key = settings.STRIPE_SECRET_KEY
+            try:
+                stripe_coupon = stripe.Coupon.retrieve(coupon.stripe_coupon_id)
+                print("STRIPE COUPON", stripe_coupon)
+                if stripe_coupon['valid'] == True:
+                    messages.success(request, 'Coupon applied')
                 else:
-                    raise ValueError('Coupon cannot be verified')
-            else:
-                raise ValueError('Coupon cannot be verified')
+                    raise ValueError
+            except:
+                raise ValueError
+           
             # checking if current user is authenticated/customer,
             # if not customer will be created based on device id
             if request.user.is_authenticated:
@@ -204,10 +201,9 @@ def coupon_apply(request):
             order.coupon = coupon
             order.save()
         except Coupon.DoesNotExist:
-            messages.error(request, 'Promo code does not exist')
+            messages.error(request, 'Coupon does not exist')
         except ValueError:
             messages.error(request, 'Coupon cannot be verified')
-
     return redirect('order:checkout')
 
 
@@ -224,7 +220,7 @@ def coupon_remove(request):
     return redirect('order:checkout')
 
 
-@require_POST
+# @require_POST
 def checkout(request):
     # pass stripe publishable key for checkout session
     stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY
@@ -248,6 +244,12 @@ def checkout(request):
         context = {"order": order, "order_items": order_items,
                    "coupon_form": coupon_form,
                    "stripe_publishable_key": stripe_publishable_key}
+        # redirect to the main page if there are not items in the cart
+        if order.get_cart_items<1:
+            return redirect("store:products")
+    else:
+        # redirect to main page if there are not oustanding orders
+        return redirect("store:products")
     return render(request, 'order/checkout.html', context=context)
 
 @require_POST

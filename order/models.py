@@ -145,7 +145,6 @@ class Coupon(models.Model):
     discount_amount = models.PositiveIntegerField(null=True, blank=True)
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
-    stripe_api_id = models.CharField(max_length=200, null=True, blank=True)
     stripe_coupon_id = models.CharField(
         max_length=50, null=True, blank=True, default=None)
 
