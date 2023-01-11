@@ -3,6 +3,8 @@ from users.models import Customer
 import uuid
 from store.models import Product, ProductVariant
 import datetime
+from django.utils.safestring import mark_safe
+
 
 # Create your models here.
 
@@ -11,7 +13,7 @@ class Order(models.Model):
     PAYMENT_CHOICES = (
         ("cash", "cash"),
         ("online", "online")
-        )
+    )
     DELIVERY_CHOICES = (
         ("delivery", "delivery"),
         ("carryout", "carryout")
@@ -27,7 +29,10 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     payment_method = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
     delivery_method = models.CharField(max_length=10, choices=DELIVERY_CHOICES)
-    
+    shipping = models.ForeignKey(
+        "ShippingAddress", on_delete=models.SET_NULL, blank=True, null=True)
+    pickup = models.ForeignKey(
+        "PickUpDetail", on_delete=models.SET_NULL, blank=True, null=True)
     coupon = models.ForeignKey(
         'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
 
@@ -84,7 +89,8 @@ class Order(models.Model):
         # if discount type Percent
         if self.coupon:
             if self.coupon.discount_type == "Percent":
-                coupon_value = round(self.get_cart_subtotal*self.coupon.discount_amount/100, 2)
+                coupon_value = round(
+                    self.get_cart_subtotal*self.coupon.discount_amount/100, 2)
             else:
                 coupon_value = self.coupon.discount_amount
         # if discount type Absolute
@@ -132,6 +138,11 @@ class OrderItem(models.Model):
     # display property name as 'Total' in the admin panel's list display
     get_total.fget.short_description = 'Total'
 
+    # to display image in the admin panel
+    def image_tag(self):
+        return mark_safe(f'<img src="{self.product.image.url}" width="100" height="100" />')
+    image_tag.short_description = 'Image'
+
 
 class Coupon(models.Model):
     DISCOUNT_CHOICES = (
@@ -153,8 +164,6 @@ class Coupon(models.Model):
 
 
 class ShippingAddress(models.Model):
-    order = models.ForeignKey(
-        Order, null=True, blank=True, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     address_1 = models.CharField(max_length=50)
@@ -167,16 +176,17 @@ class ShippingAddress(models.Model):
     email = models.EmailField()
 
     def __str__(self):
-        return f"{self.order} {self.first_name} {self.last_name} {self.address_1}"
+        return f"{self.first_name} {self.last_name} {self.address_1}"
+
 
 class PickUpDetail(models.Model):
     URGENCY_CHOICES = (
-    ("asap", "asap"),
-    ("custom", "custom")
+        ("asap", "asap"),
+        ("custom", "custom")
     )
-    order = models.ForeignKey(Order, null=True, blank=True, on_delete=models.CASCADE) 
     urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES)
-    pickup_date = models.DateTimeField(null=True, blank=True, default=datetime.datetime.now)
+    pickup_date = models.DateTimeField(
+        null=True, blank=True, default=datetime.datetime.now)
     phone = models.CharField(max_length=20)
     email = models.EmailField()
 

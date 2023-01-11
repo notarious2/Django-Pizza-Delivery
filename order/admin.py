@@ -4,25 +4,29 @@ from .models import Order, OrderItem, Coupon, ShippingAddress, PickUpDetail
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
+    readonly_fields = ('image_tag',)
+
 
 class OrderInline(admin.TabularInline):
     model = Order
-    # specify fields visible in inline Order field
-    # readonly_fields = ('transaction_id',)
+
+    # remove permission to modify
+    def has_change_permission(self, request, obj):
+        return False
+    # remove permission to add
+
+    def has_add_permission(self, request, obj):
+        return False
+
 
 class ShippingInline(admin.TabularInline):
     model = ShippingAddress
-    # # remove permission to modify
-    # def has_change_permission(self, request, obj):
-    #     return False
-    # # remove permission to add
-    # def has_add_permission(self, request, obj):
-    #     return False
+
 
 class PickUpDetailInline(admin.TabularInline):
     model = PickUpDetail
 
-        
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('customer', 'transaction_id', 'complete', 'paid', 'delivery_method', 'date_ordered',
                     'date_modified', 'get_cart_items', 'get_cart_subtotal',
@@ -36,24 +40,16 @@ class OrderAdmin(admin.ModelAdmin):
     # readonly_fields = ('customer', 'transaction_id',
     #                    'date_ordered', 'date_modified', 'delivery_method', 'payment_method', 'paid')
     # make all fields read-only
+
     def has_change_permission(self, request, obj=None):
         return False
-    inlines = []
-    
-    # display inlines based on condition
-    def get_inlines(self, request, obj):
-        if obj.delivery_method == "carryout":
-            return [OrderItemInline, PickUpDetailInline]
-        elif obj.delivery_method == "delivery":
-            return [OrderItemInline, ShippingInline]
-        else:
-            return [OrderItemInline, ShippingInline, PickUpDetailInline]
-
+    inlines = [OrderItemInline]
 
 
 class OrderItemAdmin(admin.ModelAdmin):
     list_display = ('product', 'quantity', 'get_variation', 'get_total',
                     'date_added')
+    readonly_fields = ('image_tag',)
 
     # display attribute of foreign key field in the admin panel
     @admin.display(description='Title')
@@ -64,34 +60,22 @@ class OrderItemAdmin(admin.ModelAdmin):
         else:
             # display name of the product
             return obj.product.name
-    
-    # displays all fields
-    # list_display = [field.name for field in OrderItem._meta.get_fields()]
 
-class PickUpDetailAdmin(admin.ModelAdmin):
-    # grab transaction id from order
-    @admin.display(description='Transaction ID')
-    def transaction_id(self, obj):
-        return obj.order.transaction_id
-    list_display = ('transaction_id', 'urgency', 'pickup_date', 'phone', 'email')
-    readonly_fields = ('order',)
 
 class CouponAdmin(admin.ModelAdmin):
     inlines = [OrderInline]
 
 
+class PickUpDetailAdmin(admin.ModelAdmin):
+    list_display = ('urgency',
+                    'pickup_date', 'phone', 'email')
+    inlines = [OrderInline]
+
+
 class ShippingAdmin(admin.ModelAdmin):
-    # grab transaction id from order
-    @admin.display(description='Transaction ID')
-    def transaction_id(self, obj):
-        return obj.order.transaction_id
-    
-    # grab order modified date from order
-    @admin.display(description='Order Updated')
-    def order_updated(self, obj):
-        return obj.order.date_modified
-    list_display = ('transaction_id', 'order_updated', 'phone', 'email', 'address_1', 'city')
-    readonly_fields = ('order',)
+    inlines = [OrderInline]
+    list_display = ('address_1', 'first_name', 'last_name', 'phone', 'email')
+
 
 admin.site.register(PickUpDetail, PickUpDetailAdmin)
 admin.site.register(ShippingAddress, ShippingAdmin)
