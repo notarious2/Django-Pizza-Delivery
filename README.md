@@ -1,7 +1,8 @@
 <h1 style="color:rgb(133, 24, 24); text-align:center">Django Pizza Delivery App</h1>
 
-<h1><a href="">Demo</a></h1>
-
+<h1>Live Demo</h1>
+[Pizza Delivery Website](http://notarious2.pythonanywhere.com/).
+<br>
 <p style="font-weight: bold;">This e-commerce app was built using the following technologies:</p>
 <p float="left">
 <img src="images/django.jpeg" style="width:100px; height: 50px; border-radius: 100px;" alt="Django">
@@ -35,32 +36,30 @@
 <p>Link to the diagram in <a href="https://drawsql.app/teams/bekzods-team-1/diagrams/epizza-django">drawSQL.app</a></p>
 <img src="images/sql_schema.png" alt="SQL model"/>
 
-<h3>App Set-Up</h3>
-<ul>
-    <li>
-        <div>
-            <p style="font-weight:600;">Clone Repository:</p>
-            <p style="color:rgb(24, 24, 213)">git clone https://github.com/notarious2/Django-Pizza-Delivery.git</p>
-            <p style="color:rgb(24, 24, 213)">cd Django-Pizza-Delivery</p>
-        </div>
-    </li>
-    <li>
-        <div>
-            <p style="font-weight:600;">Create and Activate virtual environment:</p>
-            <p style="color:rgb(24, 24, 213)">virtualenv env</p>
-            <p style="color:rgb(24, 24, 213)">env\Scripts\activate</p>
-        </div>
-    </li>
-    <li>
-        <div>
-            <p style="font-weight:600;">Install Dependencies:</p>
-            <p style="color:rgb(24, 24, 213)">pip install -r requirements.txt</p>
-        </div>
-    </li>
-    <li>
-        <div>
-            <p style="font-weight:600;">Run Development Server:</p>
-            <p style="color:rgb(24, 24, 213)">python manage.py runserver</p>
-        </div>
-    </li>
-</ul>
+<h1>App Setup</h1>
+
+**Clone Repository:**
+
+```
+git clone https://github.com/notarious2/Django-Pizza-Delivery.git
+cd Django-Pizza-Delivery
+```
+
+**Create and Activate Virtual Environment:**
+
+```
+virtualenv env
+env\Scripts\activate
+```
+
+**Install Dependencies:**
+
+```
+pip install -r requirements.txt
+```
+
+**Run Development Server:**
+
+```
+python manage.py runserver
+```
