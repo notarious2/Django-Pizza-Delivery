@@ -1,8 +1,17 @@
 <h1 style="color:rgb(133, 24, 24); text-align:center">Django Pizza Delivery App</h1>
 
 <h1>Live Demo</h1>
-Visit http://notarious2.pythonanywhere.com/.
-Admin page: login: bekzod password: bekzod
+<a href="http://notarious2.pythonanywhere.com/">Visit</a> http://notarious2.pythonanywhere.com/
+
+<h3>Admin credentials:</h3>
+
+<p>http://notarious2.pythonanywhere.com/admin/</p>
+
+```
+login: bekzod
+password: bekzod
+```
+
 <hr>
 <p style="font-weight: bold;">This e-commerce app was built using the following technologies:</p>
 <p float="left">
