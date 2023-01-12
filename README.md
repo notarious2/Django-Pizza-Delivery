@@ -36,7 +36,7 @@ password: bekzod
         <p>Registered users can see completed orders</p>
     </li>
     <li>
-        <p>Deferred <strong>Cash</strong> payment and Instant online payment with Stripe</p>
+        <p>Deferred <strong>Cash</strong> payment and Instant online payment with <strong>Stripe</strong></p>
     </li>
 
 </ul>
@@ -53,6 +53,16 @@ password: bekzod
 ```
 git clone https://github.com/notarious2/Django-Pizza-Delivery.git
 cd Django-Pizza-Delivery
+```
+
+**Configure Enviornmental variables:**
+<br>
+_inside 'epizza' folder add .env file and add Secret Key, Stripe Publishable Key and Stripe Secret Key_
+
+```
+SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
 ```
 
 **Create and Activate Virtual Environment:**

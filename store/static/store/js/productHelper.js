@@ -31,7 +31,7 @@ $("input:radio").change(function () {
   // hide all prices
   $(".prices-" + product_number).hide();
   // use an attribute selector if class contains dot
-  if (checked_size_id.includes("")) $(`[class~='${checked_size_id}']`).show();
+  if (checked_size_id.includes(".")) $(`[class~='${checked_size_id}']`).show();
   else $("." + checked_size_id).show();
 });
 
