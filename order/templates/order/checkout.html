@@ -47,12 +47,12 @@
         <div class="flex flex-col w-2/3 mb-5">
           <label class="mb-2 font-bold text-slate-500" for="email">Email:</label>
           <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="email" name="email"
-            placeholder="Please enter your email" value="vasya@gmail.com" required />
+            placeholder="Please enter your email" required />
         </div>
         <div class="flex flex-col w-2/3 mb-2">
           <label class="mb-2 font-bold text-slate-500" for="phone">Phone</label>
           <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="phone"
-            value="phone" required />
+            required />
         </div>
       </div>
       <!-- Shipping Info -->
@@ -63,18 +63,18 @@
             <div class="flex flex-col w-1/2 mb-2">
               <label class="mb-2 font-bold text-slate-500" for="first_name">First Name</label>
               <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="first_name"
-                value="first-name" required />
+                required />
             </div>
             <div class="flex flex-col w-1/2 ml-2">
               <label class="mb-2 font-bold text-slate-500" for="last_name">Last Name</label>
-              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="last_name"
-                value="last-name" />
+              <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text"
+                name="last_name" />
             </div>
           </div>
           <div class="flex flex-col w-full mb-2">
             <label class="mb-2 font-bold text-slate-500" for="address_1">Address</label>
             <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="address_1"
-              value="address-1" required />
+              required />
           </div>
           <div class="flex flex-col w-full mb-2">
             <label class="mb-2 font-bold text-slate-500" for="address_2">Apartment, suite, etc.</label>
@@ -84,19 +84,19 @@
             <div class="flex flex-col w-1/2 mb-2">
               <label class="mb-2 font-bold text-slate-500" for="city">City</label>
               <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="city"
-                value="Angren" required />
+                required />
             </div>
             <div class="flex flex-col w-1/2 ml-2">
               <label class="mb-2 font-bold text-slate-500" for="country">Country</label>
               <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="country"
-                value="Uzbekistan" required />
+                required />
             </div>
           </div>
           <div class="flex justify-between mb-2">
             <div class="flex flex-col w-1/2 mb-2">
               <label class="mb-2 font-bold text-slate-500" for="state">State / Provice</label>
               <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="state"
-                value="Tashkent Region" required />
+                required />
             </div>
             <div class="flex flex-col w-1/2 ml-2">
               <label class="mb-2 font-bold text-slate-500" for="postal_code">Postal Code</label>
@@ -117,12 +117,12 @@
       <div class="flex flex-col w-2/3 mb-2">
         <label class="mb-2 font-bold text-slate-500" for="carryout-email">Email</label>
         <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="email" name="carryout-email"
-          id="carryout-email" value="notarious2@gmail.com" required />
+          id="carryout-email" required />
       </div>
       <div class="flex flex-col w-2/3 mb-2">
         <label class="mb-2 font-bold text-slate-500" for="carryout-phone">Phone</label>
         <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="carryout-phone"
-          id="carryout-phone" value="12345" required />
+          id="carryout-phone" required />
       </div>
       <div class="py-2 mt-3">
         <h2 class="font-bold mb-3 text-2xl">Pick-up Details</h2>
@@ -397,7 +397,7 @@
     // add Delivery Method
     addressInfo['delivery'] = true;
     if (online) {
-      // send POST request to Stripe checkout session - Delivery Order 
+      // send POST request to Stripe checkout session - Delivery Order
       fetch("{% url 'order:api_checkout_session' order.transaction_id %}", {
         method: "POST",
         headers: {
@@ -488,7 +488,7 @@
       dropdown: true,
       scrollbar: true
     });
-  });  
+  });
 </script>
 
 {% endblock %}
