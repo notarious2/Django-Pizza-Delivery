@@ -42,13 +42,6 @@
       </div>
       {% with request.resolver_match.url_name as url_name %}
       <ul class="flex ml-auto items-center">
-        {% if user.is_superuser %}
-        <li
-          class="text-xl mx-4 hover:text-cyan-500 duration-500 {% if url_name == 'dashboard' %} text-cyan-500 {% endif %}"
-        >
-          <a href="{% url 'store:dashboard' %}">Dashboard</a>
-        </li>
-        {% endif %}
         <!-- Display orders tab if user is authenticated -->
         {% if user.is_authenticated %}
         <li
