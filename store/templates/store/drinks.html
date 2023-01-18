@@ -2,19 +2,37 @@
 
 <!-- Start Products List -->
 <div class="flex flex-col items-center">
-  <h1 class="text-2xl text-center uppercase rounded-lg m-5 mr-auto py-2 w-48 bg-red-200">
+  <h1
+    class="mt-5 text-2xl text-center uppercase rounded-lg ml-5 mr-auto py-2 w-48 bg-red-200"
+  >
     Drinks
   </h1>
-  <div class="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-5 mx-3 max-w-max">
+  <div
+    class="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 mx-3"
+  >
     {% for product in products %}
-    <div class="flex flex-col m-2 bg-white rounded-xl shadow-md individual-container">
-      <img class="h-72 w-full rounded-t-xl" src="{{ product.image.url }}" alt="" />
-      <h5 class="mb-2 text-center text-2xl font-bold tracking-tight text-gray-900">
+    <div
+      class="flex flex-col m-2 bg-white rounded-xl shadow-md individual-container"
+    >
+      {% if product.image %}
+      <img
+        class="h-72 w-full rounded-t-xl"
+        src="{{ product.image.url }}"
+        alt=""
+      />
+      {% endif %}
+      <h5
+        class="mb-2 text-center text-2xl font-semibold tracking-tight text-gray-900"
+      >
         {{product.name}}
       </h5>
 
-      <form action="{% url 'order:add_to_cart' product.id %}" method="post" class="text-center items-center mt-auto p-3"
-        id="product-form">
+      <form
+        action="{% url 'order:add_to_cart' product.id %}"
+        method="post"
+        class="text-center items-center mt-auto p-3"
+        id="product-form"
+      >
         {% csrf_token %}
         <div class="flex my-3">
           <!-- Start Choosing Quantity -->
@@ -22,15 +40,23 @@
             <button class="decrement" type="button">
               <svg class="fill-current text-gray-600 w-4" viewBox="0 0 448 512">
                 <path
-                  d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
+                  d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
               </svg>
             </button>
-            <input class="w-1/3 h-7 mx-2 text-center rounded-md" type="number" value="1" name="quantity" min="1"
-              oninput="validity.valid||(value='');" />
+            <input
+              class="w-1/3 h-7 mx-2 text-center rounded-md"
+              type="number"
+              value="1"
+              name="quantity"
+              min="1"
+              oninput="validity.valid||(value='');"
+            />
             <button class="increment" type="button">
               <svg class="fill-current text-gray-600 w-4" viewBox="0 0 448 512">
                 <path
-                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" />
+                  d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
+                />
               </svg>
             </button>
           </div>
@@ -40,7 +66,8 @@
           <div class="flex items-center font-bold text-xl text-green-500">
             {% for variant in product.get_product_variants %}
             <p
-              class="prices-{{forloop.parentloop.counter}} {{variant.size}}-{{forloop.parentloop.counter}} {% if not forloop.first %} hidden {% endif %}">
+              class="prices-{{forloop.parentloop.counter}} {{variant.size}}-{{forloop.parentloop.counter}} {% if not forloop.first %} hidden {% endif %}"
+            >
               ${{variant.price|floatformat:1}}
             </p>
             {% endfor %}
@@ -57,10 +84,13 @@
         <div class="flex m-2 w-1/2">
           {% for variant in product.get_product_variants%}
           <div class="flex">
+            <!-- prettier-ignore -->
             <input type="radio" name="size" id="{{variant.size}}-{{forloop.parentloop.counter}}" class="peer hidden"
               value="{{variant.size}}" {% if forloop.first %} checked {% endif %} />
-            <label for="{{variant.size}}-{{forloop.parentloop.counter}}"
-              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:font-bold {% if forloop.first %} peer-checked:bg-yellow-200 {% elif forloop.last %} peer-checked:bg-green-500 {% else %} peer-checked:bg-orange-300 {% endif %}">{{variant.size}}
+            <label
+              for="{{variant.size}}-{{forloop.parentloop.counter}}"
+              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:font-bold {% if forloop.first %} peer-checked:bg-yellow-200 {% elif forloop.last %} peer-checked:bg-green-500 {% else %} peer-checked:bg-orange-300 {% endif %}"
+              >{{variant.size}}
             </label>
           </div>
           {% endfor %}
@@ -70,9 +100,15 @@
         {% endif %}
         <!-- End Choosing Size -->
         <div class="flex">
-          <button class="bg-green-300 hover:bg-green-500 rounded-xl w-full py-2 js-add" type="button">
-            <img class="absolute w-7 ml-6 hidden bg-transparent product-added"
-              src="{% static 'store/images/checkmark.png' %}" alt="" />
+          <button
+            class="bg-green-300 hover:bg-green-500 rounded-xl w-full py-2 js-add"
+            type="button"
+          >
+            <img
+              class="absolute w-7 ml-6 hidden bg-transparent product-added"
+              src="{% static 'store/images/checkmark.png' %}"
+              alt=""
+            />
             Add to cart
           </button>
         </div>

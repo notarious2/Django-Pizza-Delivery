@@ -14,7 +14,7 @@ def products(request):
         product_name = ""
 
     # pagination
-    paginator = Paginator(products, 10)
+    paginator = Paginator(products, 8)
     page_number = request.GET.get('page')
     products = paginator.get_page(page_number)
 

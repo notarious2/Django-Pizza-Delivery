@@ -20,12 +20,13 @@
   <script src="{% static 'store/js/helpers.js' %}"></script>
 </head>
 
-<body class="m-0 p-0 bg-sky-100">
-  <nav class="p-5 flex bg-pink-200">
+<body class="m-0 p-0 bg-sky-100/50">
+  <nav class="p-5 flex bg-cyan-200">
     <div class="flex justify-between items-center">
-      <a href="{% url 'store:products' %}">
+      <a href="{% url 'store:products' %}" class="flex">
         <img class="h-10 inline" src="{% static 'store/images/pizza.png' %}" />
-        <span class="ml-2 text-xl text-gray-600 cursor-pointer font-[Poppins] font-semibold">Crispy Pizza</span>
+        <span class="invisible md:visible ml-2 text-xl text-gray-600 cursor-pointer font-[Poppins] font-semibold">
+          Crispy Pizza</span>
       </a>
 
     </div>
@@ -49,17 +50,17 @@
             class="hover:text-teal-900 py-2 px-4 inline-flex items-center {% if url_name in 'pizzas, drinks, sides' %} text-teal-700 {% endif %}">
             Menu
           </button>
-          <ul class="dropdown-menu hidden absolute pt-1 left-0 right-0">
+          <ul class="bg-cyan-200 rounded-b-xl dropdown-menu hidden absolute pt-1 left-0 right-0">
             <li class="">
-              <a class="hover:text-teal-900 bg-white py-2 px-4 bg-pink-200 block whitespace-no-wrap {% if url_name == 'pizzas' %} text-teal-700 {% endif %}"
+              <a class="hover:text-teal-900 py-2 px-4 block whitespace-no-wrap {% if url_name == 'pizzas' %} text-teal-700 {% endif %}"
                 href="{% url 'store:pizzas' %}">Pizza</a>
             </li>
             <li class="">
-              <a class="hover:text-teal-900 bg-white py-2 px-4 bg-pink-200 block whitespace-no-wrap {% if url_name == 'drinks' %} text-teal-700 {% endif %}"
+              <a class="hover:text-teal-900 py-2 px-4 block whitespace-no-wrap {% if url_name == 'drinks' %} text-teal-700 {% endif %}"
                 href="{% url 'store:drinks' %}">Drinks</a>
             </li>
             <li class="">
-              <a class="hover:text-teal-900 bg-white py-2 px-4 bg-pink-200 block whitespace-no-wrap {% if url_name == 'sides' %} text-teal-700 {% endif %}"
+              <a class="hover:text-teal-900 py-2 px-4 block whitespace-no-wrap {% if url_name == 'sides' %} text-teal-700 {% endif %}"
                 href="{% url 'store:sides' %}">Sides</a>
             </li>
           </ul>

@@ -31,19 +31,21 @@
     Products
   </h1>
   <div
-    class="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 mx-3 max-w-max"
+    class="grid sm:grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 mx-3"
   >
     {% for product in products %}
     <div
       class="flex flex-col m-2 bg-white rounded-xl shadow-md individual-container"
     >
+      {% if product.image %}
       <img
         class="h-72 w-full rounded-t-xl"
         src="{{ product.image.url }}"
         alt=""
       />
+      {% endif %}
       <h5
-        class="mb-2 text-center text-2xl font-bold tracking-tight text-gray-900"
+        class="mb-2 text-center text-2xl font-semibold tracking-tight text-gray-900"
       >
         {{product.name}}
       </h5>
@@ -108,9 +110,14 @@
             <!-- prettier-ignore -->
             <input type="radio" name="size" id="{{variant.size}}-{{forloop.parentloop.counter}}" class="peer hidden"
               value="{{variant.size}}" {% if forloop.first %} checked {% endif %} />
+            <!-- prettier-ignore -->
             <label
               for="{{variant.size}}-{{forloop.parentloop.counter}}"
-              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:font-bold {% if forloop.first %} peer-checked:bg-yellow-200 {% elif forloop.last %} peer-checked:bg-green-500 {% else %} peer-checked:bg-orange-300 {% endif %}"
+              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:font-bold 
+              {% if forloop.counter == 1 %} peer-checked:bg-orange-100 
+              {% elif forloop.counter == 2 %} peer-checked:bg-orange-200
+              {% elif forloop.counter == 3 %} peer-checked:bg-orange-300  
+              {% else %} peer-checked:bg-orange-400 {% endif %}"
               >{{variant.size}}
             </label>
           </div>
