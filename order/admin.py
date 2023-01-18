@@ -68,13 +68,13 @@ class CouponAdmin(admin.ModelAdmin):
 
 class PickUpDetailAdmin(admin.ModelAdmin):
     list_display = ('urgency',
-                    'pickup_date', 'phone', 'email')
+                    'pickup_date')
     inlines = [OrderInline]
 
 
 class ShippingAdmin(admin.ModelAdmin):
     inlines = [OrderInline]
-    list_display = ('address_1', 'first_name', 'last_name', 'phone', 'email')
+    list_display = ('address_1', 'first_name', 'last_name')
 
 
 admin.site.register(PickUpDetail, PickUpDetailAdmin)

@@ -35,6 +35,8 @@ class Order(models.Model):
         "PickUpDetail", on_delete=models.SET_NULL, blank=True, null=True)
     coupon = models.ForeignKey(
         'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
+    email = models.EmailField(max_length=70, null=True, blank=True)
+    phone = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return f"{self.transaction_id} by {self.customer}"
@@ -172,8 +174,6 @@ class ShippingAddress(models.Model):
     state = models.CharField(max_length=30)
     country = models.CharField(max_length=50)
     postal_code = models.CharField(max_length=6, blank=True, null=True)
-    phone = models.CharField(max_length=20)
-    email = models.EmailField()
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} {self.address_1}"
@@ -187,8 +187,6 @@ class PickUpDetail(models.Model):
     urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES)
     pickup_date = models.DateTimeField(
         null=True, blank=True, default=datetime.datetime.now)
-    phone = models.CharField(max_length=20)
-    email = models.EmailField()
 
     def __str__(self):
-        return f"{self.urgency} {self.phone} {self.email}"
+        return f"{self.urgency}"

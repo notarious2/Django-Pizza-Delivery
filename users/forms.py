@@ -26,7 +26,7 @@ class UserRegisterForm(UserCreationForm):
         if commit:
             user.save()
             Customer.objects.create(
-                user=user, name=user.username, email=user.email)
+                user=user, username=user.username, email=user.email)
         return user
 
 

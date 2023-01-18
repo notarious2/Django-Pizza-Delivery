@@ -479,6 +479,15 @@
   datePicker.valueAsDate = today;
   // set minimum date as today
   datePicker.setAttribute("min", today.toISOString().substr(0, 10))
+  // set default time if now > max set max, 
+  // if now < min, set min, if between grab closest next hour ignoring minutes
+  if (hours>=21) {
+    defaultHours = '9:00pm'
+  } else if (hours<8) {
+    defaultHours = '8:30am'
+  } else {
+    var defaultHours = String(hours + 1)
+  }
   // jQuery TimePicker
   $(document).ready(function () {
     $('input.timepicker').timepicker({
@@ -486,7 +495,7 @@
       interval: 30,
       minTime: '08:30am',
       maxTime: '9:00pm',
-      defaultTime: String(hours + 1),
+      defaultTime: defaultHours,
       startTime: '08:30am',
       dynamic: false,
       dropdown: true,

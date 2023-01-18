@@ -16,11 +16,14 @@ from django.http.response import HttpResponseNotFound, JsonResponse
 import json
 import datetime
 
-# Create your views here.
-
 
 def cart(request):
-    # checking if current user is authenticated/customer, if not customer will be created based on device id
+    """
+    Cart page. It contains information about only one order,
+    which has not complete (complete=False) status.
+    """
+    # checking if current user is authenticated/customer,
+    # if not customer will be created based on device id
     if request.user.is_authenticated:
         customer = request.user.customer
     else:
@@ -37,8 +40,6 @@ def cart(request):
         customer_order = customer_order[0]
     else:
         customer_order, customer_items = None, None
-
-    # any not completed order is supposed to be a cart (session)
 
     context = {
         "order": customer_order,
@@ -102,7 +103,8 @@ def remove_from_cart(request, pk):
 @require_POST
 def increase_product_quantity(request, pk):
     """
-    adding +1 item inside the cart
+    adding +1 item to the cart
+    this functionality is used inside the cart page
     """
     order_item = get_object_or_404(OrderItem, pk=pk)
     order_item.quantity += 1
@@ -146,13 +148,18 @@ def change_product_quantity(request):
     order_item = get_object_or_404(OrderItem, pk=order_item_id)
     order_item.quantity = quantity
     order_item.save()
-    # save corresponding order to update modified date field
+    # save order to update modified date field
     order_item.order.save()
     return redirect("order:cart")
 
 
 @require_POST
 def coupon_apply(request):
+    """
+    Applies the coupon. 
+    From the coupon code it first retrieves Coupon from the database,
+    then confirms it using Stripe Coupon ID from Stripe Coupon webhook
+    """
     now = timezone.now()
     form = CouponApplyForm(request.POST)
     if form.is_valid():
@@ -251,14 +258,30 @@ def cash_checkout(request, pk):
     """
     Finalizing order with deferred payment - Cash payment
     """
+
+    errors = []
+
+    def catch_validation_errors(e):
+        """
+        Collect errors and return Unprocessable Entity HTTP response
+        """
+        for key, value in e:
+            validation_error = key.upper() + " " + value[0]
+            errors.append(validation_error)
+
     order = get_object_or_404(Order, transaction_id=pk)
     order.payment_method = "cash"
 
     # load data from POST to check delivery method
     data = json.loads(request.body)
+
     delivery = data.pop("delivery")
+
+    # pop email and phone
+    phone = data.pop('phone')
+    email = data.pop('email')
+
     if delivery:
-        # change order delivery method to 'delivery'
         order.delivery_method = "delivery"
         try:
             # manually trigger fields validation without saving a model
@@ -269,12 +292,7 @@ def cash_checkout(request, pk):
             # update shipping in order
             order.shipping = shipping_address
         except Exception as e:
-            # Collect errors and return Unprocessable Entity HTTP response
-            errors = []
-            for key, value in e:
-                validation_error = key.upper() + " " + value[0]
-                errors.append(validation_error)
-            return JsonResponse({"errors": errors}, status=422)
+            catch_validation_errors(e)
     else:
         order.delivery_method = "carryout"
         if data['urgency'] == 'custom':
@@ -293,16 +311,24 @@ def cash_checkout(request, pk):
                 **data)
             order.pickup = pickup_details
         except Exception as e:
-            # Collect errors and return Unprocessable Entity HTTP response
-            errors = []
-            for key, value in e:
-                validation_error = key.upper() + " " + value[0]
-                errors.append(validation_error)
-            return JsonResponse({"errors": errors}, status=422)
+            catch_validation_errors(e)
+
+    # add email and phone to the order, and validate final form
+    order.email = email
+    order.phone = phone
+    order.complete = True
+    try:
+        order.full_clean()
+    except Exception as e:
+        catch_validation_errors(e)
+
+    # if errors are caught, return Unprocessable Entity Response
+    if len(errors) > 0:
+        return JsonResponse({"errors": errors}, status=422)
 
     # save order to apply payment and delivery methods
-    order.complete = True
     order.save()
+
     return redirect(request.build_absolute_uri(reverse('order:success'))+"?cash=true")
 
 
@@ -312,6 +338,16 @@ def create_checkout_session(request, pk):
     Stripe payment gateway for Online payment checkout
     Sessions are used to store ShippingAddress or PickUpDetails info
     """
+    errors = []
+
+    def catch_validation_errors(e):
+        """
+        Collect errors and return Unprocessable Entity HTTP response
+        """
+        for key, value in e:
+            validation_error = key.upper() + " " + value[0]
+            errors.append(validation_error)
+
     # get order by transaction_id
     order = get_object_or_404(Order, transaction_id=pk)
     # change order payment method to Online
@@ -320,8 +356,11 @@ def create_checkout_session(request, pk):
     data = json.loads(request.body)
     # get delivery status
     delivery = data.pop("delivery")
+    # pop email and phone
+    phone = data.pop('phone')
+    email = data.pop('email')
+
     if delivery:
-        # change order delivery method to 'delivery'
         order.delivery_method = "delivery"
         try:
             # validate data
@@ -330,14 +369,8 @@ def create_checkout_session(request, pk):
             for key, value in data.items():
                 request.session[key] = value
         except Exception as e:
-            # Collect errors and return Unprocessable Entity HTTP response
-            errors = []
-            for key, value in e:
-                validation_error = key.upper() + " " + value[0]
-                errors.append(validation_error)
-            return JsonResponse({"errors": errors}, status=422)
+            catch_validation_errors(e)
     else:
-        # if carryout - change order delivery method to 'carryout'
         order.delivery_method = "carryout"
         # validate data without pickup_date to avoid problems
         # with storing datetime object in Sessions
@@ -350,14 +383,23 @@ def create_checkout_session(request, pk):
             for key, value in data.items():
                 request.session[key] = value
         except Exception as e:
-            # Collect errors and return Unprocessable Entity HTTP response
-            errors = []
-            for key, value in e:
-                validation_error = key.upper() + " " + value[0]
-                errors.append(validation_error)
-            return JsonResponse({"errors": errors}, status=422)
+            catch_validation_errors(e)
+
+    # add email and phone to the order, and validate final form
+    order.email = email
+    order.phone = phone
+
+    try:
+        order.full_clean()
+    except Exception as e:
+        catch_validation_errors(e)
+
     # save order to apply payment and delivery methods
     order.save()
+
+    # if errors are caught, return Unprocessable Entity Response
+    if len(errors) > 0:
+        return JsonResponse({"errors": errors}, status=422)
 
     # check if order has coupon and pass it to Stripe Payment Gateway
     if order.coupon:
@@ -387,20 +429,19 @@ def create_checkout_session(request, pk):
                     'quantity': item.quantity,
                 }
             )
-    success_url = request.build_absolute_uri(
-        reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}"
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
     # Create Stripe Checkout Session
     checkout_session = stripe.checkout.Session.create(
-        customer_email=data["email"],
+        customer_email=email,
         payment_method_types=['card'],
         line_items=line_items,
         discounts=[{
             'coupon': coupon_id,
         }],
         mode='payment',
-        success_url=success_url,
+        success_url=request.build_absolute_uri(
+            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}",
         cancel_url=request.build_absolute_uri(
             reverse('order:failed')),
     )
@@ -445,6 +486,7 @@ class PaymentSuccessView(TemplateView):
                 shipping_address, created = ShippingAddress.objects.get_or_create(
                     **shipping_dict)
                 order.shipping = shipping_address
+
             elif order.delivery_method == "carryout":
                 # get model's field names
                 carryout_list = [
