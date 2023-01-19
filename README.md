@@ -3,6 +3,8 @@
 <h1>Live Demo</h1>
 <a href="http://notarious2.pythonanywhere.com/">Visit</a> http://notarious2.pythonanywhere.com/
 
+<img src="images/front_page.png" alt="Front page"/>
+
 <h3>Admin credentials:</h3>
 
 <p>http://notarious2.pythonanywhere.com/admin/</p>
