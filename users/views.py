@@ -32,11 +32,10 @@ def logout_view(request):
     logout(request)
     return redirect('store:products')
 
-# displaying orders for authenticated user
 
-
-@login_required
+@login_required(login_url='users:login')
 def my_orders(request):
+    """Display orders for authenticated user"""
     customer = request.user.customer
     # orders query set - list of orders
     orders = Order.objects.filter(
