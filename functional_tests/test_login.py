@@ -60,7 +60,6 @@ class TestCustomerLogin(StaticLiveServerTestCase):
         get_source = self.driver.page_source
 
         self.assertIn('Invalid username or password', get_source)
-        time.sleep(10)
 
 
 # class TestLogin(LiveServerTestCase):

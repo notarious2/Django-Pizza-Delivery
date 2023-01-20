@@ -17,8 +17,8 @@ class SignUpView(CreateView):
 
 
 class MyLoginView(LoginView):
-    success_url = reverse_lazy('store:products')
     template_name = 'users/login.html'
+    success_url = reverse_lazy('store:products')
     form_class = CustomLoginForm
 
     # redirect authenticated user to the products page
