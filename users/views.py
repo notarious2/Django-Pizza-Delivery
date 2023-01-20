@@ -21,7 +21,7 @@ class MyLoginView(LoginView):
     template_name = 'users/login.html'
     form_class = CustomLoginForm
 
-    # redirect unauthenticated user to the products page
+    # redirect authenticated user to the products page
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return HttpResponseRedirect(reverse('store:products'))
