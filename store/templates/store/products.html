@@ -73,7 +73,8 @@
               value="1"
               name="quantity"
               min="1"
-              oninput="validity.valid||(value='');"
+              oninput="validity.valid||(value='1');"
+              required
             />
             <button class="increment" type="button">
               <svg class="fill-current text-gray-600 w-4" viewBox="0 0 448 512">
@@ -113,10 +114,10 @@
             <!-- prettier-ignore -->
             <label
               for="{{variant.size}}-{{forloop.parentloop.counter}}"
-              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:font-bold 
-              {% if forloop.counter == 1 %} peer-checked:bg-orange-100 
+              class="cursor-pointer select-none rounded-xl p-2 text-sm text-center peer-checked:font-bold
+              {% if forloop.counter == 1 %} peer-checked:bg-orange-100
               {% elif forloop.counter == 2 %} peer-checked:bg-orange-200
-              {% elif forloop.counter == 3 %} peer-checked:bg-orange-300  
+              {% elif forloop.counter == 3 %} peer-checked:bg-orange-300
               {% else %} peer-checked:bg-orange-400 {% endif %}"
               >{{variant.size}}
             </label>
