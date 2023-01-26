@@ -7,7 +7,7 @@ from django.views.generic.edit import CreateView
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
-from order.models import Order, OrderItem
+from order.models import Order
 
 
 class SignUpView(CreateView):

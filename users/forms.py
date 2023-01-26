@@ -1,6 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
-from .models import Customer
+from .models import Customer, User
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 
@@ -31,14 +30,24 @@ class UserRegisterForm(UserCreationForm):
 
 
 class CustomLoginForm(AuthenticationForm):
+    """Modifying styling of login inputs"""
+    username = forms.CharField(label='Email / Username')
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update(
-            {'placeholder': 'Your Username',
+            {'placeholder': 'Enter username or email',
              'class': 'w-64 px-3 py-2 rounded-md border border-slate-400'}
         )
         self.fields['password'].widget.attrs.update(
-            {'placeholder': 'Your Password',
+            {'placeholder': 'Enter password',
              'class': 'w-64 px-3 py-2 rounded-md border border-slate-400'}
         )
+
+
+class CustomUserCreation(UserCreationForm):
+    """Customizing User creation for use in admin panel"""
+    class Meta:
+        model = User
+        fields = '__all__'

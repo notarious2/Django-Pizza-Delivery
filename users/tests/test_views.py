@@ -1,8 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.models import User
 from django.contrib.auth import get_user
-from users.models import Customer
+from users.models import Customer, User
 
 
 class TestUserViews(TestCase):
@@ -17,6 +16,7 @@ class TestUserViews(TestCase):
         self.my_orders_url = reverse('users:my_orders')
         self.credentials = {
             'username': 'testuser',
+            'email': 'test@example.com',
             'password': 'testpassword'
         }
         User.objects.create_user(**self.credentials)
@@ -36,16 +36,30 @@ class TestUserViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/login.html')
 
-    def test_login(self):
-        """Test user login"""
+    def test_login_with_email(self):
+        """Test user login with email"""
         response = self.client.post(
-            self.login_url, self.credentials, follow=True)
+            self.login_url, {
+                'username': 'test@example.com',
+                'password': 'testpassword'
+            }, follow=True)
+        self.assertTrue(response.context['user'].is_authenticated)
+        self.assertEqual(
+            response.context['user'].username, self.credentials['username'])
+
+    def test_login_with_username(self):
+        """Test user login with username"""
+        response = self.client.post(
+            self.login_url, {
+                'username': 'testuser',
+                'password': 'testpassword'
+            }, follow=True)
         self.assertTrue(response.context['user'].is_authenticated)
         self.assertEqual(
             response.context['user'].username, self.credentials['username'])
 
     def test_login_for_authenticated_user(self):
-        """Test if authenticated user redirected"""
+        """Test if authenticated user is redirected to main page"""
         self.client.login(**self.credentials)
         response = self.client.get(self.login_url)
 

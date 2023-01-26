@@ -1,6 +1,28 @@
 from django.contrib import admin
-from .models import Customer
-from order.models import Order, OrderItem
+from .models import Customer, User
+from .forms import CustomUserCreation
+from django.contrib.auth.admin import UserAdmin
+from order.models import Order
+
+
+class CustomUserAdmin(UserAdmin):
+    model = User
+    add_form = CustomUserCreation
+    ordering = ('email',)
+    list_display_links = ('email', 'username')
+    # exclude = ('username', )
+    fieldsets = (
+        ('Personal info', {
+         'fields': ('email', 'password', 'first_name', 'last_name', 'username')}),
+        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('Permissions', {'fields': ('is_active', 'is_staff',
+         'is_superuser', 'groups', 'user_permissions')}),
+    )
+    # add fields those needs to be visible when adding new user in admin.
+    add_fieldsets = (
+        (None, {'fields': ('email', 'username', 'password1', 'password2', 'first_name', 'last_name',
+                           'is_active', 'is_superuser', )}),
+    )
 
 
 class OrderInline(admin.TabularInline):
@@ -20,3 +42,4 @@ class CustomerAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Customer, CustomerAdmin)
+admin.site.register(User, CustomUserAdmin)
