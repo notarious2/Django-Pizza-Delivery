@@ -17,16 +17,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='order',
             name='customer',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.customer'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='users.customer'),
         ),
         migrations.AddField(
             model_name='order',
             name='pickup',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='order.pickupdetail'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='order.pickupdetail'),
         ),
         migrations.AddField(
             model_name='order',
             name='shipping',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='order.shippingaddress'),
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='order.shippingaddress'),
         ),
     ]

@@ -1,3 +1,4 @@
+// Actions when add to cart button is clicked
 $(document).on("click", ".js-add", function () {
   var closestDiv = $(this).closest(".individual-container");
   var size = closestDiv.find("input[name='size']:checked").val();
@@ -11,12 +12,19 @@ $(document).on("click", ".js-add", function () {
     url: $(this).closest(".individual-container").find("form").attr("action"),
     data: JSON.stringify({ size: size, quantity: quantity }),
     success: function (data) {
+      // substitute cart total with received data
       $(document).find(".cart-count").text(data.cart_total);
-      var popupMessage = closestDiv.find(".product-added");
-      popupMessage.show();
+
+      // animation on successful addition to cart
+      var addToCart = closestDiv.find(".js-add");
+      var cartImage = $(document).find("#cart-image");
+      cartImage.addClass("animate-bounce");
+      addToCart.addClass("animate-bounce");
       setTimeout(function () {
-        popupMessage.hide();
-      }, 1000);
+        addToCart.removeClass("animate-bounce");
+        cartImage.removeClass("animate-bounce");
+      }, 500);
+
       // reset input field
       closestDiv.find("input[name='quantity']").val("1");
     },
@@ -31,11 +39,9 @@ $("input:radio").change(function () {
   // hide all prices
   $(".prices-" + product_number).hide();
   // use an attribute selector if class contains dot
-  if (checked_size_id.includes("."))
-    $(`[class~='${checked_size_id}']`).show();
+  if (checked_size_id.includes(".")) $(`[class~='${checked_size_id}']`).show();
   else $("." + checked_size_id).show();
 });
-
 
 // incrementing quantity
 $(".increment").click(function () {
