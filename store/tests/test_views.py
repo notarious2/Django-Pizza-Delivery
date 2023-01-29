@@ -1,10 +1,5 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from store.models import Product
-
-
-def add_test_product():
-    Product.objects.create(name='Test Product')
 
 
 class TestStoreViews(TestCase):
