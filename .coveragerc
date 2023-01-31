@@ -5,6 +5,7 @@ omit =
  */functional_tests/*
  */tests/*
    manage.py
+   settings.py
    *apps.py
    *__init__.py
    *asgi*

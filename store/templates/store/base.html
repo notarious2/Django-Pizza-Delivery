@@ -140,6 +140,7 @@
   </body>
 </html>
 <script>
+  // dropdown menu START
   const menu = document.querySelector("#menu");
   menu.addEventListener("mouseover", (event) => {
     const dropdownMenu = document.querySelector(".dropdown-menu");
@@ -149,6 +150,6 @@
     const dropdownMenu = document.querySelector(".dropdown-menu");
     dropdownMenu.style.display = "none";
   });
-
+  // dropdown menu END
   var csrftoken = "{{ csrf_token }}";
 </script>

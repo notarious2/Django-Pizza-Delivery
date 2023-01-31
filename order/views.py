@@ -24,11 +24,14 @@ def cart(request):
     """
     # checking if current user is authenticated/customer,
     # if not customer will be created based on device id
-    if request.user.is_authenticated:
-        customer = request.user.customer
-    else:
-        customer, created = Customer.objects.get_or_create(
-            device=request.COOKIES['device'])
+    try:
+        if request.user.is_authenticated:
+            customer = request.user.customer
+        else:
+            customer, created = Customer.objects.get_or_create(
+                device=request.COOKIES['device'])
+    except:
+        return redirect('store:products')
 
     customer_order = Order.objects.filter(
         customer=customer, complete=False)
@@ -67,12 +70,16 @@ def add_to_cart(request, pk):
         variation = ProductVariant.objects.get(size=size, product=product)
     else:
         variation = None
-    # checking if current user is authenticated/customer, if not customer will be created based on device id
-    if request.user.is_authenticated:
-        customer = request.user.customer
-    else:
-        customer, created = Customer.objects.get_or_create(
-            device=request.COOKIES['device'])
+    # checking if current user is authenticated/customer,
+    # if not customer will be created based on device id
+    try:
+        if request.user.is_authenticated:
+            customer = request.user.customer
+        else:
+            customer, created = Customer.objects.get_or_create(
+                device=request.COOKIES['device'])
+    except:
+        return redirect('store:products')
 
     order, created = Order.objects.get_or_create(
         customer=customer, complete=False)
@@ -156,7 +163,7 @@ def change_product_quantity(request):
 @require_POST
 def coupon_apply(request):
     """
-    Applies the coupon. 
+    Applies the coupon.
     From the coupon code it first retrieves Coupon from the database,
     then confirms it using Stripe Coupon ID from Stripe Coupon webhook
     """
