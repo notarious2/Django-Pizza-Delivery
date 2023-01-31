@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'users.apps.UsersConfig',
     'order.apps.OrderConfig',
-    'django_nose',  # for tests
 ]
 
 MIDDLEWARE = [

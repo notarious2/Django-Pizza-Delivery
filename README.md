@@ -118,9 +118,9 @@ npm run build
 ```
 
 <h1>Functional and Unit Tests</h1>
-_The project contains <strong>60+</strong> both functional and unit tests_
-_Unit tests cover urls, models, forms and views_
-_Functional testing is done using Selenium and django's StaticLiveServerTestCase_
+The project contains <strong>60+</strong> both functional and unit tests
+Unit tests cover urls, models, forms and views
+Functional testing is done using Selenium and django's StaticLiveServerTestCase
 
 **Run all tests**
 
@@ -129,7 +129,8 @@ python manage.py test
 ```
 
 **Run functional tests**
-to see the testing process remove _options.add_argument('headless')_ in SetUp of each test
+
+Located in functional tests folder of a root directory. to see the testing process remove _options.add_argument('headless')_ in SetUp of each functional test
 
 ```
 python manage.py test functional_tests
@@ -138,7 +139,7 @@ python manage.py test functional_tests
 **Run unit tests**
 
 ```
-python manage.py test functional_tests
+python manage.py test users store orders
 ```
 
 **Test coverage report**
@@ -147,7 +148,7 @@ python manage.py test functional_tests
 coverage run manage.py test
 ```
 
-to show report on command line:
+to show report in command line:
 
 ```
 coverage report
@@ -156,5 +157,5 @@ coverage report
 generates html report in <strong>test_coverage_report</strong> folder
 
 ```
-coverage report html
+coverage html
 ```

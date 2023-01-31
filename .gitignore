@@ -1,5 +1,5 @@
 node_modules
-
+test_coverage_report
 # Django #
 *.log
 *.pot
