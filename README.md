@@ -26,7 +26,7 @@ password: bekzod
 <h1>Features</h1>
 <ul>
     <li>
-        <p>Customer Registration, Login and Logout</p>
+        <p>Customer Registration, Login and Logout. Customers may login with either <strong>email</strong> or <strong>username</strong></p>
     </li>
     <li>
         <p>Customer and Guest Checkout (using device ID set in Cookies) </p>
@@ -35,7 +35,7 @@ password: bekzod
         <p>Delivery and Carry-out option</p>
     </li>
     <li>
-        <p>Special Orders tab for Registered users to view completed orders</p>
+        <p>Special <strong>Orders</strong> tab for registered users to view completed orders</p>
     </li>
     <li>
         <p>Deferred <strong>Cash</strong> payment and Instant online payment with <strong>Stripe</strong></p>
