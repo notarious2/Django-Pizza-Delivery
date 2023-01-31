@@ -1,0 +1,15 @@
+[run]
+omit =
+ */environment/*
+ */migrations/*
+ */functional_tests/*
+ */tests/*
+   manage.py
+   *apps.py
+   *__init__.py
+   *asgi*
+   *wsgi*
+   *admin.py
+
+[html]
+directory = test_coverage_report

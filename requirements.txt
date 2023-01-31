@@ -20,3 +20,4 @@ virtualenv==20.16.5
 virtualenv-clone==0.5.7
 selenium
 chromedriver-autoinstaller
+coverage

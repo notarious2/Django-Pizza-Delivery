@@ -10,9 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+import collections
 from pathlib import Path
 import os
 import environ
+
 
 env = environ.Env()
 # reading .env file
@@ -50,6 +52,7 @@ INSTALLED_APPS = [
     'store.apps.StoreConfig',
     'users.apps.UsersConfig',
     'order.apps.OrderConfig',
+    'django_nose',  # for tests
 ]
 
 MIDDLEWARE = [
@@ -149,4 +152,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 LOGIN_REDIRECT_URL = 'store:products'
 
 AUTH_USER_MODEL = 'users.User'
+# for authentication with email/username
 AUTHENTICATION_BACKENDS = ['users.backends.EmailBackend']

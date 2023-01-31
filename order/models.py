@@ -4,6 +4,7 @@ import uuid
 from store.models import Product, ProductVariant
 import datetime
 from django.utils.safestring import mark_safe
+from django.utils import timezone
 
 
 # Create your models here.
@@ -75,9 +76,9 @@ class Order(models.Model):
         for item in order_items:
             add_comma = ", " if l > 1 and ticker != l else ""
             if item.variation:
-                product_title = f'''{item.product.name}  
+                product_title = f'''{item.product.name}
                 ({item.variation.get_size},
-                #{item.quantity}, ${item.get_total}) 
+                #{item.quantity}, ${item.get_total})
                 {add_comma} '''
             else:
                 product_title = item.product.name
@@ -106,20 +107,19 @@ class Order(models.Model):
 class OrderItem(models.Model):
     """
     There is a one-to-many relationship between OrderItem and Order,
-    - one order may have many order items, for this 'order' is added 
+    - one order may have many order items, for this 'order' is added
     as a foreign key in the OrderItem model. Similary, one OrderItem may contain
     multiple products.
     """
-    product = models.ForeignKey(
-        Product, on_delete=models.SET_NULL, blank=True, null=True)
-    order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     variation = models.ForeignKey(
         ProductVariant, on_delete=models.SET_NULL, blank=True, null=True)
-    quantity = models.IntegerField(default=0, null=True, blank=True)
+    quantity = models.IntegerField()
     date_added = models.DateTimeField(auto_now_add=True)
 
-    # no string representation added is it is managed in the admin.py
+    def __str__(self):
+        return f"{self.product.name} #{self.quantity}"
 
     # get item price for product with and without variation
     @property
@@ -155,7 +155,7 @@ class Coupon(models.Model):
     active = models.BooleanField(default=False)
     discount_type = models.CharField(
         max_length=10, choices=DISCOUNT_CHOICES, default="Percent")
-    discount_amount = models.PositiveIntegerField(null=True, blank=True)
+    discount_amount = models.PositiveIntegerField()
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
     stripe_coupon_id = models.CharField(
@@ -185,8 +185,7 @@ class PickUpDetail(models.Model):
         ("custom", "custom")
     )
     urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES)
-    pickup_date = models.DateTimeField(
-        null=True, blank=True, default=datetime.datetime.now)
+    pickup_date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.urgency}"
