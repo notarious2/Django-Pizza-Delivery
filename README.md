@@ -35,7 +35,7 @@ password: bekzod
         <p>Delivery and Carry-out option</p>
     </li>
     <li>
-        <p>Registered users can see completed orders</p>
+        <p>Special Orders tab for Registered users to view completed orders</p>
     </li>
     <li>
         <p>Deferred <strong>Cash</strong> payment and Instant online payment with <strong>Stripe</strong></p>
