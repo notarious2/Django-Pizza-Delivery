@@ -118,9 +118,10 @@ npm run build
 ```
 
 <h1>Functional and Unit Tests</h1>
-The project contains <strong>60+</strong> both functional and unit tests
-Unit tests cover urls, models, forms and views
-Functional testing is done using Selenium and django's StaticLiveServerTestCase
+<p>The project contains <strong>60+</strong> both functional and unit tests.</p>
+
+<p>Unit tests cover urls, models, forms and views</p>
+<p>Functional testing is done using Selenium and django's StaticLiveServerTestCase</p>
 
 **Run all tests**
 

@@ -70,6 +70,7 @@ class Order(models.Model):
     # show product titles in the order
     @property
     def display_items(self):
+        """To nicely display order items in Orders tab of a registered user"""
         order_items = self.orderitem_set.all()
         ticker, l = 1, len(order_items)
         product_titles = str()
@@ -78,10 +79,10 @@ class Order(models.Model):
             if item.variation:
                 product_title = f'''{item.product.name}
                 ({item.variation.get_size},
-                #{item.quantity}, ${item.get_total})
-                {add_comma} '''
+                #{item.quantity}, ${item.get_total}){add_comma}'''
             else:
-                product_title = item.product.name
+                product_title = f'''{item.product.name}
+                (#{item.quantity}, ${item.get_total}){add_comma}'''
             product_titles += product_title
             ticker += 1
         return product_titles
@@ -115,7 +116,7 @@ class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     variation = models.ForeignKey(
         ProductVariant, on_delete=models.SET_NULL, blank=True, null=True)
-    quantity = models.IntegerField()
+    quantity = models.IntegerField(default=0)
     date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
