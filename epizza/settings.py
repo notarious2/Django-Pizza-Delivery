@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
-import collections
 from pathlib import Path
 import os
 import environ
@@ -36,9 +35,12 @@ DEBUG = True
 if DEBUG:
     STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
     STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
-    STRIPE_COUPON_ID_PERCENT = env('STRIPE_COUPON_ID_PERCENT')
-    STRIPE_COUPON_ID_ABSOLUTE = env('STRIPE_COUPON_ID_ABSOLUTE')
-
+    try:
+        STRIPE_COUPON_ID_PERCENT = env('STRIPE_COUPON_ID_PERCENT')
+        STRIPE_COUPON_ID_ABSOLUTE = env('STRIPE_COUPON_ID_ABSOLUTE')
+    except:
+        STRIPE_COUPON_ID_PERCENT = None
+        STRIPE_COUPON_ID_ABSOLUTE = None
 
 ALLOWED_HOSTS = []
 

@@ -9,6 +9,9 @@ from django.utils import timezone
 import datetime
 from django.contrib.messages import get_messages
 from django.conf import settings
+from unittest import skipIf
+
+stipe_coupon_id = settings.STRIPE_COUPON_ID_PERCENT
 
 
 class TestPercentCouponViews(TestCase):
@@ -43,6 +46,7 @@ class TestPercentCouponViews(TestCase):
             valid_from=now,
             valid_to=tom,  # stripe_coupon_id='LlHQL2lT'
         )
+
         cls.coupon_verified = Coupon.objects.create(
             code='winter',
             active=True,
@@ -50,7 +54,7 @@ class TestPercentCouponViews(TestCase):
             discount_amount=50,
             valid_from=now,
             valid_to=tom,
-            stripe_coupon_id=settings.STRIPE_COUPON_ID_PERCENT
+            stripe_coupon_id=stipe_coupon_id
         )
 
     def setUp(self):
@@ -102,8 +106,10 @@ class TestPercentCouponViews(TestCase):
         self.assertEqual(response.url, reverse('order:checkout'))
         self.assertEqual(message, 'Coupon cannot be verified')
 
+    @skipIf(not stipe_coupon_id, "could not find Stripe Coupon ID")
     def test_coupon_apply_success(self):
-        """Test apply coupon succeeds"""
+        """Test apply coupon succeeds - Skips the test if """
+
         data = {'code': 'Winter'}
         response = self.client.post(self.add_coupon_url, data, format='json')
 
