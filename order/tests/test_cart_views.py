@@ -60,7 +60,7 @@ class TestCartViewsGuest(TestCase):
     def test_cart_view_empty(self):
         """Test GET response in empty cart after device cookie is set"""
 
-        response = self.client.get(reverse('order:cart'))
+        response = self.client.get(reverse('order:cart'), follow=True)
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'order/cart.html')

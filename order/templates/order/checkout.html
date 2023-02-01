@@ -18,11 +18,7 @@
 
 <div class="flex">
   <!-- Delivery Information -->
-  <form 
-    id="address-form" 
-    method="POST" 
-    enctype="multipart/form-data" 
-    class="w-3/5 bg-white rounded-xl p-3 m-3">
+  <form id="address-form" method="POST" enctype="multipart/form-data" class="w-3/5 bg-white rounded-xl p-3 m-3">
     {% csrf_token %}
 
     <div class="flex flex-col justify-between mx-3 mb-5 bg-transparent rounded-xl">
@@ -116,6 +112,26 @@
 
   <!-- Carry-out Information -->
   <form class="w-3/5 bg-white rounded-xl p-3 m-3 hidden" id="carryout-form">
+    <!-- Payment Method -->
+    <div class="p-2 mt-3">
+      <h2 class="font-bold mb-3 text-2xl">Payment Method</h2>
+      <div class="flex gap-3 mb-3">
+        <div>
+          <input type="radio" name="payment" id="online-carryout" class="peer hidden" checked />
+          <label for="online-carryout"
+            class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-teal-300 peer-checked:font-bold">
+            Online
+          </label>
+        </div>
+        <div>
+          <input type="radio" name="payment" id="cash-carryout" class="peer hidden" />
+          <label for="cash-carryout"
+            class="cursor-pointer select-none rounded-xl py-2 px-7 text-sm text-center peer-checked:bg-green-300 peer-checked:font-bold">
+            Cash</label>
+        </div>
+      </div>
+    </div>
+    <!-- Contact Information -->
     <div class="p-2">
       <h2 class="font-bold mb-3 text-2xl">Contact Information</h2>
       <div class="flex flex-col w-2/3 mb-2">
@@ -128,55 +144,33 @@
         <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="text" name="carryout-phone"
           id="carryout-phone" required />
       </div>
-      <div class="py-2 mt-3">
-        <h2 class="font-bold mb-3 text-2xl">Pick-up Details</h2>
-        <div>
-          <!-- SELECT TIME -->
-          <h2 class="font-semibold my-3">Pick-up Time</h2>
-          <div class="flex gap-3 mb-3">
-            <div>
-              <input type="radio" name="size" id="asap" class="peer hidden" checked />
-              <label for="asap"
-                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-cyan-300 peer-checked:font-bold">As
-                soon as possible
-              </label>
-            </div>
-            <div>
-              <input type="radio" name="size" id="select-time" class="peer hidden" />
-              <label for="select-time"
-                class="cursor-pointer select-none rounded-xl py-2 px-7 text-sm text-center peer-checked:bg-lime-300 peer-checked:font-bold">
-                Select time</label>
-            </div>
-          </div>
-          <div class="hidden" id="date-time-picker">
-            <input type="date" name="datepicker" id="datepicker" class="w-36 rounded text-center">
-            <input type="text" class="timepicker w-36 rounded text-center" id="timepicker"
-              onkeydown="event.preventDefault()">
-          </div>
+    </div>
 
+    <!-- Pick-up Time -->
+    <div class="p-2">
+      <h2 class="font-bold mb-5 text-2xl">Pick-up Time</h2>
+      <div class="flex gap-3 mb-3">
+        <div>
+          <input type="radio" name="size" id="asap" class="peer hidden" checked />
+          <label for="asap"
+            class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-cyan-300 peer-checked:font-bold">As
+            soon as possible
+          </label>
         </div>
         <div>
-          <!-- SELECT PAYMENT -->
-          <h2 class="font-semibold my-3">Payment Method</h2>
-          <div class="flex gap-3 mb-3">
-            <div>
-              <input type="radio" name="payment" id="online-carryout" class="peer hidden" checked />
-              <label for="online-carryout"
-                class="cursor-pointer select-none rounded-xl py-2 px-5 text-sm text-center peer-checked:bg-teal-300 peer-checked:font-bold">
-                Online
-              </label>
-            </div>
-            <div>
-              <input type="radio" name="payment" id="cash-carryout" class="peer hidden" />
-              <label for="cash-carryout"
-                class="cursor-pointer select-none rounded-xl py-2 px-7 text-sm text-center peer-checked:bg-green-300 peer-checked:font-bold">
-                Cash</label>
-            </div>
-          </div>
+          <input type="radio" name="size" id="select-time" class="peer hidden" />
+          <label for="select-time"
+            class="cursor-pointer select-none rounded-xl py-2 px-7 text-sm text-center peer-checked:bg-lime-300 peer-checked:font-bold">
+            Select time</label>
         </div>
       </div>
-      <div id="error-messages-carryout" class="text-red-500"></div>
+      <div class="hidden" id="date-time-picker">
+        <input type="date" name="datepicker" id="datepicker" class="w-36 rounded text-center">
+        <input type="text" class="timepicker w-36 rounded text-center" id="timepicker"
+          onkeydown="event.preventDefault()">
+      </div>
     </div>
+    <div id="error-messages-carryout" class="text-red-500"></div>
   </form>
 
   <!-- Order Summary -->
@@ -194,11 +188,18 @@
           <img class="w-14 rounded-lg" src="{{item.product.image.url}}" alt="" />
           <div>
             <h3 class="text-slate-500 text-xl">{{item.product.name}}</h3>
+            {% if item.product.has_variants %}
             <p>
               Size: <strong>{{item.variation.size.name}}</strong> Price:
               <strong>${{item.variation.price}}</strong> Qty:
               <strong>{{item.quantity}}</strong>
             </p>
+            {% else %}
+            <p>
+              Price: <strong>${{item.product.price}}</strong> Qty:
+              <strong>{{item.quantity}}</strong>
+            </p>
+            {% endif %}
           </div>
           <p class="ml-auto font-bold text-xl">${{item.get_total}}</p>
         </div>
@@ -479,11 +480,11 @@
   datePicker.valueAsDate = today;
   // set minimum date as today
   datePicker.setAttribute("min", today.toISOString().substr(0, 10))
-  // set default time if now > max set max, 
+  // set default time if now > max set max,
   // if now < min, set min, if between grab closest next hour ignoring minutes
-  if (hours>=21) {
+  if (hours >= 21) {
     defaultHours = '9:00pm'
-  } else if (hours<8) {
+  } else if (hours < 8) {
     defaultHours = '8:30am'
   } else {
     var defaultHours = String(hours + 1)

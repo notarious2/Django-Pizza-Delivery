@@ -17,19 +17,26 @@ import json
 import datetime
 
 
+def get_customer_or_guest(request):
+    """
+    checking if current user is authenticated/customer,
+    if not customer will be created based on device id
+    """
+    if request.user.is_authenticated:
+        customer = request.user.customer
+    else:
+        customer, created = Customer.objects.get_or_create(
+            device=request.COOKIES['device'])
+    return customer
+
+
 def cart(request):
     """
     Cart page. It contains information about only one order,
     which has not complete (complete=False) status.
     """
-    # checking if current user is authenticated/customer,
-    # if not customer will be created based on device id
     try:
-        if request.user.is_authenticated:
-            customer = request.user.customer
-        else:
-            customer, created = Customer.objects.get_or_create(
-                device=request.COOKIES['device'])
+        customer = get_customer_or_guest(request)
     except:
         return redirect('store:products')
 
@@ -70,14 +77,9 @@ def add_to_cart(request, pk):
         variation = ProductVariant.objects.get(size=size, product=product)
     else:
         variation = None
-    # checking if current user is authenticated/customer,
-    # if not customer will be created based on device id
+
     try:
-        if request.user.is_authenticated:
-            customer = request.user.customer
-        else:
-            customer, created = Customer.objects.get_or_create(
-                device=request.COOKIES['device'])
+        customer = get_customer_or_guest(request)
     except:
         return redirect('store:products')
 
@@ -188,14 +190,8 @@ def coupon_apply(request):
                     raise ValueError
             except:
                 raise ValueError
-            # checking if current user is authenticated/customer,
-            # if not customer will be grabbed/created based on device id
-            if request.user.is_authenticated:
-                customer = request.user.customer
-            else:
-                customer, created = Customer.objects.get_or_create(
-                    device=request.COOKIES['device'])
 
+            customer = get_customer_or_guest(request)
             order = Order.objects.get(
                 customer=customer, complete=False)
             order.coupon = coupon
@@ -215,14 +211,8 @@ def coupon_remove(request):
     remove coupon from the cart
     """
     if request.method == "POST":
-        # checking if current user is authenticated/customer,
-        # if not customer will be grabbed/created based on device id
-        if request.user.is_authenticated:
-            customer = request.user.customer
-        else:
-            customer, created = Customer.objects.get_or_create(
-                device=request.COOKIES['device'])
 
+        customer = get_customer_or_guest(request)
         order = Order.objects.get(
             customer=customer, complete=False)
         order.coupon = None
@@ -230,17 +220,16 @@ def coupon_remove(request):
     return redirect('order:checkout')
 
 
-# @require_POST
 def checkout(request):
+    """Checkout view"""
+
     # pass stripe publishable key for checkout session
     stripe_publishable_key = settings.STRIPE_PUBLISHABLE_KEY
-
-    # checking if current user is authenticated/customer, if not customer will be created based on device id
-    if request.user.is_authenticated:
-        customer = request.user.customer
-    else:
-        customer, created = Customer.objects.get_or_create(
-            device=request.COOKIES['device'])
+    # to catch a case when user visits checkout page without visiting main page
+    try:
+        customer = get_customer_or_guest(request)
+    except:
+        return redirect('store:products')
     # order query set
     order_qs = Order.objects.filter(
         customer=customer, complete=False)
@@ -466,13 +455,8 @@ class PaymentSuccessView(TemplateView):
             session_id = request.GET.get('session_id')
             if session_id is None:
                 return HttpResponseNotFound()
-            # checking if current user is authenticated/customer,
-            # if not customer will be grabbed/created based on device id
-            if request.user.is_authenticated:
-                customer = request.user.customer
-            else:
-                customer, created = Customer.objects.get_or_create(
-                    device=request.COOKIES['device'])
+
+            customer = get_customer_or_guest(request)
             # order query set
             order_qs = Order.objects.filter(
                 customer=customer, complete=False)
