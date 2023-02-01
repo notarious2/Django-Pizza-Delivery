@@ -21,7 +21,7 @@ class CustomUserAdmin(UserAdmin):
     # add fields those needs to be visible when adding new user in admin.
     add_fieldsets = (
         (None, {'fields': ('email', 'username', 'password1', 'password2', 'first_name', 'last_name',
-                           'is_active', 'is_superuser', )}),
+                           'is_active', 'is_staff', 'is_superuser', )}),
     )
 
 
