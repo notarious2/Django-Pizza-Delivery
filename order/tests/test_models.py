@@ -15,7 +15,7 @@ def create_registered_customer():
     user = User.objects.create_user(
         email="user@example.com", username="testuser")
     # must assign username or device to avoid error in string representation
-    return Customer.objects.create(user=user, username='testuser')
+    return Customer.objects.create(user=user)
 
 
 def create_test_product(name="test product", price=12):
@@ -206,7 +206,7 @@ class TestOrderModelsRegisteredUser(TestCase):
 
         customer = create_registered_customer()
         order = Order.objects.create(customer=customer)
-        self.assertEqual(order.customer.username, 'testuser')
+        self.assertEqual(order.customer.user.username, 'testuser')
         self.assertEqual(order.customer, customer)
         self.assertEqual(str(order), f"{order.transaction_id} by {customer}")
 
