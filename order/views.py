@@ -104,7 +104,8 @@ def remove_from_cart(request, pk):
     # save corresponding order to update modified date field
     order_item.order.save()
     # redirects to the same page
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('order:cart')
 
 
 @require_POST
@@ -121,7 +122,8 @@ def increase_product_quantity(request, pk):
     order_item.order.save()
 
     # redirect to the same page
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('order:cart')
 
 
 @require_POST
@@ -142,7 +144,7 @@ def reduce_product_quantity(request, pk):
     order_item.order.save()
 
     # redirect to the same page
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    return redirect('order:cart')
 
 
 @require_POST
@@ -163,7 +165,7 @@ def change_product_quantity(request):
 @require_POST
 def coupon_apply(request):
     """
-    Applies the coupon.
+    Applies the coupon inside checkout.
     From the coupon code it first retrieves Coupon from the database,
     then confirms it using Stripe Coupon ID from Stripe Coupon webhook
     """
