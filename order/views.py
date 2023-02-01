@@ -188,7 +188,6 @@ def coupon_apply(request):
                     raise ValueError
             except:
                 raise ValueError
-
             # checking if current user is authenticated/customer,
             # if not customer will be grabbed/created based on device id
             if request.user.is_authenticated:
@@ -205,6 +204,8 @@ def coupon_apply(request):
             messages.error(request, 'Coupon does not exist')
         except ValueError:
             messages.error(request, 'Coupon cannot be verified')
+    else:
+        messages.error(request, 'Coupon code is invalid')
     return redirect('order:checkout')
 
 
