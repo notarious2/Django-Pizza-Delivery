@@ -6,6 +6,8 @@ from store.models import Product, ProductVariant, Size
 from users.models import Customer
 from django.core.files.uploadedfile import SimpleUploadedFile
 import json
+from django.conf import settings
+from unittest import skipIf
 
 
 class TestCheckoutViewVisitGuest(TestCase):
@@ -116,7 +118,7 @@ class TestCheckoutViewVisitGuest(TestCase):
 
 
 class TestCashCheckoutGuest(TestCase):
-    """Test cash checkout for a guest user"""
+    """Test cash checkout by a guest user"""
 
     @classmethod
     def setUpTestData(cls):
@@ -345,3 +347,150 @@ class TestCashCheckoutGuest(TestCase):
         self.assertIn('success', str(response.url))
         # check order complete is True
         self.assertTrue(Order.objects.all()[0].complete)
+
+
+class TestStripeCheckoutGuest(TestCase):
+    """Test Stripe checkout session by a guest user"""
+
+    stripe_secret_key = settings.STRIPE_SECRET_KEY
+
+    @classmethod
+    def setUpTestData(cls):
+        # Set up data for the whole TestCase
+        cls.customer, created = Customer.objects.get_or_create(
+            device="TestDeviceId")
+        # upload a test image
+        with open("functional_tests/test_image.jpg", "rb") as image:
+            image = SimpleUploadedFile(
+                "test_image.jpg", image.read(), content_type="image/jpg")
+
+        cls.product = Product.objects.create(
+            name='Test Product', price=15, image=image)
+
+        # create a product with 2 variants
+        cls.product_with_variant = Product.objects.create(
+            name='Test Product with Variant', image=image)
+        size_1 = Size.objects.create(name='Test Size 1')
+        size_2 = Size.objects.create(name='Test Size 2')
+        cls.variant_1 = ProductVariant.objects.create(
+            title="Test Variant 1",
+            product=cls.product_with_variant,
+            size=size_1,
+            price=10)
+        cls.variant_2 = ProductVariant.objects.create(
+            title="Test Variant 2",
+            product=cls.product_with_variant,
+            size=size_2,
+            price=20)
+
+        cls.order = Order.objects.create(customer=cls.customer)
+        OrderItem.objects.create(
+            order=cls.order, product=cls.product, quantity=10)
+        OrderItem.objects.create(
+            order=cls.order, product=cls.product_with_variant, variation=cls.variant_1, quantity=10)
+        OrderItem.objects.create(
+            order=cls.order, product=cls.product_with_variant, variation=cls.variant_2, quantity=10)
+
+    def setUp(self):
+        self.client = Client()
+        # set test cookies
+        self.client.cookies = SimpleCookie({'device': 'TestDeviceId'})
+
+    def tearDown(self):
+        self.product.image.delete()
+        self.product_with_variant.image.delete()
+
+    def test_stripe_checkout_no_params_404(self):
+        """Test Stripe checkout view with no data passed -> returns 404 response"""
+
+        url = reverse('order:api_checkout_session',
+                      args=[self.order.transaction_id])
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_stripe_checkout_delivery_invalid_address_form_ajax(self):
+        """Test Stripe checkout for delivery when invalid ShippingAddress data is passed"""
+
+        url = reverse('order:api_checkout_session',
+                      args=[self.order.transaction_id])
+        data = json.dumps({'delivery': True,
+                           'email': 'test@example.com',
+                           'phone': '1234567',
+                           'address_1': 'address 1'
+                           })
+        response = self.client.post(
+            url, data, content_type='application/json')
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('errors', str(response.content))
+        # order complete is False
+        self.assertFalse(Order.objects.all()[0].complete)
+
+    def test_stripe_checkout_delivery_invalid_phone_ajax(self):
+        """Test Stripe checkout for delivery when invalid phone data is passed"""
+
+        url = reverse('order:api_checkout_session',
+                      args=[self.order.transaction_id])
+        data = json.dumps({'delivery': True,
+                           'email': 'test@example.com',
+                           'phone': '12345671234567123456712345671234567123',  # too long
+                           'first_name': 'first name',
+                           'last_name': 'last name',
+                           'address_1': 'address 1',
+                           'city': 'city',
+                           'state': 'state',
+                           'country': 'country'
+                           })
+        response = self.client.post(
+            url, data, content_type='application/json')
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('errors', str(response.content))
+        # order complete is False
+        self.assertFalse(Order.objects.all()[0].complete)
+
+    def test_stripe_checkout_delivery_invalid_email_ajax(self):
+        """Test Stripe checkout for delivery when invalid email data is passed"""
+
+        url = reverse('order:api_checkout_session',
+                      args=[self.order.transaction_id])
+        data = json.dumps({'delivery': True,
+                           'email': 'testtesttesttesttestesttestestteststteststtestesttesttesttesttettest@example.com',  # too long
+                           'phone': '1234567',
+                           'first_name': 'first name',
+                           'last_name': 'last name',
+                           'address_1': 'address 1',
+                           'state': 'state',
+                           'country': 'country'
+                           })
+        response = self.client.post(
+            url, data, content_type='application/json')
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('errors', str(response.content))
+        # order complete is False
+        self.assertFalse(Order.objects.all()[0].complete)
+
+    # skip the test if no STRIPE SECRET KEY is provided
+    @skipIf(not stripe_secret_key, "No Stripe Secret Key is Provided")
+    def test_stripe_checkout_delivery_valid_form_ajax(self):
+        """Test Stripe checkout for delivery when valid ShippingAddress data is passed"""
+
+        url = reverse('order:api_checkout_session',
+                      args=[self.order.transaction_id])
+        data = json.dumps({'delivery': True,
+                           'email': 'test@example.com',
+                           'phone': '12345678',
+                           'first_name': 'first name',
+                           'last_name': 'last name',
+                           'address_1': 'address 1',
+                           'city': 'city',
+                           'state': 'state',
+                           'country': 'country'
+                           })
+        response = self.client.post(
+            url, data, content_type='application/json')
+
+        self.assertIn('sessionId', str(response.content))
+        self.assertEqual(response.status_code, 200)

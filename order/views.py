@@ -359,8 +359,13 @@ def create_checkout_session(request, pk):
     order = get_object_or_404(Order, transaction_id=pk)
     # change order payment method to Online
     order.payment_method = "online"
-    # load data from body and create address object
-    data = json.loads(request.body)
+
+    # load data from body/return 404 if no data
+    try:
+        data = json.loads(request.body)
+    except:
+        return HttpResponseNotFound()
+
     # get delivery status
     delivery = data.pop("delivery")
     # pop email and phone

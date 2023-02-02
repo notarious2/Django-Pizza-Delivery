@@ -434,7 +434,6 @@
           console.error("Error", error);
         });
     } else {
-      console.log("Need to handle cash payment");
       // send POST request to Cash checkout
       fetch("{% url 'order:cash-checkout' order.transaction_id %}", {
         method: "POST",
