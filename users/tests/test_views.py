@@ -87,7 +87,7 @@ class TestUserViews(TestCase):
 
     def test_access_my_orders_for_unauthenticated_user(self):
         """
-        Test if unauthenticated user is redirected 
+        Test if unauthenticated user is redirected
         to the login page
         """
         response = self.client.get(self.my_orders_url)

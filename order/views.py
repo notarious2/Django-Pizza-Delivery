@@ -270,9 +270,11 @@ def cash_checkout(request, pk):
 
     order = get_object_or_404(Order, transaction_id=pk)
     order.payment_method = "cash"
-
     # load data from POST to check delivery method
-    data = json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except:
+        return HttpResponseNotFound()
 
     delivery = data.pop("delivery")
 
@@ -294,22 +296,28 @@ def cash_checkout(request, pk):
             catch_validation_errors(e)
     else:
         order.delivery_method = "carryout"
-        if data['urgency'] == 'custom':
-            # change data format and make naive datetime object timezone aware
-            data['pickup_date'] = make_aware(datetime.datetime.strptime(
-                data['pickup_date'], '%Y-%m-%d %I:%M %p'))
-        else:
-            # for asap pick up date use today's date
-            data['pickup_date'] = timezone.now().replace(
-                hour=0, minute=0, second=0, microsecond=0)
         try:
+            if data['urgency'] == 'custom':
+                # change data format and make naive datetime object timezone aware
+                data['pickup_date'] = make_aware(datetime.datetime.strptime(
+                    data['pickup_date'], '%Y-%m-%d %I:%M %p'))
+            elif data['urgency'] == 'asap':
+                # for asap pick up date use today's date
+                data['pickup_date'] = timezone.now().replace(
+                    hour=0, minute=0, second=0, microsecond=0)
             # validate PickUp details
             PickUpDetail(**data).full_clean()
             # get or create PickUpDetail (already saves data)
             pickup_details, created = PickUpDetail.objects.get_or_create(
                 **data)
             order.pickup = pickup_details
-        except Exception as e:
+        # if wrong pickup_date passed for custom order
+        except ValueError:
+            errors.append('wrong pick up date format')
+        # if no pickup_date passed for custom order
+        except KeyError:
+            errors.append('no pick up date passed')
+        except Exception as e:  # to catch errors in PickUpDetail Form
             catch_validation_errors(e)
 
     # add email and phone to the order, and validate final form
