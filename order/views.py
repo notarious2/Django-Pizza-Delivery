@@ -336,6 +336,9 @@ def cash_checkout(request, pk):
     # save order to apply payment and delivery methods
     order.save()
 
+    # set session key to be checked when accessing Success Payment View
+    request.session['redirected'] = True
+
     return redirect(request.build_absolute_uri(reverse('order:success'))+"?cash=true")
 
 
@@ -457,6 +460,9 @@ def create_checkout_session(request, pk):
         cancel_url=request.build_absolute_uri(
             reverse('order:failed')),
     )
+    # set session key to be checked when accessing Success Payment View
+    request.session['redirected'] = True
+
     return JsonResponse({'sessionId': checkout_session.id})
 
 
@@ -464,6 +470,13 @@ class PaymentSuccessView(TemplateView):
     template_name = 'order/payment_success.html'
 
     def get(self, request, *args, **kwargs):
+
+        # check if accessed from cash_checkout or create_checkout_session views
+        if 'redirected' in request.session:
+            del request.session['redirected']
+        else:
+            return HttpResponseNotFound()
+
         if not request.GET.get('cash'):
             session_id = request.GET.get('session_id')
             if session_id is None:
@@ -518,6 +531,10 @@ class PaymentSuccessView(TemplateView):
                 # get or create instance of the pickup model
                 carryout, created = PickUpDetail.objects.get_or_create(
                     **carryout_dict)
+                try:
+                    carryout.full_clean()
+                except:
+                    return JsonResponse({"errors": "Could not validate PickUpDetail"}, status=422)
                 order.pickup = carryout
             else:
                 return HttpResponseNotFound()
@@ -530,3 +547,14 @@ class PaymentSuccessView(TemplateView):
 
 class PaymentFailedView(TemplateView):
     template_name = 'order/payment_failed.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        Make sure that redirected is set in session
+        to avoid direct access from url
+        """
+        if 'redirected' in request.session:
+            del request.session['redirected']
+        else:
+            return HttpResponseNotFound()
+        return render(request, self.template_name)

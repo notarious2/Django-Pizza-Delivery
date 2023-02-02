@@ -34,6 +34,7 @@ DEBUG = True
 
 if DEBUG:
     try:
+        # fails if either of the keys are not present
         STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
         STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
     except:
@@ -42,9 +43,11 @@ if DEBUG:
 
     try:
         STRIPE_COUPON_ID_PERCENT = env('STRIPE_COUPON_ID_PERCENT')
-        STRIPE_COUPON_ID_ABSOLUTE = env('STRIPE_COUPON_ID_ABSOLUTE')
     except:
         STRIPE_COUPON_ID_PERCENT = None
+    try:
+        STRIPE_COUPON_ID_ABSOLUTE = env('STRIPE_COUPON_ID_ABSOLUTE')
+    except:
         STRIPE_COUPON_ID_ABSOLUTE = None
 
 

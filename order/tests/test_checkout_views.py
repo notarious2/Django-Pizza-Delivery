@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.http.cookie import SimpleCookie
-from order.models import Order, OrderItem
+from order.models import Order, OrderItem, PickUpDetail
 from store.models import Product, ProductVariant, Size
 from users.models import Customer
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -162,6 +162,9 @@ class TestCashCheckoutGuest(TestCase):
         # set test cookies
         self.client.cookies = SimpleCookie({'device': 'TestDeviceId'})
 
+        self.cash_checkout_url = reverse(
+            'order:cash-checkout', args=[self.order.transaction_id])
+
     def tearDown(self):
         self.product.image.delete()
         self.product_with_variant.image.delete()
@@ -169,8 +172,8 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_no_params_404(self):
         """Test Cash checkout view with no data passed -> returns 404 response"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
-        response = self.client.post(url)
+        # url = reverse('order:cash-checkout', args=[self.order.transaction_id])
+        response = self.client.post(self.cash_checkout_url)
 
         self.assertEqual(response.status_code, 404)
         # order complete is False
@@ -179,14 +182,13 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_delivery_invalid_address_form_ajax(self):
         """Test Cash checkout for delivery when invalid ShippingAddress data is passed"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'test@example.com',
                            'phone': '1234567',
                            'address_1': 'address 1'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -196,7 +198,6 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_delivery_invalid_phone_ajax(self):
         """Test Cash checkout for delivery when invalid phone data is passed"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'test@example.com',
                            'phone': '12345671234567123456712345671234567123',  # too long
@@ -208,7 +209,7 @@ class TestCashCheckoutGuest(TestCase):
                            'country': 'country'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -218,7 +219,6 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_delivery_invalid_email_ajax(self):
         """Test Cash checkout for delivery when invalid email data is passed"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'testtesttesttesttestesttestestteststteststtestesttesttesttesttettest@example.com',  # too long
                            'phone': '1234567',
@@ -230,7 +230,7 @@ class TestCashCheckoutGuest(TestCase):
                            'country': 'country'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -240,7 +240,6 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_delivery_valid_form_ajax(self):
         """Test Cash checkout for delivery when valid ShippingAddress data is passed"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'test@example.com',
                            'phone': '12345678',
@@ -252,7 +251,7 @@ class TestCashCheckoutGuest(TestCase):
                            'country': 'country'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('success', str(response.url))
@@ -262,7 +261,6 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_carryout_custom_invalid_form(self):
         """Test Cash checkout for carryout when invalid PickUpDetail data is passed"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': False,
                            'email': 'test@example.com',
                            'phone': '12345678',
@@ -271,7 +269,7 @@ class TestCashCheckoutGuest(TestCase):
                            })
 
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -281,7 +279,6 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_carryout_custom_invalid_date_ajax(self):
         """Test Cash checkout for carryout when invalid pickup_date passed for custom order"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': False,
                            'email': 'test@example.com',
                            'phone': '12345678',
@@ -289,7 +286,7 @@ class TestCashCheckoutGuest(TestCase):
                            'pickup_date': 'wrong date',  # wrong data passed
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -299,14 +296,13 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_carryout_custom_no_date_ajax(self):
         """Test Cash checkout for carryout when no pickup_date passed for custom order"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': False,
                            'email': 'test@example.com',
                            'phone': '12345678',
                            'urgency': 'custom',  # must be either asap or custom
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -316,14 +312,13 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_carryout_asap_success_ajax(self):
         """Test sucessful Cash checkout for carryout for asap order"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': False,
                            'email': 'test@example.com',
                            'phone': '12345678',
                            'urgency': 'asap',  # must be either asap or custom
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('success', str(response.url))
@@ -333,7 +328,6 @@ class TestCashCheckoutGuest(TestCase):
     def test_cash_checkout_carryout_custom_success_ajax(self):
         """Test sucessful Cash checkout for carryout for custom order"""
 
-        url = reverse('order:cash-checkout', args=[self.order.transaction_id])
         data = json.dumps({'delivery': False,
                            'email': 'test@example.com',
                            'phone': '12345678',
@@ -341,7 +335,7 @@ class TestCashCheckoutGuest(TestCase):
                            'pickup_date': "2023-02-02 2:00 PM"
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.cash_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 302)
         self.assertIn('success', str(response.url))
@@ -395,6 +389,8 @@ class TestStripeCheckoutGuest(TestCase):
         self.client = Client()
         # set test cookies
         self.client.cookies = SimpleCookie({'device': 'TestDeviceId'})
+        self.stripe_checkout_url = reverse('order:api_checkout_session',
+                                           args=[self.order.transaction_id])
 
     def tearDown(self):
         self.product.image.delete()
@@ -403,24 +399,20 @@ class TestStripeCheckoutGuest(TestCase):
     def test_stripe_checkout_no_params_404(self):
         """Test Stripe checkout view with no data passed -> returns 404 response"""
 
-        url = reverse('order:api_checkout_session',
-                      args=[self.order.transaction_id])
-        response = self.client.post(url)
+        response = self.client.post(self.stripe_checkout_url)
 
         self.assertEqual(response.status_code, 404)
 
     def test_stripe_checkout_delivery_invalid_address_form_ajax(self):
         """Test Stripe checkout for delivery when invalid ShippingAddress data is passed"""
 
-        url = reverse('order:api_checkout_session',
-                      args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'test@example.com',
                            'phone': '1234567',
                            'address_1': 'address 1'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.stripe_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -430,8 +422,6 @@ class TestStripeCheckoutGuest(TestCase):
     def test_stripe_checkout_delivery_invalid_phone_ajax(self):
         """Test Stripe checkout for delivery when invalid phone data is passed"""
 
-        url = reverse('order:api_checkout_session',
-                      args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'test@example.com',
                            'phone': '12345671234567123456712345671234567123',  # too long
@@ -443,7 +433,7 @@ class TestStripeCheckoutGuest(TestCase):
                            'country': 'country'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.stripe_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -453,8 +443,6 @@ class TestStripeCheckoutGuest(TestCase):
     def test_stripe_checkout_delivery_invalid_email_ajax(self):
         """Test Stripe checkout for delivery when invalid email data is passed"""
 
-        url = reverse('order:api_checkout_session',
-                      args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'testtesttesttesttestesttestestteststteststtestesttesttesttesttettest@example.com',  # too long
                            'phone': '1234567',
@@ -465,7 +453,7 @@ class TestStripeCheckoutGuest(TestCase):
                            'country': 'country'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.stripe_checkout_url, data, content_type='application/json')
 
         self.assertEqual(response.status_code, 422)
         self.assertIn('errors', str(response.content))
@@ -474,11 +462,9 @@ class TestStripeCheckoutGuest(TestCase):
 
     # skip the test if no STRIPE SECRET KEY is provided
     @skipIf(not stripe_secret_key, "No Stripe Secret Key is Provided")
-    def test_stripe_checkout_delivery_valid_form_ajax(self):
+    def test_stripe_checkout_delivery_success_ajax(self):
         """Test Stripe checkout for delivery when valid ShippingAddress data is passed"""
 
-        url = reverse('order:api_checkout_session',
-                      args=[self.order.transaction_id])
         data = json.dumps({'delivery': True,
                            'email': 'test@example.com',
                            'phone': '12345678',
@@ -490,7 +476,54 @@ class TestStripeCheckoutGuest(TestCase):
                            'country': 'country'
                            })
         response = self.client.post(
-            url, data, content_type='application/json')
+            self.stripe_checkout_url, data, content_type='application/json')
+
+        self.assertIn('sessionId', str(response.content))
+        self.assertEqual(response.status_code, 200)
+
+    def test_stripe_checkout_carryout_custom_invalid_form(self):
+        """Test Stripe checkout for carryout when invalid PickUpDetail data is passed"""
+
+        data = json.dumps({'delivery': False,
+                           'email': 'test@example.com',
+                           'phone': '12345678',
+                           'urgency': 'wrong urgency'  # must be either asap or custom
+                           # pickup_date is not checked initially in this view
+                           })
+
+        response = self.client.post(
+            self.stripe_checkout_url, data, content_type='application/json')
+
+        self.assertEqual(response.status_code, 422)
+        self.assertIn('errors', str(response.content))
+
+    @skipIf(not stripe_secret_key, "No Stripe Secret Key is Provided")
+    def test_stripe_checkout_carryout_asap_success_ajax(self):
+        """Test sucessful Stripe checkout for carryout asap order"""
+
+        data = json.dumps({'delivery': False,
+                           'email': 'test@example.com',
+                           'phone': '12345678',
+                           'urgency': 'asap',
+                           })
+        response = self.client.post(
+            self.stripe_checkout_url, data, content_type='application/json')
+
+        self.assertIn('sessionId', str(response.content))
+        self.assertEqual(response.status_code, 200)
+
+    @skipIf(not stripe_secret_key, "No Stripe Secret Key is Provided")
+    def test_stripe_checkout_carryout_custom_success_ajax(self):
+        """Test sucessful Stripe checkout for carryout custom order"""
+
+        data = json.dumps({'delivery': False,
+                           'email': 'test@example.com',
+                           'phone': '12345678',
+                           'urgency': 'custom',
+                           'pickup_date': "2023-02-02 2:00 PM"
+                           })
+        response = self.client.post(
+            self.stripe_checkout_url, data, content_type='application/json')
 
         self.assertIn('sessionId', str(response.content))
         self.assertEqual(response.status_code, 200)
