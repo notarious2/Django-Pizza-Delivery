@@ -335,10 +335,6 @@ def cash_checkout(request, pk):
 
     # save order to apply payment and delivery methods
     order.save()
-
-    # set session key to be checked when accessing Success Payment View
-    request.session['redirected'] = True
-
     return redirect(request.build_absolute_uri(reverse('order:success'))+"?cash=true")
 
 
@@ -470,9 +466,11 @@ class PaymentSuccessView(TemplateView):
     template_name = 'order/payment_success.html'
 
     def get(self, request, *args, **kwargs):
-
-        # check if accessed from cash_checkout or create_checkout_session views
-        if 'redirected' in request.session:
+        # to capture the case of getting redirect from cash checkout as sessions are not saved
+        referring_url = request.META.get('HTTP_REFERER', '')
+        if 'checkout' in referring_url:  # check if redirected from cash checkout
+            pass
+        elif 'redirected' in request.session:  # check if redirected from stripe checkout
             del request.session['redirected']
         else:
             return HttpResponseNotFound()
@@ -550,8 +548,8 @@ class PaymentFailedView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         """
-        Make sure that redirected is set in session
-        to avoid direct access from url
+        Check that 'redirected' session variable is set in api_checkout_view
+        to avoid direct url access
         """
         if 'redirected' in request.session:
             del request.session['redirected']
