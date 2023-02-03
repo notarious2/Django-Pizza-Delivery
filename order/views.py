@@ -443,19 +443,22 @@ def create_checkout_session(request, pk):
 
     stripe.api_key = settings.STRIPE_SECRET_KEY
     # Create Stripe Checkout Session
-    checkout_session = stripe.checkout.Session.create(
-        customer_email=email,
-        payment_method_types=['card'],
-        line_items=line_items,
-        discounts=[{
-            'coupon': coupon_id,
-        }],
-        mode='payment',
-        success_url=request.build_absolute_uri(
-            reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}",
-        cancel_url=request.build_absolute_uri(
-            reverse('order:failed')),
-    )
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            customer_email=email,
+            payment_method_types=['card'],
+            line_items=line_items,
+            discounts=[{
+                'coupon': coupon_id,
+            }],
+            mode='payment',
+            success_url=request.build_absolute_uri(
+                reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=request.build_absolute_uri(
+                reverse('order:failed')),
+        )
+    except:
+        return HttpResponseNotFound()
     # set session key to be checked when accessing Success Payment View
     request.session['redirected'] = True
 

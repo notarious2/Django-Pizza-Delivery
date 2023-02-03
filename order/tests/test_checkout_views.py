@@ -1,13 +1,15 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.http.cookie import SimpleCookie
-from order.models import Order, OrderItem, PickUpDetail
+from order.models import Order, OrderItem, PickUpDetail, Coupon
 from store.models import Product, ProductVariant, Size
 from users.models import Customer
 from django.core.files.uploadedfile import SimpleUploadedFile
 import json
 from django.conf import settings
 from unittest import skipIf
+from django.utils import timezone
+import datetime
 
 
 class TestCheckoutViewVisitGuest(TestCase):
@@ -347,6 +349,7 @@ class TestStripeCheckoutGuest(TestCase):
     """Test Stripe checkout session by a guest user"""
 
     stripe_secret_key = settings.STRIPE_SECRET_KEY
+    stripe_coupon_id = settings.STRIPE_COUPON_ID_PERCENT
 
     @classmethod
     def setUpTestData(cls):
@@ -505,6 +508,38 @@ class TestStripeCheckoutGuest(TestCase):
                            'email': 'test@example.com',
                            'phone': '12345678',
                            'urgency': 'asap',
+                           })
+        response = self.client.post(
+            self.stripe_checkout_url, data, content_type='application/json')
+
+        self.assertIn('sessionId', str(response.content))
+        self.assertEqual(response.status_code, 200)
+
+    @skipIf(not stripe_secret_key or not stripe_coupon_id, "No Stripe Secret Key or Coupon Code is Provided")
+    def test_stripe_checkout_carryout_asap_with_coupon_success_ajax(self):
+        """Test sucessful Stripe checkout for carryout asap order with coupon"""
+
+        # create a test coupon and add it to order
+        now = timezone.now()
+        tom = timezone.make_aware(
+            datetime.datetime.now() + datetime.timedelta(days=1))
+        coupon = Coupon.objects.create(
+            code='winter',
+            active=True,
+            discount_type='Percent',
+            discount_amount=50,
+            valid_from=now,
+            valid_to=tom,
+            stripe_coupon_id=self.stripe_coupon_id
+        )
+        self.order.coupon = coupon
+        self.order.save()  # save to apply changes
+
+        data = json.dumps({'delivery': False,
+                           'email': 'test@example.com',
+                           'phone': '12345678',
+                           'urgency': 'asap',
+
                            })
         response = self.client.post(
             self.stripe_checkout_url, data, content_type='application/json')

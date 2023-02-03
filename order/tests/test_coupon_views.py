@@ -94,7 +94,7 @@ class TestPercentCouponViews(TestCase):
         self.assertEqual(message, 'Coupon does not exist')
 
     def test_coupon_apply_exists_but_not_verified(self):
-        """Test apply coupon exists but not verified bu Stripe webhook"""
+        """Test apply coupon exists but not verified by Stripe webhook"""
 
         data = {'code': 'TestCodePercent'}
         response = self.client.post(self.add_coupon_url, data, format='json')

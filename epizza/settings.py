@@ -33,22 +33,10 @@ SECRET_KEY = env("SECRET_KEY")
 DEBUG = True
 
 if DEBUG:
-    try:
-        # fails if either of the keys are not present
-        STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY")
-        STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY')
-    except:
-        STRIPE_PUBLISHABLE_KEY = None
-        STRIPE_SECRET_KEY = None
-
-    try:
-        STRIPE_COUPON_ID_PERCENT = env('STRIPE_COUPON_ID_PERCENT')
-    except:
-        STRIPE_COUPON_ID_PERCENT = None
-    try:
-        STRIPE_COUPON_ID_ABSOLUTE = env('STRIPE_COUPON_ID_ABSOLUTE')
-    except:
-        STRIPE_COUPON_ID_ABSOLUTE = None
+    STRIPE_PUBLISHABLE_KEY = env("STRIPE_PUBLISHABLE_KEY", default=None)
+    STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default=None)
+    STRIPE_COUPON_ID_PERCENT = env('STRIPE_COUPON_ID_PERCENT', default=None)
+    STRIPE_COUPON_ID_ABSOLUTE = env('STRIPE_COUPON_ID_ABSOLUTE', default=None)
 
 
 ALLOWED_HOSTS = []
