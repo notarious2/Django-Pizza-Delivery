@@ -1,0 +1,26 @@
+name: Django Unit Tests
+
+on: [push]
+
+jobs:
+  simple_build:
+    name: 'Django unit tests'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python version: 3.10
+      - name: Install Python Requirements
+        run: |
+            pip install -r requirements.txt
+      - name: Run Unit Tests
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_COUPON_ID_PERCENT: ${{ secrets.STRIPE_COUPON_ID_PERCENT }}
+        run: |
+            python manage.py test order store users
