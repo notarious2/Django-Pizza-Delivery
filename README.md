@@ -40,6 +40,9 @@ password: bekzod
     <li>
         <p>Deferred <strong>Cash</strong> payment and Instant online payment with <strong>Stripe</strong></p>
     </li>
+    <li>
+        <p><strong>99%</strong> test coverage with <strong>100+</strong> of both <strong>functional</strong> and <strong>unit tests</strong></p>
+    </li>
 
 </ul>
 
@@ -66,14 +69,19 @@ git clone https://github.com/notarious2/Django-Pizza-Delivery.git
 cd Django-Pizza-Delivery
 ```
 
-**Configure Enviornmental variables:**
+**Configure Environmental variables:**
 <br>
-_inside 'epizza' folder add .env file and add Secret Key, Stripe Publishable Key and Stripe Secret Key_
+_inside 'epizza' folder add .env file and add Secret Key, Stripe Publishable Key and Stripe Secret Key:_
 
 ```
 SECRET_KEY=
 STRIPE_PUBLISHABLE_KEY=
 STRIPE_SECRET_KEY=
+```
+_To test Stripe's Percent Coupon (otherwise tests are automatically skipped) add:_
+
+```
+STRIPE_COUPON_ID_PERCENT=
 ```
 
 **Create and Activate Virtual Environment:**
