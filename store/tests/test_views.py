@@ -1,5 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+from store.models import Product
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 class TestStoreViews(TestCase):
@@ -15,6 +17,13 @@ class TestStoreViews(TestCase):
         self.assertTemplateUsed(response, 'store/products.html')
         self.assertIn('products', response.context)
         self.assertIn('search_string', response.context)
+
+    def test_product_search_text_GET_no_product(self):
+        """Test GET response in products searched for unexisting product"""
+        url = reverse('store:products') + '?product=TestProduct'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['search_string'], 'TestProduct')
 
     def test_pizzas_view_GET(self):
         """Test GET response in pizzas view"""

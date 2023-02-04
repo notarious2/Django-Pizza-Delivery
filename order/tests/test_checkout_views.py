@@ -25,6 +25,7 @@ class TestCheckoutViewVisitGuest(TestCase):
             image = SimpleUploadedFile(
                 "test_image.jpg", image.read(), content_type="image/jpg")
 
+        # create a product without variants
         cls.product = Product.objects.create(
             name='Test Product', price=15, image=image)
 

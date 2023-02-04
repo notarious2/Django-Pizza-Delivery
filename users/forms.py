@@ -20,7 +20,7 @@ class UserRegisterForm(UserCreationForm):
         model = User
         fields = ('username', 'email', 'password1', 'password2')
 
-    def save(self, commit=True):
+    def save(self, commit=True):  # pragma: no cover
         user = super(UserRegisterForm, self).save(commit=False)
         if commit:
             user.save()

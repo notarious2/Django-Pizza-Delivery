@@ -2,6 +2,8 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user
 from users.models import Customer, User
+from users.forms import UserRegisterForm
+import json
 
 
 class TestUserViews(TestCase):
@@ -36,6 +38,16 @@ class TestUserViews(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/login.html')
 
+    def test_login_with_incorrect_email(self):
+        """Test user login with incorrect email"""
+        response = self.client.post(
+            self.login_url, {
+                'username': 'incorrect@example.com',
+                'password': 'testpassword'
+            }, follow=True)
+
+        self.assertFalse(response.context['user'].is_authenticated)
+
     def test_login_with_email(self):
         """Test user login with email"""
         response = self.client.post(
@@ -46,6 +58,16 @@ class TestUserViews(TestCase):
         self.assertTrue(response.context['user'].is_authenticated)
         self.assertEqual(
             response.context['user'].username, self.credentials['username'])
+
+    def test_login_with_incorrect_username(self):
+        """Test user login with incorrect username"""
+        response = self.client.post(
+            self.login_url, {
+                'username': 'IncorrectUsername',
+                'password': 'testpassword'
+            }, follow=True)
+
+        self.assertFalse(response.context['user'].is_authenticated)
 
     def test_login_with_username(self):
         """Test user login with username"""

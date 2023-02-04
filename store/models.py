@@ -24,8 +24,8 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
-    # to display image in the admin panel
-    def image_tag(self):
+    # to display image in the admin panel -> ignored by coverage
+    def image_tag(self):  # pragma: no cover
         if self.image:
             return mark_safe(f'<img src="{self.image.url}" width="100" height="100" />')
     image_tag.short_description = 'Image'

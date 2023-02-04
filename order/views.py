@@ -383,10 +383,17 @@ def create_checkout_session(request, pk):
             catch_validation_errors(e)
     else:
         order.delivery_method = "carryout"
-        # validate data without pickup_date to avoid problems
+        # validate data, but pass unvalidate to avoid error
         # with storing datetime object in Sessions
         data_to_validate = data.copy()
-        data_to_validate.pop('pickup_date', None)
+        if data_to_validate['urgency'] == "custom":
+            # change data format and make naive datetime object timezone aware
+            data_to_validate['pickup_date'] = make_aware(datetime.datetime.strptime(
+                data_to_validate['pickup_date'], '%Y-%m-%d %I:%M %p'))
+        else:
+            # for asap pick up date use today's date
+            data_to_validate['pickup_date'] = timezone.now().replace(
+                hour=0, minute=0, second=0, microsecond=0)
         try:
             # validate PickUp details
             PickUpDetail(**data_to_validate).full_clean()
@@ -395,6 +402,10 @@ def create_checkout_session(request, pk):
                 request.session[key] = value
         except Exception as e:
             catch_validation_errors(e)
+
+        # save in session
+        for key, value in data.items():
+            request.session[key] = value
 
     # add email and phone to the order, and validate final form
     order.email = email
@@ -532,12 +543,9 @@ class PaymentSuccessView(TemplateView):
                 # get or create instance of the pickup model
                 carryout, created = PickUpDetail.objects.get_or_create(
                     **carryout_dict)
-                try:
-                    carryout.full_clean()
-                except:
-                    return JsonResponse({"errors": "Could not validate PickUpDetail"}, status=422)
                 order.pickup = carryout
             else:
+                # probably not necessary as order is changed to carryout/delivery only
                 return HttpResponseNotFound()
 
             order.paid = True
