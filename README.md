@@ -40,6 +40,9 @@ password: bekzod
     <li>
         <p>Deferred <strong>Cash</strong> payment and Instant online payment with <strong>Stripe</strong></p>
     </li>
+    <li>
+        <p><strong>99%</strong> test coverage with <strong>100+</strong> of both <strong>functional</strong> and <strong>unit tests</strong></p>
+    </li>
 
 </ul>
 
