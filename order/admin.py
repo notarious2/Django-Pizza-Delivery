@@ -41,8 +41,8 @@ class OrderAdmin(admin.ModelAdmin):
     #                    'date_ordered', 'date_modified', 'delivery_method', 'payment_method', 'paid')
     # make all fields read-only
 
-    def has_change_permission(self, request, obj=None):
-        return False
+    # def has_change_permission(self, request, obj=None):
+    #     return False
     inlines = [OrderItemInline]
 
 
