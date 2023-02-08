@@ -1,6 +1,6 @@
 {% extends 'store/base.html' %} {% block content %} {% if not items %}
 <div class="container mx-auto mt-10">
-  <div class="w-full bg-white px-10 py-10 text-center">
+  <div class="w-full bg-white p-10 text-center">
     <h2 class="font-bold">Your cart is empty</h2>
     <div>
       <a
@@ -23,7 +23,7 @@
 {% else %}
 <div class="container mx-auto mt-10">
   <div class="flex flex-col shadow-md my-10">
-    <div class="w-full bg-white px-10 py-10">
+    <div class="w-full bg-white p-3 md:p-10">
       <a
         href="{% url 'store:products' %}"
         class="flex font-semibold text-indigo-600 text-sm my-5 w-1/4"
@@ -40,31 +40,19 @@
       </a>
       <div class="flex justify-between border-b pb-8">
         <h1 class="font-semibold text-2xl">Shopping Cart</h1>
-        <h2 class="font-semibold text-2xl">{{order.get_cart_items}} Items</h2>
+        <h2 class="font-semibold text-2xl">{{order.get_cart_items}} Item(s)</h2>
         <h2 class="font-semibold text-2xl">
           Total: ${{order.get_cart_subtotal|floatformat:2}}
         </h2>
       </div>
 
-      <div class="flex mt-10 mb-5">
-        <h3 class="font-semibold text-gray-600 text-xs uppercase w-2/5">
-          Product Details
-        </h3>
-        <h3
-          class="font-semibold text-center text-gray-600 text-xs uppercase w-1/5 text-center"
-        >
-          Quantity
-        </h3>
-        <h3
-          class="font-semibold text-center text-gray-600 text-xs uppercase w-1/5 text-center"
-        >
-          Price
-        </h3>
-        <h3
-          class="font-semibold text-center text-gray-600 text-xs uppercase w-1/5 text-center"
-        >
-          Total
-        </h3>
+      <div
+        class="flex mt-10 mb-5 font-semibold text-center text-gray-600 text-xs uppercase"
+      >
+        <h3 class="w-2/5">Product Details</h3>
+        <h3 class="w-1/5 text-center">Quantity</h3>
+        <h3 class="w-1/5 text-center">Price</h3>
+        <h3 class="w-1/5 text-center">Total</h3>
       </div>
       {% for item in items %}
       <div class="flex items-center hover:bg-gray-100 -mx-8 px-6 py-5">

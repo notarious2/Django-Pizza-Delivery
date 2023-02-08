@@ -5,7 +5,7 @@
   </h1>
 </div>
 <!-- Shipping Option -->
-<div class="flex w-3/5">
+<div class="flex md:w-3/5">
   <div class="w-4/5 mx-auto py-3 bg-white rounded-xl text-center">
     <form action="" id="delivery-form">
       <label class="m-2" for="delivery">Delivery</label>
@@ -16,9 +16,10 @@
   </div>
 </div>
 
-<div class="flex">
+<div class="flex flex-col md:flex-row">
   <!-- Delivery Information -->
-  <form id="address-form" method="POST" enctype="multipart/form-data" class="w-3/5 bg-white rounded-xl p-3 m-3">
+  <form id="address-form" method="POST" enctype="multipart/form-data" 
+    class="md:w-3/5 bg-white rounded-xl p-3 m-3">
     {% csrf_token %}
 
     <div class="flex flex-col justify-between mx-3 mb-5 bg-transparent rounded-xl">
@@ -47,7 +48,7 @@
         <div class="flex flex-col w-2/3 mb-5">
           <label class="mb-2 font-bold text-slate-500" for="email">Email:</label>
           <input class="rounded border-[#dcdcdc] focus:ring-0 focus:border-[#c0c0c0]" type="email" name="email"
-            placeholder="Please enter your email" required />
+            required />
         </div>
         <div class="flex flex-col w-2/3 mb-2">
           <label class="mb-2 font-bold text-slate-500" for="phone">Phone</label>
@@ -111,7 +112,7 @@
   </form>
 
   <!-- Carry-out Information -->
-  <form class="w-3/5 bg-white rounded-xl p-3 m-3 hidden" id="carryout-form">
+  <form class="md:w-3/5 bg-white rounded-xl p-3 m-3 hidden" id="carryout-form">
     <!-- Payment Method -->
     <div class="p-2 mt-3">
       <h2 class="font-bold mb-3 text-2xl">Payment Method</h2>
@@ -174,7 +175,7 @@
   </form>
 
   <!-- Order Summary -->
-  <div class="flex flex-col p-3 m-3 bg-gray-50 w-2/5 rounded-xl">
+  <div class="md:w-2/5 flex flex-col p-3 m-3 bg-gray-50 rounded-xl">
     <div>
       <h2 class="font-bold mb-5 text-2xl text-center">Order Summary</h2>
       <div class="flex justify-between mx-6 my-3">
