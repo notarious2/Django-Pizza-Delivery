@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.http.cookie import SimpleCookie
-from order.models import Order, OrderItem, PickUpDetail, Coupon
+from order.models import Order, OrderItem, Coupon
 from store.models import Product, ProductVariant, Size
 from users.models import Customer
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -10,6 +10,8 @@ from django.conf import settings
 from unittest import skipIf
 from django.utils import timezone
 import datetime
+from django.db.models import signals
+import factory
 
 
 class TestCheckoutViewVisitGuest(TestCase):
@@ -269,6 +271,7 @@ class TestCashCheckoutGuest(TestCase):
         # order complete is False
         self.assertFalse(Order.objects.all()[0].complete)
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_cash_checkout_delivery_valid_form_ajax(self):
         """Test Cash checkout for delivery when valid ShippingAddress data is passed"""
 
@@ -357,6 +360,7 @@ class TestCashCheckoutGuest(TestCase):
         # order complete is False
         self.assertFalse(Order.objects.all()[0].complete)
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_cash_checkout_carryout_asap_success_ajax(self):
         """Test sucessful Cash checkout for carryout for asap order"""
 
@@ -377,6 +381,7 @@ class TestCashCheckoutGuest(TestCase):
         # check order complete is True
         self.assertTrue(Order.objects.all()[0].complete)
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_cash_checkout_carryout_custom_success_ajax(self):
         """Test sucessful Cash checkout for carryout for custom order"""
 

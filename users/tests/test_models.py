@@ -1,5 +1,7 @@
 from django.test import TestCase
 from users.models import User, Customer
+from django.db.models import signals
+import factory
 
 
 class TestCustomerCreation(TestCase):
@@ -11,6 +13,7 @@ class TestCustomerCreation(TestCase):
             "username": "testuser",
         }
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_create_customer(self):
         user = User.objects.create_user(**self.credentials)
         customer = Customer.objects.create(user=user)

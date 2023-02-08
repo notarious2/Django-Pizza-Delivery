@@ -1,10 +1,10 @@
-name: Django Unit Tests
+name: Django Unit Tests and Lint
 
 on: [push]
 
 jobs:
   test-lint:
-    name: "Django unit tests"
+    name: "Django unit tests and linting"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -23,7 +23,7 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_COUPON_ID_PERCENT: ${{ secrets.STRIPE_COUPON_ID_PERCENT }}
         run: |
-          python manage.py test users
+          python manage.py test users store order
       - name: Linting using Black
         uses: psf/black@stable
         with:

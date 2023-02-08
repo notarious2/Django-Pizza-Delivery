@@ -5,6 +5,8 @@ from store.models import Product, Size, ProductVariant
 import datetime
 from django.utils import timezone
 from decimal import Decimal
+from django.db.models import signals
+import factory
 
 
 def create_guest_customer():
@@ -209,31 +211,34 @@ class TestOrderModelsGuest(TestCase):
 class TestOrderModelsRegisteredUser(TestCase):
     """Test order and orderitem models for registered user"""
 
+    @classmethod
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
+    def setUpTestData(cls):
+        # Set up data for the whole TestCase
+        cls.customer = create_registered_customer()
+
     def test_create_order_by_customer(self):
         """Test order creation by registered customer"""
 
-        customer = create_registered_customer()
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         self.assertEqual(order.customer.user.username, "testuser")
-        self.assertEqual(order.customer, customer)
-        self.assertEqual(str(order), f"{order.transaction_id} by {customer}")
+        self.assertEqual(order.customer, self.customer)
+        self.assertEqual(str(order), f"{order.transaction_id} by {self.customer}")
 
     def test_create_order_item_by_customer_no_variants(self):
         """Order item creation of product without variants by registered user"""
-        customer = create_registered_customer()
         product = create_test_product()
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         order_item = OrderItem.objects.create(product=product, order=order, quantity=1)
 
         self.assertEqual(OrderItem.objects.count(), 1)
         self.assertEqual(order_item.product, product)
         self.assertEqual(order_item.order, order)
-        self.assertEqual(order_item.order.customer, customer)
+        self.assertEqual(order_item.order.customer, self.customer)
 
     def test_create_order_item_guest_with_variants(self):
         """Order item creation of a product with variants by a registered user"""
-        customer = create_registered_customer()
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         product_with_variants = create_test_product_with_variants()
         first_variant = ProductVariant.objects.all()[0]
         order_item = OrderItem.objects.create(
@@ -247,13 +252,12 @@ class TestOrderModelsRegisteredUser(TestCase):
         self.assertEqual(order_item.product, product_with_variants)
         self.assertEqual(order_item.order, order)
         self.assertEqual(order_item.variation, first_variant)
-        self.assertEqual(order_item.order.customer, customer)
+        self.assertEqual(order_item.order.customer, self.customer)
 
     def test_order_item_properties_customer(self):
         """Test order item properties for a registered user"""
-        customer = create_registered_customer()
         product = create_test_product()
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         order_item = OrderItem.objects.create(product=product, order=order, quantity=2)
 
         self.assertEqual(order_item.get_item_price, 12)
@@ -261,10 +265,9 @@ class TestOrderModelsRegisteredUser(TestCase):
 
     def test_order_item_properties_customer_with_variation(self):
         """Test order item properties of a product without variation for a registered user"""
-        customer = create_registered_customer()
         product = create_test_product_with_variants()
         first_variant = ProductVariant.objects.filter(title="Test Variant 1")[0]
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         order_item = OrderItem.objects.create(
             product=product, variation=first_variant, order=order, quantity=2
         )
@@ -274,10 +277,9 @@ class TestOrderModelsRegisteredUser(TestCase):
 
     def test_order_properties_no_coupon_without_variants_customer(self):
         """Test order of product without variatns and no coupon properties for a registered user"""
-        customer = create_registered_customer()
         product_1 = create_test_product()
         product_2 = create_test_product(name="Test product 2", price=10)
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         order_item_1 = OrderItem.objects.create(
             product=product_1, order=order, quantity=1
         )
@@ -292,11 +294,10 @@ class TestOrderModelsRegisteredUser(TestCase):
 
     def test_order_properties_no_coupon_with_variants_customer(self):
         """Test order of a product with variants and without coupon properties for a registered user"""
-        customer = create_registered_customer()
         product = create_test_product_with_variants()
         product_variant_1 = ProductVariant.objects.filter(title="Test Variant 1")[0]
         product_variant_2 = ProductVariant.objects.filter(title="Test Variant 2")[0]
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         OrderItem.objects.create(
             product=product, variation=product_variant_1, order=order, quantity=1
         )
@@ -311,10 +312,9 @@ class TestOrderModelsRegisteredUser(TestCase):
 
     def test_order_properties_with_percent_coupon_customer(self):
         """Test order with applied percent coupon for registered user"""
-        customer = create_registered_customer()
         product_1 = create_test_product(name="Test product 1", price=5)
         product_2 = create_test_product(name="Test product 2", price=3)
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         order_item_1 = OrderItem.objects.create(
             product=product_1, order=order, quantity=2
         )
@@ -342,10 +342,9 @@ class TestOrderModelsRegisteredUser(TestCase):
 
     def test_order_properties_with_absolute_coupon_customer(self):
         """Test order with applied absolute coupon for registered user"""
-        customer = create_registered_customer()
         product_1 = create_test_product(name="Test product 1", price=5)
         product_2 = create_test_product(name="Test product 2", price=3)
-        order = Order.objects.create(customer=customer)
+        order = Order.objects.create(customer=self.customer)
         order_item_1 = OrderItem.objects.create(
             product=product_1, order=order, quantity=2
         )

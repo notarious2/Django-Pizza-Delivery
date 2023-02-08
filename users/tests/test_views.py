@@ -2,8 +2,8 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user
 from users.models import Customer, User
-from users.forms import UserRegisterForm
-import json
+from django.db.models import signals
+import factory
 
 
 class TestUserViews(TestCase):
@@ -33,7 +33,6 @@ class TestUserViews(TestCase):
 
     def test_login_view_GET(self):
         """Test get response in MyLoginView"""
-
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "users/login.html")
@@ -99,6 +98,7 @@ class TestUserViews(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, self.products_url)
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_access_my_orders_for_customer(self):
         """Test logged-in customer can access my orders"""
         self.client.login(**self.credentials)

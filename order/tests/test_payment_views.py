@@ -4,6 +4,8 @@ from django.http.cookie import SimpleCookie
 from order.models import Order, OrderItem
 from store.models import Product
 from users.models import Customer
+from django.db.models import signals
+import factory
 
 
 class TestPaymentViewGuest(TestCase):
@@ -71,6 +73,7 @@ class TestPaymentViewGuest(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_access_payment_success_from_stripe_delivery(self):
         """
         Test that success page is accessed from Stripe/create checkout session view
@@ -111,6 +114,7 @@ class TestPaymentViewGuest(TestCase):
         self.assertTrue(Order.objects.all()[0].complete)
         self.assertTrue(Order.objects.all()[0].paid)
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_access_payment_success_from_stripe_carryout_asap(self):
         """
         Test that success page is accessed from Stripe/create checkout session view
@@ -146,6 +150,7 @@ class TestPaymentViewGuest(TestCase):
         self.assertTrue(Order.objects.all()[0].complete)
         self.assertTrue(Order.objects.all()[0].paid)
 
+    @factory.django.mute_signals(signals.pre_save, signals.post_save)
     def test_access_payment_success_from_stripe_carryout_custom(self):
         """
         Test that success page is accessed from Stripe/create checkout session view

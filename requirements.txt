@@ -22,3 +22,4 @@ selenium
 chromedriver-autoinstaller
 coverage
 black
+factory_boy
