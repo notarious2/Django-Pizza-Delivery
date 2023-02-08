@@ -3,8 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Customer(models.Model):
-    user = models.OneToOneField(
-        'User', null=True, blank=True, on_delete=models.CASCADE)
+    user = models.OneToOneField("User", null=True, blank=True, on_delete=models.CASCADE)
     device = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
@@ -14,4 +13,6 @@ class Customer(models.Model):
 class User(AbstractUser):
     email = models.EmailField(unique=True)
 
-    REQUIRED_FIELDS = ['email',]
+    REQUIRED_FIELDS = [
+        "email",
+    ]

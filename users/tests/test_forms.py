@@ -9,10 +9,10 @@ class TestUserCreationForm(TestCase):
         """Test customer creation with valid data"""
         form = UserRegisterForm(
             {
-                'email': 'test@example.com',
-                'username': 'testuser',
-                'password1': 'TestTest123#',
-                'password2': 'TestTest123#'
+                "email": "test@example.com",
+                "username": "testuser",
+                "password1": "TestTest123#",
+                "password2": "TestTest123#",
             }
         )
         self.assertTrue(form.is_valid())

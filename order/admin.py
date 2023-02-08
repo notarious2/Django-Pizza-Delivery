@@ -4,7 +4,7 @@ from .models import Order, OrderItem, Coupon, ShippingAddress, PickUpDetail
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
-    readonly_fields = ('image_tag',)
+    readonly_fields = ("image_tag",)
 
 
 class OrderInline(admin.TabularInline):
@@ -13,6 +13,7 @@ class OrderInline(admin.TabularInline):
     # remove permission to modify
     def has_change_permission(self, request, obj):
         return False
+
     # remove permission to add
 
     def has_add_permission(self, request, obj):
@@ -28,14 +29,24 @@ class PickUpDetailInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('customer', 'transaction_id', 'complete', 'paid', 'delivery_method', 'date_ordered',
-                    'date_modified', 'get_cart_items', 'get_cart_subtotal',
-                    'get_coupon_value', 'get_cart_total')
+    list_display = (
+        "customer",
+        "transaction_id",
+        "complete",
+        "paid",
+        "delivery_method",
+        "date_ordered",
+        "date_modified",
+        "get_cart_items",
+        "get_cart_subtotal",
+        "get_coupon_value",
+        "get_cart_total",
+    )
     # list_filter = ('complete',)
-    search_fields = ['transaction_id']
+    search_fields = ["transaction_id"]
     # new in Django 4
-    search_help_text = 'search by transaction id'
-    ordering = ("-complete", '-date_modified')
+    search_help_text = "search by transaction id"
+    ordering = ("-complete", "-date_modified")
     # list_editable = ('complete',)
     # readonly_fields = ('customer', 'transaction_id',
     #                    'date_ordered', 'date_modified', 'delivery_method', 'payment_method', 'paid')
@@ -47,12 +58,11 @@ class OrderAdmin(admin.ModelAdmin):
 
 
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('product', 'quantity', 'get_variation', 'get_total',
-                    'date_added')
-    readonly_fields = ('image_tag',)
+    list_display = ("product", "quantity", "get_variation", "get_total", "date_added")
+    readonly_fields = ("image_tag",)
 
     # display attribute of foreign key field in the admin panel
-    @admin.display(description='Title')
+    @admin.display(description="Title")
     def get_variation(self, obj):
         if obj.variation:
             # display name of variation
@@ -67,14 +77,13 @@ class CouponAdmin(admin.ModelAdmin):
 
 
 class PickUpDetailAdmin(admin.ModelAdmin):
-    list_display = ('urgency',
-                    'pickup_date')
+    list_display = ("urgency", "pickup_date")
     inlines = [OrderInline]
 
 
 class ShippingAdmin(admin.ModelAdmin):
     inlines = [OrderInline]
-    list_display = ('address_1', 'first_name', 'last_name')
+    list_display = ("address_1", "first_name", "last_name")
 
 
 admin.site.register(PickUpDetail, PickUpDetailAdmin)

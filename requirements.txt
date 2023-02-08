@@ -21,3 +21,4 @@ virtualenv-clone==0.5.7
 selenium
 chromedriver-autoinstaller
 coverage
+black

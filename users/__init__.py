@@ -1,2 +1,2 @@
 # need this for signals
-default_app_config = 'product.apps.UsersConfig'
+default_app_config = "product.apps.UsersConfig"

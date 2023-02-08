@@ -1,2 +1,2 @@
 # need this for signals
-default_app_config = 'order.apps.OrderConfig'
+default_app_config = "order.apps.OrderConfig"

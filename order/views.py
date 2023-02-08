@@ -26,7 +26,8 @@ def get_customer_or_guest(request):
         customer = request.user.customer
     else:
         customer, created = Customer.objects.get_or_create(
-            device=request.COOKIES['device'])
+            device=request.COOKIES["device"]
+        )
     return customer
 
 
@@ -38,15 +39,15 @@ def cart(request):
     try:
         customer = get_customer_or_guest(request)
     except:
-        return redirect('store:products')
+        return redirect("store:products")
 
-    customer_order = Order.objects.filter(
-        customer=customer, complete=False)
+    customer_order = Order.objects.filter(customer=customer, complete=False)
 
     # in case user visits cart directly  without adding any item
     if customer_order.exists():
-        customer_items = OrderItem.objects.filter(
-            order_id__in=customer_order).order_by("product__name", "-variation__size")
+        customer_items = OrderItem.objects.filter(order_id__in=customer_order).order_by(
+            "product__name", "-variation__size"
+        )
         customer_order = customer_order[0]
     else:
         customer_order, customer_items = None, None
@@ -56,7 +57,7 @@ def cart(request):
         "items": customer_items,
     }
 
-    return render(request, 'order/cart.html', context)
+    return render(request, "order/cart.html", context)
 
 
 @require_POST
@@ -68,11 +69,11 @@ def add_to_cart(request, pk):
     """
     product = get_object_or_404(Product, pk=pk)
     # getting product quantity
-    quantity = int(json.loads(request.body)['quantity'])
+    quantity = int(json.loads(request.body)["quantity"])
 
     # getting product variation
     if product.has_variants:
-        size = json.loads(request.body)['size']
+        size = json.loads(request.body)["size"]
         size = Size.objects.get(name=size)
         variation = ProductVariant.objects.get(size=size, product=product)
     else:
@@ -81,10 +82,9 @@ def add_to_cart(request, pk):
     try:
         customer = get_customer_or_guest(request)
     except:
-        return redirect('store:products')
+        return redirect("store:products")
 
-    order, created = Order.objects.get_or_create(
-        customer=customer, complete=False)
+    order, created = Order.objects.get_or_create(customer=customer, complete=False)
     order_item, created = OrderItem.objects.get_or_create(
         order=order,
         product=product,
@@ -93,7 +93,7 @@ def add_to_cart(request, pk):
     order_item.quantity += quantity
     order_item.save()
     order.save()  # to update modified field of order model
-    return JsonResponse({'cart_total': order.get_cart_items})
+    return JsonResponse({"cart_total": order.get_cart_items})
 
 
 @require_POST
@@ -107,7 +107,7 @@ def remove_from_cart(request, pk):
     order_item.order.save()
     # redirects to the same page
     # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    return redirect('order:cart')
+    return redirect("order:cart")
 
 
 @require_POST
@@ -125,7 +125,7 @@ def increase_product_quantity(request, pk):
 
     # redirect to the same page
     # return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    return redirect('order:cart')
+    return redirect("order:cart")
 
 
 @require_POST
@@ -146,7 +146,7 @@ def reduce_product_quantity(request, pk):
     order_item.order.save()
 
     # redirect to the same page
-    return redirect('order:cart')
+    return redirect("order:cart")
 
 
 @require_POST
@@ -154,7 +154,7 @@ def change_product_quantity(request):
     """
     Change product quantity inside the cart - uses Ajax
     """
-    quantity = request.POST.get('quantity')
+    quantity = request.POST.get("quantity")
     order_item_id = request.POST.get("orderItemId")
     order_item = get_object_or_404(OrderItem, pk=order_item_id)
     order_item.quantity = quantity
@@ -174,35 +174,33 @@ def coupon_apply(request):
     now = timezone.now()
     form = CouponApplyForm(request.POST)
     if form.is_valid():
-        code = form.cleaned_data['code']
+        code = form.cleaned_data["code"]
         try:
-            coupon = Coupon.objects.get(code__iexact=code,
-                                        valid_from__lte=now,
-                                        valid_to__gte=now,
-                                        active=True)
+            coupon = Coupon.objects.get(
+                code__iexact=code, valid_from__lte=now, valid_to__gte=now, active=True
+            )
             # check Coupon ID with stripe webhook
             stripe.api_key = settings.STRIPE_SECRET_KEY
             try:
                 stripe_coupon = stripe.Coupon.retrieve(coupon.stripe_coupon_id)
-                if stripe_coupon['valid'] == True:
-                    messages.success(request, 'Coupon applied')
+                if stripe_coupon["valid"] == True:
+                    messages.success(request, "Coupon applied")
                 else:
                     raise ValueError
             except:
                 raise ValueError
 
             customer = get_customer_or_guest(request)
-            order = Order.objects.get(
-                customer=customer, complete=False)
+            order = Order.objects.get(customer=customer, complete=False)
             order.coupon = coupon
             order.save()
         except Coupon.DoesNotExist:
-            messages.error(request, 'Coupon does not exist')
+            messages.error(request, "Coupon does not exist")
         except ValueError:
-            messages.error(request, 'Coupon cannot be verified')
+            messages.error(request, "Coupon cannot be verified")
     else:
-        messages.error(request, 'Coupon code is invalid')
-    return redirect('order:checkout')
+        messages.error(request, "Coupon code is invalid")
+    return redirect("order:checkout")
 
 
 @require_POST
@@ -211,13 +209,11 @@ def coupon_remove(request):
     remove coupon from the cart
     """
     if request.method == "POST":
-
         customer = get_customer_or_guest(request)
-        order = Order.objects.get(
-            customer=customer, complete=False)
+        order = Order.objects.get(customer=customer, complete=False)
         order.coupon = None
         order.save()
-    return redirect('order:checkout')
+    return redirect("order:checkout")
 
 
 def checkout(request):
@@ -229,10 +225,9 @@ def checkout(request):
     try:
         customer = get_customer_or_guest(request)
     except:
-        return redirect('store:products')
+        return redirect("store:products")
     # order query set
-    order_qs = Order.objects.filter(
-        customer=customer, complete=False)
+    order_qs = Order.objects.filter(customer=customer, complete=False)
     # if order exists, get all order items
     if order_qs.exists():
         order = order_qs[0]
@@ -240,16 +235,19 @@ def checkout(request):
         # coupon form
         coupon_form = CouponApplyForm()
 
-        context = {"order": order, "order_items": order_items,
-                   "coupon_form": coupon_form,
-                   "stripe_publishable_key": stripe_publishable_key}
+        context = {
+            "order": order,
+            "order_items": order_items,
+            "coupon_form": coupon_form,
+            "stripe_publishable_key": stripe_publishable_key,
+        }
         # redirect to the main page if there are not items in the cart
         if order.get_cart_items < 1:
             return redirect("store:products")
     else:
         # redirect to main page if there are not oustanding orders
         return redirect("store:products")
-    return render(request, 'order/checkout.html', context=context)
+    return render(request, "order/checkout.html", context=context)
 
 
 @require_POST
@@ -279,8 +277,8 @@ def cash_checkout(request, pk):
     delivery = data.pop("delivery")
 
     # pop email and phone
-    phone = data.pop('phone')
-    email = data.pop('email')
+    phone = data.pop("phone")
+    email = data.pop("email")
 
     if delivery:
         order.delivery_method = "delivery"
@@ -288,8 +286,7 @@ def cash_checkout(request, pk):
             # manually trigger fields validation without saving a model
             ShippingAddress(**data).full_clean()
             # get or create Shipping Address (already saves data)
-            shipping_address, created = ShippingAddress.objects.get_or_create(
-                **data)
+            shipping_address, created = ShippingAddress.objects.get_or_create(**data)
             # update shipping in order
             order.shipping = shipping_address
         except Exception as e:
@@ -297,26 +294,27 @@ def cash_checkout(request, pk):
     else:
         order.delivery_method = "carryout"
         try:
-            if data['urgency'] == 'custom':
+            if data["urgency"] == "custom":
                 # change data format and make naive datetime object timezone aware
-                data['pickup_date'] = make_aware(datetime.datetime.strptime(
-                    data['pickup_date'], '%Y-%m-%d %I:%M %p'))
-            elif data['urgency'] == 'asap':
+                data["pickup_date"] = make_aware(
+                    datetime.datetime.strptime(data["pickup_date"], "%Y-%m-%d %I:%M %p")
+                )
+            elif data["urgency"] == "asap":
                 # for asap pick up date use today's date
-                data['pickup_date'] = timezone.now().replace(
-                    hour=0, minute=0, second=0, microsecond=0)
+                data["pickup_date"] = timezone.now().replace(
+                    hour=0, minute=0, second=0, microsecond=0
+                )
             # validate PickUp details
             PickUpDetail(**data).full_clean()
             # get or create PickUpDetail (already saves data)
-            pickup_details, created = PickUpDetail.objects.get_or_create(
-                **data)
+            pickup_details, created = PickUpDetail.objects.get_or_create(**data)
             order.pickup = pickup_details
         # if wrong pickup_date passed for custom order
         except ValueError:
-            errors.append('wrong pick up date format')
+            errors.append("wrong pick up date format")
         # if no pickup_date passed for custom order
         except KeyError:
-            errors.append('no pick up date passed')
+            errors.append("no pick up date passed")
         except Exception as e:  # to catch errors in PickUpDetail Form
             catch_validation_errors(e)
 
@@ -335,7 +333,7 @@ def cash_checkout(request, pk):
 
     # save order to apply payment and delivery methods
     order.save()
-    return redirect(request.build_absolute_uri(reverse('order:success'))+"?cash=true")
+    return redirect(request.build_absolute_uri(reverse("order:success")) + "?cash=true")
 
 
 @require_POST
@@ -368,8 +366,8 @@ def create_checkout_session(request, pk):
     # get delivery status
     delivery = data.pop("delivery")
     # pop email and phone
-    phone = data.pop('phone')
-    email = data.pop('email')
+    phone = data.pop("phone")
+    email = data.pop("email")
 
     if delivery:
         order.delivery_method = "delivery"
@@ -386,14 +384,18 @@ def create_checkout_session(request, pk):
         # validate data, but pass unvalidate to avoid error
         # with storing datetime object in Sessions
         data_to_validate = data.copy()
-        if data_to_validate['urgency'] == "custom":
+        if data_to_validate["urgency"] == "custom":
             # change data format and make naive datetime object timezone aware
-            data_to_validate['pickup_date'] = make_aware(datetime.datetime.strptime(
-                data_to_validate['pickup_date'], '%Y-%m-%d %I:%M %p'))
+            data_to_validate["pickup_date"] = make_aware(
+                datetime.datetime.strptime(
+                    data_to_validate["pickup_date"], "%Y-%m-%d %I:%M %p"
+                )
+            )
         else:
             # for asap pick up date use today's date
-            data_to_validate['pickup_date'] = timezone.now().replace(
-                hour=0, minute=0, second=0, microsecond=0)
+            data_to_validate["pickup_date"] = timezone.now().replace(
+                hour=0, minute=0, second=0, microsecond=0
+            )
         try:
             # validate PickUp details
             PickUpDetail(**data_to_validate).full_clean()
@@ -441,14 +443,14 @@ def create_checkout_session(request, pk):
                 product_name = item.product.name
             line_items.append(
                 {
-                    'price_data': {
-                        'currency': 'usd',
-                        'product_data': {
-                            'name': product_name,
+                    "price_data": {
+                        "currency": "usd",
+                        "product_data": {
+                            "name": product_name,
                         },
-                        'unit_amount': int(item.get_item_price*100),
+                        "unit_amount": int(item.get_item_price * 100),
                     },
-                    'quantity': item.quantity,
+                    "quantity": item.quantity,
                 }
             )
 
@@ -457,47 +459,49 @@ def create_checkout_session(request, pk):
     try:
         checkout_session = stripe.checkout.Session.create(
             customer_email=email,
-            payment_method_types=['card'],
+            payment_method_types=["card"],
             line_items=line_items,
-            discounts=[{
-                'coupon': coupon_id,
-            }],
-            mode='payment',
-            success_url=request.build_absolute_uri(
-                reverse('order:success'))+"?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=request.build_absolute_uri(
-                reverse('order:failed')),
+            discounts=[
+                {
+                    "coupon": coupon_id,
+                }
+            ],
+            mode="payment",
+            success_url=request.build_absolute_uri(reverse("order:success"))
+            + "?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=request.build_absolute_uri(reverse("order:failed")),
         )
     except:
         return HttpResponseNotFound()
     # set session key to be checked when accessing Success Payment View
-    request.session['redirected'] = True
+    request.session["redirected"] = True
 
-    return JsonResponse({'sessionId': checkout_session.id})
+    return JsonResponse({"sessionId": checkout_session.id})
 
 
 class PaymentSuccessView(TemplateView):
-    template_name = 'order/payment_success.html'
+    template_name = "order/payment_success.html"
 
     def get(self, request, *args, **kwargs):
         # to capture the case of getting redirect from cash checkout as sessions are not saved
-        referring_url = request.META.get('HTTP_REFERER', '')
-        if 'checkout' in referring_url:  # check if redirected from cash checkout
+        referring_url = request.META.get("HTTP_REFERER", "")
+        if "checkout" in referring_url:  # check if redirected from cash checkout
             pass
-        elif 'redirected' in request.session:  # check if redirected from stripe checkout
-            del request.session['redirected']
+        elif (
+            "redirected" in request.session
+        ):  # check if redirected from stripe checkout
+            del request.session["redirected"]
         else:
             return HttpResponseNotFound()
 
-        if not request.GET.get('cash'):
-            session_id = request.GET.get('session_id')
+        if not request.GET.get("cash"):
+            session_id = request.GET.get("session_id")
             if session_id is None:
                 return HttpResponseNotFound()
 
             customer = get_customer_or_guest(request)
             # order query set
-            order_qs = Order.objects.filter(
-                customer=customer, complete=False)
+            order_qs = Order.objects.filter(customer=customer, complete=False)
             # if order exists, get order instance
             if order_qs.exists():
                 order = order_qs[0]
@@ -506,43 +510,47 @@ class PaymentSuccessView(TemplateView):
             if order.delivery_method == "delivery":
                 # get model's field names
                 shipping_list = [
-                    field.name for field in ShippingAddress()._meta.get_fields()]
+                    field.name for field in ShippingAddress()._meta.get_fields()
+                ]
                 # create shipping dictionary for model creation from session keys
                 shipping_dict = {}
                 for key in shipping_list:
                     shipping_dict[key] = request.session.get(key)
                 # delete None values from dictionary
-                shipping_dict = {k: v for k,
-                                 v in shipping_dict.items() if v != None}
+                shipping_dict = {k: v for k, v in shipping_dict.items() if v != None}
                 # get create instance of shipping model
                 shipping_address, created = ShippingAddress.objects.get_or_create(
-                    **shipping_dict)
+                    **shipping_dict
+                )
                 order.shipping = shipping_address
 
             elif order.delivery_method == "carryout":
                 # get model's field names
                 carryout_list = [
-                    field.name for field in PickUpDetail()._meta.get_fields()]
+                    field.name for field in PickUpDetail()._meta.get_fields()
+                ]
                 # create carryout dictionary for model creation from session keys
                 carryout_dict = {}
                 for key in carryout_list:
                     carryout_dict[key] = request.session.get(key)
                 # delete None values from dictionary
-                carryout_dict = {k: v for k,
-                                 v in carryout_dict.items() if v != None}
+                carryout_dict = {k: v for k, v in carryout_dict.items() if v != None}
 
                 # change data format and make naive datetime object timezone aware
-                if carryout_dict['urgency'] == "custom":
-                    carryout_dict['pickup_date'] = make_aware(datetime.datetime.strptime(
-                        carryout_dict['pickup_date'], '%Y-%m-%d %I:%M %p'))
+                if carryout_dict["urgency"] == "custom":
+                    carryout_dict["pickup_date"] = make_aware(
+                        datetime.datetime.strptime(
+                            carryout_dict["pickup_date"], "%Y-%m-%d %I:%M %p"
+                        )
+                    )
                 else:
                     # for asap pick up date use today's date
-                    carryout_dict['pickup_date'] = timezone.now().replace(
-                        hour=0, minute=0, second=0, microsecond=0)
+                    carryout_dict["pickup_date"] = timezone.now().replace(
+                        hour=0, minute=0, second=0, microsecond=0
+                    )
 
                 # get or create instance of the pickup model
-                carryout, created = PickUpDetail.objects.get_or_create(
-                    **carryout_dict)
+                carryout, created = PickUpDetail.objects.get_or_create(**carryout_dict)
                 order.pickup = carryout
             else:
                 # probably not necessary as order is changed to carryout/delivery only
@@ -555,15 +563,15 @@ class PaymentSuccessView(TemplateView):
 
 
 class PaymentFailedView(TemplateView):
-    template_name = 'order/payment_failed.html'
+    template_name = "order/payment_failed.html"
 
     def get(self, request, *args, **kwargs):
         """
         Check that 'redirected' session variable is set in api_checkout_view
         to avoid direct url access
         """
-        if 'redirected' in request.session:
-            del request.session['redirected']
+        if "redirected" in request.session:
+            del request.session["redirected"]
         else:
             return HttpResponseNotFound()
         return render(request, self.template_name)

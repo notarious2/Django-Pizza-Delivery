@@ -7,85 +7,195 @@ import uuid
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('store', '0001_initial'),
-        ('users', '0001_initial'),
+        ("store", "0001_initial"),
+        ("users", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Coupon',
+            name="Coupon",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=50, unique=True)),
-                ('active', models.BooleanField(default=False)),
-                ('discount_type', models.CharField(choices=[('Absolute', 'Absolute'), ('Percent', 'Percent')], default='Percent', max_length=10)),
-                ('discount_amount', models.PositiveIntegerField(blank=True, null=True)),
-                ('valid_from', models.DateTimeField()),
-                ('valid_to', models.DateTimeField()),
-                ('stripe_coupon_id', models.CharField(blank=True, default=None, max_length=50, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=50, unique=True)),
+                ("active", models.BooleanField(default=False)),
+                (
+                    "discount_type",
+                    models.CharField(
+                        choices=[("Absolute", "Absolute"), ("Percent", "Percent")],
+                        default="Percent",
+                        max_length=10,
+                    ),
+                ),
+                ("discount_amount", models.PositiveIntegerField(blank=True, null=True)),
+                ("valid_from", models.DateTimeField()),
+                ("valid_to", models.DateTimeField()),
+                (
+                    "stripe_coupon_id",
+                    models.CharField(
+                        blank=True, default=None, max_length=50, null=True
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('transaction_id', models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False)),
-                ('date_ordered', models.DateTimeField(auto_now_add=True)),
-                ('date_modified', models.DateTimeField(auto_now=True)),
-                ('complete', models.BooleanField(default=False)),
-                ('paid', models.BooleanField(default=False)),
-                ('payment_method', models.CharField(choices=[('cash', 'cash'), ('online', 'online')], max_length=10)),
-                ('delivery_method', models.CharField(choices=[('delivery', 'delivery'), ('carryout', 'carryout')], max_length=10)),
-                ('email', models.EmailField(blank=True, max_length=70, null=True)),
-                ('phone', models.CharField(blank=True, max_length=20, null=True)),
-                ('coupon', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='order.coupon')),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='users.customer')),
+                (
+                    "transaction_id",
+                    models.UUIDField(
+                        default=uuid.uuid4, primary_key=True, serialize=False
+                    ),
+                ),
+                ("date_ordered", models.DateTimeField(auto_now_add=True)),
+                ("date_modified", models.DateTimeField(auto_now=True)),
+                ("complete", models.BooleanField(default=False)),
+                ("paid", models.BooleanField(default=False)),
+                (
+                    "payment_method",
+                    models.CharField(
+                        choices=[("cash", "cash"), ("online", "online")], max_length=10
+                    ),
+                ),
+                (
+                    "delivery_method",
+                    models.CharField(
+                        choices=[("delivery", "delivery"), ("carryout", "carryout")],
+                        max_length=10,
+                    ),
+                ),
+                ("email", models.EmailField(blank=True, max_length=70, null=True)),
+                ("phone", models.CharField(blank=True, max_length=20, null=True)),
+                (
+                    "coupon",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="order.coupon",
+                    ),
+                ),
+                (
+                    "customer",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="users.customer"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='PickUpDetail',
+            name="PickUpDetail",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('urgency', models.CharField(choices=[('asap', 'asap'), ('custom', 'custom')], max_length=10)),
-                ('pickup_date', models.DateTimeField(blank=True, default=datetime.datetime.now, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "urgency",
+                    models.CharField(
+                        choices=[("asap", "asap"), ("custom", "custom")], max_length=10
+                    ),
+                ),
+                (
+                    "pickup_date",
+                    models.DateTimeField(
+                        blank=True, default=datetime.datetime.now, null=True
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ShippingAddress',
+            name="ShippingAddress",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_name', models.CharField(max_length=30)),
-                ('last_name', models.CharField(max_length=30)),
-                ('address_1', models.CharField(max_length=50)),
-                ('address_2', models.CharField(blank=True, max_length=50, null=True)),
-                ('city', models.CharField(max_length=30)),
-                ('state', models.CharField(max_length=30)),
-                ('country', models.CharField(max_length=50)),
-                ('postal_code', models.CharField(blank=True, max_length=6, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=30)),
+                ("last_name", models.CharField(max_length=30)),
+                ("address_1", models.CharField(max_length=50)),
+                ("address_2", models.CharField(blank=True, max_length=50, null=True)),
+                ("city", models.CharField(max_length=30)),
+                ("state", models.CharField(max_length=30)),
+                ("country", models.CharField(max_length=50)),
+                ("postal_code", models.CharField(blank=True, max_length=6, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='OrderItem',
+            name="OrderItem",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('quantity', models.IntegerField(blank=True, default=0, null=True)),
-                ('date_added', models.DateTimeField(auto_now_add=True)),
-                ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='order.order')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.product')),
-                ('variation', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.productvariant')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("quantity", models.IntegerField(blank=True, default=0, null=True)),
+                ("date_added", models.DateTimeField(auto_now_add=True)),
+                (
+                    "order",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="order.order"
+                    ),
+                ),
+                (
+                    "product",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="store.product"
+                    ),
+                ),
+                (
+                    "variation",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="store.productvariant",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='order',
-            name='pickup',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='order.pickupdetail'),
+            model_name="order",
+            name="pickup",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="order.pickupdetail",
+            ),
         ),
         migrations.AddField(
-            model_name='order',
-            name='shipping',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='order.shippingaddress'),
+            model_name="order",
+            name="shipping",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="order.shippingaddress",
+            ),
         ),
     ]

@@ -8,18 +8,19 @@ import uuid
 class Product(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
-    price = models.DecimalField(
-        max_digits=6, decimal_places=2, blank=True, null=True)
+    price = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
     desc = models.TextField(max_length=500, blank=True, null=True)
-    image = models.ImageField(blank=True, upload_to='images')
+    image = models.ImageField(blank=True, upload_to="images")
     created_at = models.DateField(auto_now_add=True)
     updated_at = models.DateField(auto_now=True)
     product_category = models.ForeignKey(
-        "Category", on_delete=models.CASCADE, null=True, blank=True)
+        "Category", on_delete=models.CASCADE, null=True, blank=True
+    )
 
     class Meta:
         """Order by product category"""
-        ordering = ('product_category',)
+
+        ordering = ("product_category",)
 
     def __str__(self):
         return self.name
@@ -28,7 +29,8 @@ class Product(models.Model):
     def image_tag(self):  # pragma: no cover
         if self.image:
             return mark_safe(f'<img src="{self.image.url}" width="100" height="100" />')
-    image_tag.short_description = 'Image'
+
+    image_tag.short_description = "Image"
 
     @property
     def get_product_variants(self):
@@ -48,7 +50,7 @@ class Category(models.Model):
     name = models.CharField(max_length=20, unique=True)
 
     class Meta:
-        verbose_name_plural = 'Categories'
+        verbose_name_plural = "Categories"
 
     def __str__(self):
         return self.name

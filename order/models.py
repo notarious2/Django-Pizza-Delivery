@@ -11,18 +11,12 @@ from django.utils import timezone
 
 
 class Order(models.Model):
-    PAYMENT_CHOICES = (
-        ("cash", "cash"),
-        ("online", "online")
-    )
-    DELIVERY_CHOICES = (
-        ("delivery", "delivery"),
-        ("carryout", "carryout")
-    )
+    PAYMENT_CHOICES = (("cash", "cash"), ("online", "online"))
+    DELIVERY_CHOICES = (("delivery", "delivery"), ("carryout", "carryout"))
     transaction_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, editable=True)
-    customer = models.ForeignKey(
-        Customer, on_delete=models.CASCADE)
+        primary_key=True, default=uuid.uuid4, editable=True
+    )
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
 
     date_ordered = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -31,11 +25,14 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=10, choices=PAYMENT_CHOICES)
     delivery_method = models.CharField(max_length=10, choices=DELIVERY_CHOICES)
     shipping = models.ForeignKey(
-        "ShippingAddress", on_delete=models.SET_NULL, blank=True, null=True)
+        "ShippingAddress", on_delete=models.SET_NULL, blank=True, null=True
+    )
     pickup = models.ForeignKey(
-        "PickUpDetail", on_delete=models.SET_NULL, blank=True, null=True)
+        "PickUpDetail", on_delete=models.SET_NULL, blank=True, null=True
+    )
     coupon = models.ForeignKey(
-        'Coupon', on_delete=models.SET_NULL, blank=True, null=True)
+        "Coupon", on_delete=models.SET_NULL, blank=True, null=True
+    )
     email = models.EmailField(max_length=70, null=True, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
 
@@ -47,8 +44,9 @@ class Order(models.Model):
         order_items = self.orderitem_set.all()
         total = sum([item.get_total for item in order_items])
         return total
+
     # display property name as 'Subtotal' in the admin panel's list display
-    get_cart_subtotal.fget.short_description = 'Subtotal'
+    get_cart_subtotal.fget.short_description = "Subtotal"
 
     @property
     def get_cart_total(self):
@@ -56,16 +54,18 @@ class Order(models.Model):
         if self.coupon:
             total = total - self.get_coupon_value
         return total
+
     # display property name as 'Total' in the admin panel's list display
-    get_cart_total.fget.short_description = 'Total'
+    get_cart_total.fget.short_description = "Total"
 
     @property
     def get_cart_items(self):
         order_items = self.orderitem_set.all()
         total = sum([item.quantity for item in order_items])
         return total
+
     # display property name as '# Items' in the admin panel's list display
-    get_cart_items.fget.short_description = '# Items'
+    get_cart_items.fget.short_description = "# Items"
 
     # show product titles in the order
     @property
@@ -77,12 +77,12 @@ class Order(models.Model):
         for item in order_items:
             add_comma = ", " if l > 1 and ticker != l else ""
             if item.variation:
-                product_title = f'''{item.product.name}
+                product_title = f"""{item.product.name}
                 ({item.variation.get_size},
-                #{item.quantity}, ${item.get_total}){add_comma}'''
+                #{item.quantity}, ${item.get_total}){add_comma}"""
             else:
-                product_title = f'''{item.product.name}
-                (#{item.quantity}, ${item.get_total}){add_comma}'''
+                product_title = f"""{item.product.name}
+                (#{item.quantity}, ${item.get_total}){add_comma}"""
             product_titles += product_title
             ticker += 1
         return product_titles
@@ -94,15 +94,17 @@ class Order(models.Model):
         if self.coupon:
             if self.coupon.discount_type == "Percent":
                 coupon_value = round(
-                    self.get_cart_subtotal*self.coupon.discount_amount/100, 2)
+                    self.get_cart_subtotal * self.coupon.discount_amount / 100, 2
+                )
             else:
                 coupon_value = self.coupon.discount_amount
         # if discount type Absolute
         else:
             coupon_value = None
         return coupon_value
+
     # display property name as 'Coupon' in the admin panel's list display
-    get_coupon_value.fget.short_description = 'Coupon'
+    get_coupon_value.fget.short_description = "Coupon"
 
 
 class OrderItem(models.Model):
@@ -112,10 +114,12 @@ class OrderItem(models.Model):
     as a foreign key in the OrderItem model. Similary, one OrderItem may contain
     multiple products.
     """
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     variation = models.ForeignKey(
-        ProductVariant, on_delete=models.SET_NULL, blank=True, null=True)
+        ProductVariant, on_delete=models.SET_NULL, blank=True, null=True
+    )
     quantity = models.IntegerField(default=0)
     date_added = models.DateTimeField(auto_now_add=True)
 
@@ -138,29 +142,32 @@ class OrderItem(models.Model):
         else:
             total = self.product.price * self.quantity
         return total
+
     # display property name as 'Total' in the admin panel's list display
-    get_total.fget.short_description = 'Total'
+    get_total.fget.short_description = "Total"
 
     # to display image in the admin panel
     def image_tag(self):
-        return mark_safe(f'<img src="{self.product.image.url}" width="100" height="100" />')
-    image_tag.short_description = 'Image'
+        return mark_safe(
+            f'<img src="{self.product.image.url}" width="100" height="100" />'
+        )
+
+    image_tag.short_description = "Image"
 
 
 class Coupon(models.Model):
-    DISCOUNT_CHOICES = (
-        ("Absolute", "Absolute"),
-        ("Percent", "Percent")
-    )
+    DISCOUNT_CHOICES = (("Absolute", "Absolute"), ("Percent", "Percent"))
     code = models.CharField(max_length=50, unique=True)
     active = models.BooleanField(default=False)
     discount_type = models.CharField(
-        max_length=10, choices=DISCOUNT_CHOICES, default="Percent")
+        max_length=10, choices=DISCOUNT_CHOICES, default="Percent"
+    )
     discount_amount = models.PositiveIntegerField()
     valid_from = models.DateTimeField()
     valid_to = models.DateTimeField()
     stripe_coupon_id = models.CharField(
-        max_length=50, null=True, blank=True, default=None)
+        max_length=50, null=True, blank=True, default=None
+    )
 
     def __str__(self):
         return f"{self.code} type: {self.discount_type} value: {self.discount_amount}"
@@ -181,10 +188,7 @@ class ShippingAddress(models.Model):
 
 
 class PickUpDetail(models.Model):
-    URGENCY_CHOICES = (
-        ("asap", "asap"),
-        ("custom", "custom")
-    )
+    URGENCY_CHOICES = (("asap", "asap"), ("custom", "custom"))
     urgency = models.CharField(max_length=10, choices=URGENCY_CHOICES)
     pickup_date = models.DateTimeField(default=timezone.now)
 

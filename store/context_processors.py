@@ -14,14 +14,14 @@ def get_cart_quantity(request):
         try:
             # create customer assigning device cookie
             customer, created = Customer.objects.get_or_create(
-                device=request.COOKIES['device'])
+                device=request.COOKIES["device"]
+            )
         except:
             number_of_items = 0
     try:
-        customer_order = Order.objects.filter(
-            customer=customer, complete=False)[0]
+        customer_order = Order.objects.filter(customer=customer, complete=False)[0]
         number_of_items = customer_order.get_cart_items
     except:
         number_of_items = 0
 
-    return {'cart_quantity': number_of_items}
+    return {"cart_quantity": number_of_items}

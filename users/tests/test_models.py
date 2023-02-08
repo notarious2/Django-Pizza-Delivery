@@ -7,8 +7,8 @@ class TestCustomerCreation(TestCase):
 
     def setUp(self):
         self.credentials = {
-            'email': 'test@example.com',
-            'username': 'testuser',
+            "email": "test@example.com",
+            "username": "testuser",
         }
 
     def test_create_customer(self):
@@ -16,4 +16,4 @@ class TestCustomerCreation(TestCase):
         customer = Customer.objects.create(user=user)
 
         self.assertEqual(customer.user, user)
-        self.assertEqual(customer.user.username, self.credentials['username'])
+        self.assertEqual(customer.user.username, self.credentials["username"])

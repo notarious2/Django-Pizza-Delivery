@@ -5,21 +5,20 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('order', '0002_alter_orderitem_quantity'),
+        ("order", "0002_alter_orderitem_quantity"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='coupon',
-            name='discount_amount',
+            model_name="coupon",
+            name="discount_amount",
             field=models.PositiveIntegerField(default=15),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='pickupdetail',
-            name='pickup_date',
+            model_name="pickupdetail",
+            name="pickup_date",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

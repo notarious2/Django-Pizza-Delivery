@@ -1,5 +1,6 @@
 from django.contrib import admin
 from .models import Product, Size, ProductVariant, Category
+
 # Register your models here.
 
 
@@ -8,8 +9,8 @@ class ProductVariantsInline(admin.TabularInline):
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'id', 'has_variants', 'image_tag')
-    readonly_fields = ['image_tag']
+    list_display = ("name", "id", "has_variants", "image_tag")
+    readonly_fields = ["image_tag"]
     inlines = [ProductVariantsInline]
 
 

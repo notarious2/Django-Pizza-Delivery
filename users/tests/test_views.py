@@ -11,15 +11,15 @@ class TestUserViews(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.signup_url = reverse('users:register')
-        self.login_url = reverse('users:login')
-        self.logout_url = reverse('users:logout')
-        self.products_url = reverse('store:products')
-        self.my_orders_url = reverse('users:my_orders')
+        self.signup_url = reverse("users:register")
+        self.login_url = reverse("users:login")
+        self.logout_url = reverse("users:logout")
+        self.products_url = reverse("store:products")
+        self.my_orders_url = reverse("users:my_orders")
         self.credentials = {
-            'username': 'testuser',
-            'email': 'test@example.com',
-            'password': 'testpassword'
+            "username": "testuser",
+            "email": "test@example.com",
+            "password": "testpassword",
         }
         User.objects.create_user(**self.credentials)
 
@@ -29,56 +29,58 @@ class TestUserViews(TestCase):
         response = self.client.get(self.signup_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'users/register.html')
+        self.assertTemplateUsed(response, "users/register.html")
 
     def test_login_view_GET(self):
         """Test get response in MyLoginView"""
 
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'users/login.html')
+        self.assertTemplateUsed(response, "users/login.html")
 
     def test_login_with_incorrect_email(self):
         """Test user login with incorrect email"""
         response = self.client.post(
-            self.login_url, {
-                'username': 'incorrect@example.com',
-                'password': 'testpassword'
-            }, follow=True)
+            self.login_url,
+            {"username": "incorrect@example.com", "password": "testpassword"},
+            follow=True,
+        )
 
-        self.assertFalse(response.context['user'].is_authenticated)
+        self.assertFalse(response.context["user"].is_authenticated)
 
     def test_login_with_email(self):
         """Test user login with email"""
         response = self.client.post(
-            self.login_url, {
-                'username': 'test@example.com',
-                'password': 'testpassword'
-            }, follow=True)
-        self.assertTrue(response.context['user'].is_authenticated)
+            self.login_url,
+            {"username": "test@example.com", "password": "testpassword"},
+            follow=True,
+        )
+        self.assertTrue(response.context["user"].is_authenticated)
         self.assertEqual(
-            response.context['user'].username, self.credentials['username'])
+            response.context["user"].username, self.credentials["username"]
+        )
 
     def test_login_with_incorrect_username(self):
         """Test user login with incorrect username"""
         response = self.client.post(
-            self.login_url, {
-                'username': 'IncorrectUsername',
-                'password': 'testpassword'
-            }, follow=True)
+            self.login_url,
+            {"username": "IncorrectUsername", "password": "testpassword"},
+            follow=True,
+        )
 
-        self.assertFalse(response.context['user'].is_authenticated)
+        self.assertFalse(response.context["user"].is_authenticated)
 
     def test_login_with_username(self):
         """Test user login with username"""
         response = self.client.post(
-            self.login_url, {
-                'username': 'testuser',
-                'password': 'testpassword'
-            }, follow=True)
-        self.assertTrue(response.context['user'].is_authenticated)
+            self.login_url,
+            {"username": "testuser", "password": "testpassword"},
+            follow=True,
+        )
+        self.assertTrue(response.context["user"].is_authenticated)
         self.assertEqual(
-            response.context['user'].username, self.credentials['username'])
+            response.context["user"].username, self.credentials["username"]
+        )
 
     def test_login_for_authenticated_user(self):
         """Test if authenticated user is redirected to main page"""
@@ -105,7 +107,7 @@ class TestUserViews(TestCase):
 
         response = self.client.get(self.my_orders_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'users/orders.html')
+        self.assertTemplateUsed(response, "users/orders.html")
 
     def test_access_my_orders_for_unauthenticated_user(self):
         """
@@ -115,5 +117,4 @@ class TestUserViews(TestCase):
         response = self.client.get(self.my_orders_url)
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, self.login_url +
-                             f"?next={self.my_orders_url}")
+        self.assertRedirects(response, self.login_url + f"?next={self.my_orders_url}")
