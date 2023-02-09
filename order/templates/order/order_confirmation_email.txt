@@ -1,0 +1,20 @@
+Hello {{customer_name}}
+
+Your order #{{trn_id}} has been placed!
+
+Order details:
+{% for item in order_items %} {% if item.variation %} 
+{{forloop.counter}}. {{item.product.name}} size: {{item.variation.size}} price: {{item.variation.price}} quantity: {{item.quantity}} {% else %} 
+{{forloop.counter}}. {{item.product.name}} price: {{item.product.price}} quantity: {{item.quantity}} {% endif %} {% endfor %}
+
+Order summary:
+    Subtotal: {{order.get_cart_subtotal}}
+    Coupon: {% if order.coupon %} {{order.get_coupon_value}} {% else %} 0 {% endif %}
+    Total: {{order.get_cart_total}}
+
+    Payment method: {{order.payment_method}}
+    Payment status: {% if order.paid %} paid {% else %} unpaid {% endif %}
+
+Delivery method: {{order.delivery_method}}
+
+Thank you!

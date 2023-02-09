@@ -155,3 +155,12 @@ LOGIN_REDIRECT_URL = "store:products"
 AUTH_USER_MODEL = "users.User"
 # for authentication with email/username
 AUTHENTICATION_BACKENDS = ["users.backends.EmailBackend"]
+
+# email setup
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default=None)
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default=None)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_PASSWORD)
