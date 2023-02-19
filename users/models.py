@@ -3,8 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class Customer(models.Model):
-    user = models.OneToOneField(
-        "User", null=True, blank=True, on_delete=models.CASCADE)
+    user = models.OneToOneField("User", null=True, blank=True, on_delete=models.CASCADE)
     device = models.CharField(max_length=200, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
