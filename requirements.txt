@@ -23,3 +23,4 @@ chromedriver-autoinstaller
 coverage
 black
 factory_boy
+pre-commit
