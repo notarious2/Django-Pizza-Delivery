@@ -10,8 +10,8 @@
 <p>https://notarious2.pythonanywhere.com/admin/</p>
 
 ```
-login: bekzod
-password: bekzod
+login: admin/admin@example.com
+password: admin
 ```
 
 <hr>
@@ -48,15 +48,12 @@ password: bekzod
 
 <h1>SQL Relational Schema</h1>
 <p>The app uses SQLite database. Relational representation of Django Models used in ePizza app are provided below. </p>
-<p>Link to the diagram in <a href="https://drawsql.app/teams/bekzods-team-1/diagrams/epizza-django">drawSQL.app</a></p>
 <img src="images/sql_schema.png" alt="SQL model"/>
 
 <h1>Coupons</h1>
 <p>3 coupons (integrated with Stripe Payment Gateway) are available at Checkout </p>
 
 **WINTER:** 50% off the order total
-
-**SPRING:** 20% off the order total
 
 **SUMMER:** $10 off the order total
 
