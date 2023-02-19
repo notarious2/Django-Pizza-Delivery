@@ -48,7 +48,7 @@ password: admin
 
 <h1>SQL Relational Schema</h1>
 <p>The app uses SQLite database. Relational representation of Django Models used in ePizza app are provided below. </p>
-<img src="images/sql_schema.png" alt="SQL model"/>
+<img src="images/sql_erd.png" alt="SQL model"/>
 
 <h1>Coupons</h1>
 <p>3 coupons (integrated with Stripe Payment Gateway) are available at Checkout </p>
