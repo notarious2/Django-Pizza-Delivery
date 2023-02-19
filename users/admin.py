@@ -14,7 +14,8 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (
             "Personal info",
-            {"fields": ("email", "password", "first_name", "last_name", "username")},
+            {"fields": ("email", "password", "first_name",
+                        "last_name", "username")},
         ),
         ("Important dates", {"fields": ("last_login", "date_joined")}),
         (
@@ -65,6 +66,7 @@ class OrderInline(admin.TabularInline):
 
 
 class CustomerAdmin(admin.ModelAdmin):
+    list_display = ("__str__", "created_at",)
     inlines = [OrderInline]
 
 
